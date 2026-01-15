@@ -1,0 +1,1070 @@
+version "4.7"
+#include "Scripts/FishEyePostProcessHandler.zs"
+#include "Scripts/VHSCRTPostProcessHandler.zs"
+#include "scriptS/SoftShadePostProcessHandler.zs"
+
+class TcPostProcessShaderHandler : StaticEventHandler
+{
+	override void RenderOverlay(RenderEvent e)
+	{
+		// get correct player
+		PlayerInfo p = players[consoleplayer];
+		
+		if (Cvar.GetCVar("tc_pp_lensflares", p).GetInt() > 0)			EnableLensFlares();
+		else														DisableLensFlares();
+		
+		
+		if (Cvar.GetCVar("tc_pp_vignette", p).GetInt() > 0)			EnableVignette();
+		else														DisableVignette();
+		
+		if (Cvar.GetCVar("tc_pp_noise", p).GetInt() > 0)
+		{
+			Shader.SetUniform1f(p, "noiseshader", "timer", gametic + e.FracTic);
+			EnableNoise();
+		}
+		else														DisableNoise();
+	}
+
+	//===========================================================================
+	// LENS FLARES
+	//===========================================================================
+	
+	ui void EnableLensFlares(void)
+	{
+		PlayerInfo p = players[consoleplayer];
+		
+		double threshold = CVar.GetCVar("tc_pp_lensflares_threshold", p).GetFloat();
+		double distance = CVar.GetCVar("tc_pp_lensflares_distance", p).GetFloat();
+		double amount = CVar.GetCVar("tc_pp_lensflares_amount", p).GetFloat();
+		double samples = CVar.GetCVar("tc_pp_lensflares_samples", p).GetInt();
+		Shader.SetUniform1f(p, "lensflareshader", "threshold", threshold);
+		Shader.SetUniform1f(p, "lensflareshader", "distance", distance);
+		Shader.SetUniform1f(p, "lensflareshader", "samples", samples);
+		Shader.SetUniform1f(p, "lensflareshader", "amount", amount);
+		Shader.SetEnabled(p, "lensflareshader", true);
+	}
+
+	ui void DisableLensFlares(void)
+	{
+		PlayerInfo p = players[consoleplayer];
+		Shader.SetEnabled(p, "lensflareshader", false);
+	}
+	
+	
+	//===========================================================================
+	// VIGNETTE (BY NASH)
+	//===========================================================================
+	
+	ui void EnableVignette(void)
+	{
+		PlayerInfo p = players[consoleplayer];
+		double i = CVar.GetCVar("tc_pp_vignette_intensity", p).GetFloat();
+		double f = CVar.GetCVar("tc_pp_vignette_falloff", p).GetFloat();
+		Shader.SetUniform1f(p, "vignetteshader", "intensity", i);
+		Shader.SetUniform1f(p, "vignetteshader", "falloff", f);
+		Shader.SetEnabled(p, "vignetteshader", true);
+	}
+
+	ui void DisableVignette(void)
+	{
+		PlayerInfo p = players[consoleplayer];
+		Shader.SetEnabled(p, "vignetteshader", false);
+	}
+	
+	//===========================================================================
+	// NOISE
+	//===========================================================================
+	
+	ui void EnableNoise(void)
+	{
+		PlayerInfo p = players[consoleplayer];
+		double i = CVar.GetCVar("tc_pp_noise_amount", p).GetFloat();
+		Shader.SetUniform1f(p, "noiseshader", "amount", i);
+		Shader.SetEnabled(p, "noiseshader", true);
+	}
+
+	ui void DisableNoise(void)
+	{
+		PlayerInfo p = players[consoleplayer];
+		Shader.SetEnabled(p, "noiseshader", false);
+	}
+}
+
+
+//===========================================================================
+	// World Gamma
+//===========================================================================
+
+Class ACESTonemapHandler : StaticEventHandler
+{
+	transient ui CVar at_enabled, at_ApertureFNumber,
+					  at_ISO, at_ShutterSpeedValue, at_ExposureMode,
+					  at_CustomISO, at_CustomShutterSpeed,
+					  at_Crosstalk, at_Saturation, at_CrossSaturation;
+
+	static const float ISOValues[] = {
+		50, 	100, 	200, 	400, 		800, 		1600,
+		3200, 	6400, 	12800, 	25600,		51200,		102400,
+		204800, 409600,	819200,	1638400,	3280000,	4560000
+	};
+					  
+	static const float ShutterSpeeds[] = {
+		1.0, 	   1.0/2.0, 1.0/4.0, 	1.0/8.0,
+		1.0/15.0,  1/30.0,  1.0/60.0,	1.0/100.0,
+		1.0/125.0, 1/250.0, 1.0/500.0,  1.0/1000.0,
+		1.0/2000, 1.0/4000.0
+	};
+					  
+	override void RenderOverlay( RenderEvent e )
+	{
+		PlayerInfo p = players[consoleplayer];
+		
+		if(!at_enabled) at_enabled = CVar.FindCVar("at_enabled");
+		if(!at_ApertureFNumber) at_ApertureFNumber = CVar.FindCVar("at_ApertureFNumber");
+		if(!at_ISO) at_ISO = CVar.FindCVar("at_ISO");
+		if(!at_ShutterSpeedValue) at_ShutterSpeedValue = CVar.FindCVar("at_ShutterSpeedValue");
+		if(!at_ExposureMode) at_ExposureMode = CVar.FindCVar("at_ExposureMode");
+		if(!at_CustomShutterSpeed) at_CustomShutterSpeed = CVar.FindCVar("at_LastCustomShutterSpeed");
+		if(!at_CustomISO) at_CustomISO = CVar.FindCVar("at_LastCustomISO");
+		
+		if(!at_Crosstalk) at_Crosstalk = CVar.FindCVar("at_Crosstalk");
+		if(!at_Saturation) at_Saturation = CVar.FindCVar("at_Saturation");
+		if(!at_CrossSaturation) at_CrossSaturation = CVar.FindCVar("at_CrossSaturation");
+		
+		
+		float shutterSpeed = 0.0f;
+		float iso = 0.0f;
+		
+		if(at_ShutterSpeedValue.GetFloat() == 14) {
+			shutterSpeed = 1.0 / at_CustomShutterSpeed.GetFloat();
+		} else {
+			shutterSpeed = ShutterSpeeds[at_ShutterSpeedValue.GetInt()];
+		}
+		
+		if(at_ISO.GetFloat() == 18) {
+			iso = at_CustomISO.GetFloat();
+		} else {
+			iso = ISOValues[at_ISO.GetFloat()];
+		}
+		
+		Shader.SetEnabled(p,"AcesTonemap", at_enabled.GetBool() );
+		Shader.SetUniform1f(p,"AcesTonemap", "ApertureFNumber" ,at_ApertureFNumber.GetFloat() );
+		Shader.SetUniform1f(p,"AcesTonemap", "ISO" , iso );
+		
+		Shader.SetUniform1f(p,"AcesTonemap", "crossTalk", at_Crosstalk.GetFloat() );
+		Shader.SetUniform1f(p,"AcesTonemap", "saturation", at_Saturation.GetFloat() );
+		Shader.SetUniform1f(p,"AcesTonemap", "crossSaturation", at_CrossSaturation.GetFloat() );
+		
+		Shader.SetUniform1f(p,"AcesTonemap", "ShutterSpeedValue" , shutterSpeed );
+		Shader.SetUniform1i(p, "AcesTonemap", "ExposureMode", at_ExposureMode.GetInt() );
+	}
+	
+	override void ConsoleProcess( ConsoleEvent e )
+	{
+		PlayerInfo p = players[consoleplayer];
+		
+		if( e.Name ~== "resetacestonemap")
+		{
+			if(!at_enabled) at_enabled = CVar.FindCVar("at_enabled");
+			if(!at_ApertureFNumber) at_ApertureFNumber = CVar.FindCVar("at_ApertureFNumber");
+			if(!at_ISO) at_ISO = CVar.FindCVar("at_ISO");
+			if(!at_ShutterSpeedValue) at_ShutterSpeedValue = CVar.FindCVar("at_ShutterSpeedValue");
+			if(!at_ExposureMode) at_ExposureMode = CVar.FindCVar("at_ExposureMode");	
+			if(!at_CustomShutterSpeed) at_CustomShutterSpeed = CVar.FindCVar("at_LastCustomShutterSpeed");
+			if(!at_CustomISO) at_CustomISO = CVar.FindCVar("at_LastCustomISO");
+			if(!at_Crosstalk) at_Crosstalk = CVar.FindCVar("at_Crosstalk");
+			if(!at_Saturation) at_Saturation = CVar.FindCVar("at_Saturation");
+			if(!at_CrossSaturation) at_CrossSaturation = CVar.FindCVar("at_CrossSaturation");
+			
+			at_enabled.ResetToDefault();
+			at_ApertureFNumber.ResetToDefault();
+			at_ISO.ResetToDefault();
+			at_ShutterSpeedValue.ResetToDefault();
+			at_ExposureMode.ResetToDefault();
+			at_CustomShutterSpeed.ResetToDefault();
+			at_CustomISO.ResetToDefault();
+			at_Crosstalk.ResetToDefault();
+			at_Saturation.ResetToDefault();
+			at_CrossSaturation.ResetToDefault();
+		}
+	}
+}
+
+class OldVideoShaderHandler : StaticEventHandler
+{
+	override void RenderOverlay(RenderEvent e)
+	{
+		PlayerInfo p = players[consoleplayer];
+		if (Cvar.GetCVar("cl_oldvideoshader", p).GetInt() > 0)
+		{
+			Shader.SetUniform1f(p, "oldvideoshader", "timer", gametic + e.FracTic);
+			EnableOldVideo();
+		}
+		else
+		{
+			DisableOldVideo();
+		}
+	}
+
+	ui void EnableOldVideo(void)
+	{
+		PlayerInfo p = players[consoleplayer];
+		Shader.SetEnabled(p, "oldvideoshader", true);
+	}
+
+	ui void DisableOldVideo(void)
+	{
+		PlayerInfo p = players[consoleplayer];
+		Shader.SetEnabled(p, "oldvideoshader", false);
+	}
+}
+
+class WorldGammaHandler : EventHandler
+{
+	PlayerInfo p;
+	override void UiTick()
+	{
+		if (p)
+			if (Cvar.GetCVar("gl_worldgamma_enabled", p).GetInt() > 0)
+			{
+				if (Cvar.GetCVar("gl_bloom", p).GetInt() + Cvar.GetCVar("gl_worldgamma_boostbloom", p).GetInt() > 1)
+				{
+					Shader.SetEnabled(p, "WorldGammaPostBloom", false);
+					Shader.SetUniform1f(p, "WorldGammaPreBloom", "gamma", 1.0 / Cvar.GetCVar("gl_worldgamma", p).GetFloat());
+					Shader.SetUniform1f(p, "WorldGammaPreBloom", "contrast", Cvar.GetCVar("gl_worldgamma_contrast", p).GetFloat() * 0.01);
+					Shader.SetUniform1f(p, "WorldGammaPreBloom", "brightness", Cvar.GetCVar("gl_worldgamma_brightness", p).GetFloat() * 0.01);
+					Shader.SetEnabled(p, "WorldGammaPreBloom", true);
+				}
+				else
+				{
+					Shader.SetEnabled(p, "WorldGammaPreBloom", false);
+					Shader.SetUniform1f(p, "WorldGammaPostBloom", "gamma", 1.0 / Cvar.GetCVar("gl_worldgamma", p).GetFloat());
+					Shader.SetUniform1f(p, "WorldGammaPostBloom", "contrast", Cvar.GetCVar("gl_worldgamma_contrast", p).GetFloat() * 0.01);
+					Shader.SetUniform1f(p, "WorldGammaPostBloom", "brightness", Cvar.GetCVar("gl_worldgamma_brightness", p).GetFloat() * 0.01);
+					Shader.SetEnabled(p, "WorldGammaPostBloom", true);
+				}
+			}
+			else
+			{
+				Shader.SetEnabled(p, "WorldGammaPostBloom", false);
+				Shader.SetEnabled(p, "WorldGammaPreBloom", false);
+			}
+	}
+	override void PlayerEntered(PlayerEvent e)
+	{
+		p = players[consoleplayer];
+	}
+}
+
+//===========================================================================
+	// ScreenM
+//===========================================================================
+
+class ScreeMHandler : EventHandler
+{
+	PlayerInfo p;
+	
+	override void PlayerEntered(PlayerEvent e) { p = players[consoleplayer]; }
+	
+	override void RenderOverlay(RenderEvent e)
+	{
+		if (Cvar.GetCVar("gl_screem_wide", p).GetInt() > 0)
+		{
+			if (Cvar.GetCVar("gl_screem_wide", p).GetInt() == 2)
+			{
+				double pitch = 0.833333333333333 + abs(e.viewPitch * 0.001746038474587);  //tan(2.0) * 0.3 * (1.0 - (1.0 / 1.2));
+				Shader.SetUniform1f(p, "WidescreemZ", "pitch",  pitch);
+				Shader.SetEnabled(p, "WidescreemZ", true);
+				Shader.SetEnabled(p, "Widescreem", false);
+			}
+			else
+			{
+				double pitch = 1.0 - abs(e.viewPitch * 0.001746038474587);  //tan(2.0) * 0.3 * (1.0 - (1.0 / 1.2));
+				Shader.SetUniform1f(p, "Widescreem", "pitch",  pitch);
+				Shader.SetEnabled(p, "Widescreem", true);
+				Shader.SetEnabled(p, "WidescreemZ", false);
+			}
+		}
+		else
+		{
+			Shader.SetEnabled(p, "WidescreemZ", false);
+			Shader.SetEnabled(p, "Widescreem", false);
+		}
+	}
+	
+	override void UiTick()
+	{
+		if (p)
+		{
+			if (Cvar.GetCVar("gl_screem", p).GetInt() > 0)
+			{
+				if (Cvar.GetCVar("gl_screem_res_mode", p).GetInt() > 0 && Cvar.GetCVar("gl_screem_res_detail", p).GetInt() > 1)
+				{
+					if (Cvar.GetCVar("gl_screem_res_mode", p).GetInt() == 2)
+					{
+						Shader.SetUniform1f(p, "res", "xlevel", 1.0 / Cvar.GetCVar("gl_screem_res_detail", p).GetInt() * 1.2);
+					}
+					else
+					{
+						Shader.SetUniform1f(p, "res", "xlevel", 1.0 / Cvar.GetCVar("gl_screem_res_detail", p).GetInt());
+					}
+					Shader.SetUniform1f(p, "res", "ylevel", 1.0 / Cvar.GetCVar("gl_screem_res_detail", p).GetInt());
+					Shader.SetEnabled(p, "res", true);
+				}
+				else { Shader.SetEnabled(p, "res", false); }
+				
+				if (Cvar.GetCVar("gl_screem_oldpallut", p).GetFloat() > 0.0)
+				{
+					Shader.SetUniform1f(p, "OldPals", "amount", Cvar.GetCVar("gl_screem_oldpallut", p).GetFloat() * 0.01);
+					Shader.SetUniform1f(p, "OldPals", "invamount", (100.0 - Cvar.GetCVar("gl_screem_oldpallut", p).GetFloat()) * 0.01);
+					//Shader.SetUniform1f(p, "OldPals", "Ybias", Cvar.GetCVar("gl_screem_ybias", p).GetFloat());
+					//Shader.SetUniform1f(p, "OldPals", "invYbias", 1.0 / Cvar.GetCVar("gl_screem_ybias", p).GetFloat());
+					Shader.SetEnabled(p, "OldPals", true);
+				}
+				else { Shader.SetEnabled(p, "OldPals", false); }
+				
+				if (Cvar.GetCVar("gl_screem_grillmode", p).GetInt() == 2)
+				{
+					Shader.SetEnabled(p, "GrillerDivvy", false);
+					Shader.SetUniform1f(p, "GrillerSubby", "grilldepth", Cvar.GetCVar("gl_screem_grilldepth", p).GetFloat() * 0.0025);
+					Shader.SetEnabled(p, "GrillerSubby", true);
+				}
+				else if (Cvar.GetCVar("gl_screem_grillmode", p).GetInt() == 1)
+				{
+					Shader.SetEnabled(p, "GrillerSubby", false);
+					Shader.SetUniform1f(p, "GrillerDivvy", "grilldepth", (200.0 - Cvar.GetCVar("gl_screem_grilldepth", p).GetFloat()) * 0.005);
+					Shader.SetEnabled(p, "GrillerDivvy", true);
+				}
+				else
+				{
+					Shader.SetEnabled(p, "GrillerDivvy", false);
+					Shader.SetEnabled(p, "GrillerSubby", false);
+				}
+				
+				if (Cvar.GetCVar("gl_screem_phosphor", p).GetInt() > 0)
+				{
+					Shader.SetUniform1f(p, "Fos4", "rgbsplit", (100.0 - Cvar.GetCVar("gl_screem_phosphor_amount", p).GetFloat()) * 0.01);
+					Shader.SetUniform1f(p, "Fos4", "residue", Cvar.GetCVar("gl_screem_phosphor_residue", p).GetFloat() * 0.005);
+					Shader.SetEnabled(p, "Fos4", true);
+				}
+				else { Shader.SetEnabled(p, "Fos4", false); }
+				
+				if (Cvar.GetCVar("gl_screem_tempmode", p).GetInt() > 0)
+				{	
+					float kelvin = Cvar.GetCVar("gl_screem_kelvin", p).GetFloat() * 0.01 + 66.0;
+					float rtemp;
+					float gtemp;
+					float btemp;
+	
+					if (kelvin <= 66.0)
+					{
+						rtemp = 255.0;
+		
+						gtemp = 99.4708025861 * log(kelvin) - 161.1195681661;
+						gtemp = clamp(gtemp, 0.0, 255.0);
+					}
+					else
+					{
+						float kelvincut = kelvin - 60.0;
+		
+						rtemp = 329.698727446 * (kelvincut ** -0.1332047592);
+						rtemp = clamp(rtemp, 0.0, 255.0);
+						
+						gtemp = 288.1221695283 * (kelvincut ** -0.0755148492);
+						gtemp = clamp(gtemp, 0.0, 255.0);
+					}
+	
+					if (kelvin >= 66.0) { btemp = 255.0; }
+					else
+					{
+						btemp = 138.5177312231 * log(kelvin - 10.0) - 305.0447927307;
+						btemp = clamp(btemp, 0.0, 255.0);
+					}
+	
+					rtemp *= 0.003921568627451;
+					gtemp *= 0.003921568627451;
+					btemp *= 0.003921568627451;
+					
+					if (Cvar.GetCVar("gl_screem_tempmode", p).GetInt() == 3)
+					{
+						Shader.SetEnabled(p, "Temp", false);
+						Shader.SetEnabled(p, "TempColour", false);
+						Shader.SetUniform3f(p, "TempGrey", "temp", (rtemp, gtemp, btemp));
+						Shader.SetEnabled(p, "TempGrey", true);
+					}
+					else if (Cvar.GetCVar("gl_screem_tempmode", p).GetInt() == 2)
+					{
+						Shader.SetEnabled(p, "Temp", false);
+						Shader.SetEnabled(p, "TempGrey", false);
+						Shader.SetUniform3f(p, "TempColour", "temp", (rtemp, gtemp, btemp));
+						Shader.SetEnabled(p, "TempColour", true);
+					}
+					else
+					{
+						Shader.SetEnabled(p, "TempColour", false);
+						Shader.SetEnabled(p, "TempGrey", false);
+						Shader.SetUniform3f(p, "Temp", "temp", (rtemp, gtemp, btemp));
+						Shader.SetEnabled(p, "Temp", true);
+					}
+				
+					/*
+					if (Cvar.GetCVar("gl_screem_tempmode", p).GetInt() == 2)
+					{
+						Shader.SetEnabled(p, "Temp", false);
+						Shader.SetUniform1f(p, "TempColour", "kelvin", Cvar.GetCVar("gl_screem_kelvin", p).GetFloat() * 0.01 + 66.0);
+						Shader.SetEnabled(p, "TempColour", true);
+					}
+					else if (Cvar.GetCVar("gl_screem_tempmode", p).GetInt() == 1)
+					{
+						Shader.SetEnabled(p, "TempColour", false);
+						Shader.SetUniform1f(p, "Temp", "kelvin", Cvar.GetCVar("gl_screem_kelvin", p).GetFloat() * 0.01 + 66.0);
+						Shader.SetEnabled(p, "Temp", true);
+					}*/
+				}
+				else
+				{
+					Shader.SetEnabled(p, "Temp", false);
+					Shader.SetEnabled(p, "TempColour", false);
+					Shader.SetEnabled(p, "TempGrey", false);
+				}
+				
+				if (Cvar.GetCVar("gl_screem_tonecontrols", p).GetInt() > 0)
+				{
+					Shader.SetUniform1f(p, "Gamma", "gamma", 1.0 / Cvar.GetCVar("gl_screem_gamma", p).GetFloat());
+					Shader.SetUniform1f(p, "Gamma", "brightness", Cvar.GetCVar("gl_screem_brightness", p).GetFloat() * 0.01);
+					Shader.SetUniform1f(p, "Gamma", "contrast", Cvar.GetCVar("gl_screem_contrast", p).GetFloat() * 0.01);
+					Shader.SetUniform1f(p, "Gamma", "saturation", Cvar.GetCVar("gl_screem_saturation", p).GetFloat() * 0.01);
+					Shader.SetUniform1f(p, "Gamma", "invsat", (100.0 - Cvar.GetCVar("gl_screem_saturation", p).GetFloat()) * 0.01);
+					Shader.SetEnabled(p, "Gamma", true);
+				}
+				else { Shader.SetEnabled(p, "Gamma", false); }
+			}
+			else
+			{
+				//Shader.SetEnabled(p, "WidescreemZ", false);
+				//Shader.SetEnabled(p, "WidescreemW", false);
+				Shader.SetEnabled(p, "Fos4", false);
+				Shader.SetEnabled(p, "res", false);
+				Shader.SetEnabled(p, "OldPals", false);
+				Shader.SetEnabled(p, "Gamma", false);
+				Shader.SetEnabled(p, "GrillerDivvy", false);
+				Shader.SetEnabled(p, "GrillerSubby", false);
+				Shader.SetEnabled(p, "Temp", false);
+				Shader.SetEnabled(p, "TempColour", false);
+				Shader.SetEnabled(p, "TempGrey", false);
+			}
+		}
+	}
+}
+
+//===========================================================================
+	// Bloom Boost 2
+//===========================================================================
+
+class BBHandler : EventHandler
+{
+	PlayerInfo p;
+	override void UiTick()
+	{
+		if (p)
+			if (Cvar.GetCVar("gl_bloom", p).GetInt() + Cvar.GetCVar("gl_bloomboost", p).GetInt() > 1)
+			{
+					Shader.SetUniform1f(p, "BloomBoostPre", "gamma", 1.0 / Cvar.GetCVar("gl_bloomboost_gamma", p).GetFloat());
+					Shader.SetUniform1f(p, "BloomBoostPre", "contrast", Cvar.GetCVar("gl_bloomboost_contrast", p).GetFloat() * 0.01);
+					Shader.SetUniform1f(p, "BloomBoostPre", "brightness", Cvar.GetCVar("gl_bloomboost_brightness", p).GetFloat() * 0.01);
+					Shader.SetEnabled(p, "BloomBoostPre", true);
+					
+					Shader.SetUniform1f(p, "BloomBoostPost", "gamma", Cvar.GetCVar("gl_bloomboost_gamma", p).GetFloat());
+					Shader.SetUniform1f(p, "BloomBoostPost", "contrast", 1.0 / (Cvar.GetCVar("gl_bloomboost_contrast", p).GetFloat() * 0.01));
+					Shader.SetUniform1f(p, "BloomBoostPost", "brightness", Cvar.GetCVar("gl_bloomboost_brightness", p).GetFloat() * 0.01);
+					Shader.SetEnabled(p, "BloomBoostPost", true);
+			}
+			else
+			{
+				Shader.SetEnabled(p, "BloomBoostPre", false);
+				Shader.SetEnabled(p, "BloomBoostPost", false);
+			}
+	}
+	override void PlayerEntered(PlayerEvent e)
+	{
+		p = players[consoleplayer];
+	}
+}
+
+//===========================================================================
+	// Dark Shader
+//===========================================================================
+
+Class SDPWHScreenEffects : StaticEventHandler
+{
+	override void RenderOverlay(RenderEvent e)
+	{
+		PlayerInfo players = players[consoleplayer];
+
+
+/*
+
+		if((level.mapName == "DSCOUTRO")){
+			Shader.SetUniform1f(players, "TiltShiftPass1v", "Angle", 90.0);
+			Shader.SetEnabled(players, "TiltShiftPass1v", true);
+			Shader.SetEnabled(players, "TiltShiftPass2v", true);
+			Shader.SetEnabled(players, "TiltShiftPass3v", true);
+		} else {
+			Shader.SetEnabled(players, "TiltShiftPass1v", false);
+			Shader.SetEnabled(players, "TiltShiftPass2v", false);
+			Shader.SetEnabled(players, "TiltShiftPass3v", false);
+		}
+*/
+
+
+
+		if (Cvar.GetCVar("dpwh_filmictonemap2", players).GetInt() > 0){
+			DisableLUTshaders();
+			Shader.SetEnabled(players, "TonemapDefault", true);
+			if((level.mapName == "TITLEMAP")){
+				DisableLUTshaders();
+				Shader.SetEnabled(players, "TonemapTitlemap", true);
+			}
+
+		} else {DisableLUTshaders();}
+
+
+
+
+		if (Cvar.GetCVar("dpwh_filmgrain2", players).GetInt() > 0)
+		{
+			EnableFilmGrain(e);
+		}
+		else
+		{
+			DisableFilmGrain();
+		}
+	}
+
+
+
+
+	ui void DisableLUTshaders(void)
+	{
+		PlayerInfo players = players[consoleplayer];
+		Shader.SetEnabled(players, "TonemapDefault", false);
+		Shader.SetEnabled(players, "TonemapArena", false);
+		Shader.SetEnabled(players, "TonemapSalvation", false);
+		Shader.SetEnabled(players, "TonemapPlaza", false);
+		Shader.SetEnabled(players, "TonemapCemetery", false);
+		Shader.SetEnabled(players, "TonemapTitlemap", false);
+		Shader.SetEnabled(players, "TonemapTide", false);
+		Shader.SetEnabled(players, "TonemapSnow", false);
+		//Shader.SetEnabled(players, "TonemapBlood", false);
+
+	}
+
+
+	ui void EnableFilmGrain(RenderEvent e)
+	{
+		PlayerInfo players = players[consoleplayer];
+		Shader.SetUniform1f(players, "FilmGrain", "timer", gametic + e.FracTic);
+		Shader.SetEnabled(players, "FilmGrain", true);
+	}
+
+	ui void DisableFilmGrain(void)
+	{
+		PlayerInfo players = players[consoleplayer];
+		Shader.SetEnabled(players, "FilmGrain", false);
+	}
+
+
+
+	ui void EnableNaturalVignette(void)
+	{
+		PlayerInfo players = players[consoleplayer];
+		Shader.SetEnabled(players, "NaturalVignette", true);
+	}
+
+	ui void DisableNaturalVignette(void)
+	{
+		PlayerInfo players = players[consoleplayer];
+		Shader.SetEnabled(players, "NaturalVignette", false);
+	}
+
+	ui void EnableCubicCA(void)
+	{
+		PlayerInfo players = players[consoleplayer];
+		Shader.SetEnabled(players, "CubicCA", true);
+	}
+
+	ui void DisableCubicCA(void)
+	{
+		PlayerInfo players = players[consoleplayer];
+		Shader.SetEnabled(players, "CubicCA", false);
+	}
+/*
+	ui void EnableFilmicToneMap(void)
+	{
+		PlayerInfo players = players[consoleplayer];
+		Shader.SetEnabled(players, "FilmicTonemap", true);
+	}
+
+	ui void DisableFilmicToneMap(void)
+	{
+		PlayerInfo players = players[consoleplayer];
+		Shader.SetEnabled(players, "FilmicTonemap", false);
+	}
+*/
+}
+
+//===========================================================================
+	// MariFX
+//===========================================================================
+
+// preset save functions
+Class MFXPresetUtility
+{
+	static clearscope void SavePreset( int slot )
+	{
+		let lmp = Wads.CheckNumForFullname("cvarinfo.marifx");
+		String dat = Wads.ReadLump(lmp);
+		// fucking Windows
+		dat.Substitute("\r","");
+		Array<String> list, ln;
+		list.Clear();
+		dat.Split(list,"\n");
+		let dct = Dictionary.Create();
+		bool dosave = false;
+		CVar v;
+		String pn = "";
+		for ( int i=0; i<list.Size(); i++ )
+		{
+			if ( list[i].Mid(3,17) == "BEGIN PRESET VARS" ) dosave = true;
+			else if ( list[i].Mid(3,15) == "END PRESET VARS" ) dosave = false;
+			if ( !dosave || (list[i].Length() == 0) || (list[i].Left(2) == "//") || (list[i].Left(1) == "") )
+				continue;
+			int eq = list[i].IndexOf("=");
+			if ( eq == -1 ) continue;
+			list[i].Truncate(eq);
+			ln.Clear();
+			list[i].Split(ln," ",0);
+			for ( int j=0; j<ln.Size(); j++ )
+			{
+				if ( (ln[j].Left(4) != "mfx_") ) continue;
+				v = CVar.FindCVar(ln[j]);
+				if ( !v ) continue;
+				String str = v.GetString();
+				dct.Insert(ln[j],str);
+				if ( ln[j] == "mfx_presetname" ) pn = str;
+			}
+		}
+		v = CVar.FindCVar("mfx_preset"..slot);
+		if ( v ) v.SetString(dct.ToString());
+		Console.Printf(StringTable.Localize("$MFX_PRESETSAVED"),slot,pn);
+	}
+
+	static clearscope void LoadPreset( int slot )
+	{
+		CVar v = CVar.FindCVar("mfx_preset"..slot);
+		if ( !v ) return;
+		String str = v.GetString();
+		if ( str == "" )
+		{
+			Console.Printf(StringTable.Localize("$MFX_PRESETEMPTY"),slot);
+			return;
+		}
+		let dct = Dictionary.FromString(str);
+		let di = DictionaryIterator.Create(dct);
+		String pn = "";
+		while ( di.Next() )
+		{
+			String k = di.Key();
+			v = CVar.FindCVar(k);
+			if ( !v ) continue;
+			String str = di.Value();
+			v.SetString(str);
+			if ( k == "mfx_presetname" ) pn = str;
+		}
+		Console.Printf(StringTable.Localize("$MFX_PRESETLOADED"),slot,pn);
+	}
+
+	static clearscope String GetPresetName( int slot )
+	{
+		CVar v = CVar.FindCVar("mfx_preset"..slot);
+		if ( !v ) return "Error";
+		String str = v.GetString();
+		if ( str == "" ) return "Empty";
+		let dct = Dictionary.FromString(str);
+		return dct.At("mfx_presetname");
+	}
+}
+
+// for preset listing
+Class OptionMenuItemMFXPresetList : OptionMenuItemOptionBase
+{
+	CVar mCVar;
+	String names[8];
+
+	OptionMenuItemMFXPresetList Init( String label, Name command, CVar graycheck = null, int center = 0 )
+	{
+		Super.Init(label,command,'',graycheck,center);
+		mCVar = CVar.FindCVar(mAction);
+		UpdateNames();
+		return self;
+	}
+
+	void UpdateNames()
+	{
+		for ( int i=0; i<8; i++ )
+			names[i] = MFXPresetUtility.GetPresetName(i);
+	}
+
+	override int GetSelection()
+	{
+		return clamp(mCVar.GetInt(),0,7);
+	}
+
+	override void SetSelection( int Selection )
+	{
+		mCVar.SetInt(clamp(Selection,0,7));
+	}
+
+	override int Draw( OptionMenuDescriptor desc, int y, int indent, bool selected )
+	{
+		if ( mCenter ) indent = (screen.GetWidth()/2);
+		drawLabel(indent,y,selected?OptionMenuSettings.mFontColorSelection:OptionMenuSettings.mFontColor,isGrayed());
+		int sel = GetSelection();
+		drawValue(indent,y,OptionMenuSettings.mFontColorValue,String.Format("%d - %s",sel,names[sel]),isGrayed());
+		return indent;
+	}
+
+	override bool MenuEvent( int mkey, bool fromcontroller )
+	{
+		int Selection = GetSelection();
+		if ( mkey == Menu.MKEY_Left )
+		{
+			if ( --Selection < 0 ) Selection = 7;
+		}
+		else if ( (mkey == Menu.MKEY_Right) || (mkey == Menu.MKEY_Enter) )
+		{
+			if ( ++Selection > 7 ) Selection = 0;
+		}
+		else return OptionMenuItem.MenuEvent(mkey,fromcontroller);
+		SetSelection(Selection);
+		Menu.MenuSound("menu/change");
+		return true;
+	}
+}
+
+// keyboard input snaps to increment
+// holding shift increments by ten steps
+Class OptionMenuItemMFXSlider : OptionMenuItemSlider
+{
+	bool bShift, bAlt;
+
+	override bool MenuEvent ( int mkey, bool fromcontroller )
+	{
+		double value = GetSliderValue();
+		double step = bShift?(mStep*10):bAlt?(mStep*5):mStep;
+		if ( mkey == Menu.MKEY_Left ) value -= step;
+		else if ( mkey == Menu.MKEY_Right ) value += step;
+		else return OptionMenuItem.MenuEvent(mkey,fromcontroller);
+		if ( value ~== 0 ) value = 0;	// This is to prevent formatting anomalies with very small values
+		value = round(value/step)*step;	// truncate to step
+		SetSliderValue(clamp(value,mMin,mMax));
+		Menu.MenuSound("menu/change");
+		return true;
+	}
+}
+
+// passes shift/alt presses to MFXSliders
+Class MFXOptionMenu : OptionMenu
+{
+	override void Init( Menu parent, OptionMenuDescriptor desc )
+	{
+		Super.init(parent,desc);
+		DontDim = true;
+		DontBlur = true;
+	}
+
+	override bool OnUIEvent( UIEvent ev )
+	{
+		for ( int i=0; i<mDesc.mItems.size(); i++ )
+		{
+			if ( !(mDesc.mItems[i] is 'OptionMenuItemMFXSlider') )
+				continue;
+			OptionMenuItemMFXSlider(mDesc.mItems[i]).bShift = ev.IsShift;
+			OptionMenuItemMFXSlider(mDesc.mItems[i]).bAlt = ev.IsAlt;
+		}
+		return Super.OnUIEvent(ev);
+	}
+
+	override void OnReturn()
+	{
+		Super.OnReturn();
+		for ( int i=0; i<mDesc.mItems.size(); i++ )
+		{
+			if ( !(mDesc.mItems[i] is 'OptionMenuItemMFXPresetList') )
+				continue;
+			OptionMenuItemMFXPresetList(mDesc.mItems[i]).UpdateNames();
+		}
+	}
+}
+
+Class MariFXHandler : StaticEventHandler
+{
+	override void RenderOverlay( RenderEvent e )
+	{
+		PlayerInfo p = players[consoleplayer];
+		// LUMA SHARPEN
+		Shader.SetEnabled(p,"mfx_lumasharp",mfx_lsharpenable);
+		Shader.SetUniform1f(p,"mfx_lumasharp","sharpradius",mfx_lsharpradius);
+		Shader.SetUniform1f(p,"mfx_lumasharp","sharpclamp",mfx_lsharpclamp);
+		Shader.SetUniform1f(p,"mfx_lumasharp","sharpblend",mfx_lsharpblend);
+		// FILM GRAIN
+		Shader.SetEnabled(p,"mfx_grain",mfx_ne);
+		Shader.SetUniform1f(p,"mfx_grain","ni",mfx_ni);
+		Shader.SetUniform1f(p,"mfx_grain","ns",mfx_ns);
+		Shader.SetUniform1f(p,"mfx_grain","np",mfx_np);
+		Shader.SetUniform1f(p,"mfx_grain","bnp",mfx_bnp);
+		Shader.SetUniform1i(p,"mfx_grain","nb",mfx_nb);
+		Shader.SetUniform1f(p,"mfx_grain","Timer",(gametic+e.fractic)/35.);
+		// SCREEN DIRT
+		Shader.SetEnabled(p,"mfx_dirt",mfx_dirtenable);
+		Shader.SetUniform1f(p,"mfx_dirt","dirtmc",mfx_dirtmc);
+		Shader.SetUniform1f(p,"mfx_dirt","dirtcfactor",mfx_dirtcfactor);
+		// COLOR GRADING
+		Shader.SetEnabled(p,"mfx_grading",mfx_gradeenable);
+		Shader.SetUniform3f(p,"mfx_grading","grademul",(mfx_grademul_r,mfx_grademul_g,mfx_grademul_b));
+		Shader.SetUniform3f(p,"mfx_grading","gradepow",(mfx_gradepow_r,mfx_gradepow_g,mfx_gradepow_b));
+		Shader.SetUniform3f(p,"mfx_grading","gradecol",(mfx_gradecol_r,mfx_gradecol_g,mfx_gradecol_b));
+		Shader.SetUniform1f(p,"mfx_grading","gradecolfact",mfx_gradecolfact);
+		Shader.SetUniform1f(p,"mfx_grading","gradesatmul",mfx_gradesatmul);
+		Shader.SetUniform1f(p,"mfx_grading","gradesatpow",mfx_gradesatpow);
+		Shader.SetUniform1f(p,"mfx_grading","gradevalmul",mfx_gradevalmul);
+		Shader.SetUniform1f(p,"mfx_grading","gradevalpow",mfx_gradevalpow);
+		// LUT GRADING
+		Shader.SetEnabled(p,"mfx_lutgrading",mfx_lutenable);
+		Shader.SetUniform1i(p,"mfx_lutgrading","lutindex",mfx_lutindex);
+		Shader.SetUniform1f(p,"mfx_lutgrading","lutblend",mfx_lutblend);
+		// TECHNICOLOR
+		Shader.SetEnabled(p,"mfx_technicolor",mfx_techenable);
+		Shader.SetUniform1f(p,"mfx_technicolor","techblend",mfx_techblend);
+		// COLOR MATRIX
+		Shader.SetEnabled(p,"mfx_colormatrix",mfx_cmatenable);
+		Shader.SetUniform3f(p,"mfx_colormatrix","redrow",(mfx_cmat_rr,mfx_cmat_rg,mfx_cmat_rb));
+		Shader.SetUniform3f(p,"mfx_colormatrix","greenrow",(mfx_cmat_gr,mfx_cmat_gg,mfx_cmat_gb));
+		Shader.SetUniform3f(p,"mfx_colormatrix","bluerow",(mfx_cmat_br,mfx_cmat_bg,mfx_cmat_bb));
+		// HUE-SATURATION
+		Shader.SetEnabled(p,"mfx_huesaturation",mfx_hsenable);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hsover",mfx_hsover);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hshue_a",mfx_hshue_a);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hssat_a",mfx_hssat_a);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hsval_a",mfx_hsval_a);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hshue_r",mfx_hshue_r);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hssat_r",mfx_hssat_r);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hsval_r",mfx_hsval_r);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hshue_y",mfx_hshue_y);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hssat_y",mfx_hssat_y);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hsval_y",mfx_hsval_y);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hshue_g",mfx_hshue_g);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hssat_g",mfx_hssat_g);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hsval_g",mfx_hsval_g);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hshue_c",mfx_hshue_c);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hssat_c",mfx_hssat_c);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hsval_c",mfx_hsval_c);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hshue_b",mfx_hshue_b);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hssat_b",mfx_hssat_b);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hsval_b",mfx_hsval_b);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hshue_m",mfx_hshue_m);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hssat_m",mfx_hssat_m);
+		Shader.SetUniform1f(p,"mfx_huesaturation","hsval_m",mfx_hsval_m);
+		// BLURSHARPSHIFT
+		Shader.SetEnabled(p,"mfx_bss_blur",mfx_bssblurenable);
+		Shader.SetUniform1f(p,"mfx_bss_blur","bssblurradius",mfx_bssblurradius);
+		Shader.SetEnabled(p,"mfx_bss_sharp",mfx_bsssharpenable);
+		Shader.SetUniform1f(p,"mfx_bss_sharp","bsssharpradius",mfx_bsssharpradius);
+		Shader.SetUniform1f(p,"mfx_bss_sharp","bsssharpamount",mfx_bsssharpamount);
+		Shader.SetEnabled(p,"mfx_bss_shift",mfx_bssshiftenable);
+		Shader.SetUniform1f(p,"mfx_bss_shift","bssshiftradius",mfx_bssshiftradius);
+		// VIGNETTE / BORDER BLUR
+		Shader.SetEnabled(p,"mfx_borderblur",mfx_bblurenable);
+		Shader.SetUniform1f(p,"mfx_borderblur","vigpow",mfx_vigpow);
+		Shader.SetUniform1f(p,"mfx_borderblur","vigmul",mfx_vigmul);
+		Shader.SetUniform1f(p,"mfx_borderblur","vigbump",mfx_vigbump);
+		Shader.SetUniform1i(p,"mfx_borderblur","vigshape",mfx_vigshape);
+		Shader.SetUniform1f(p,"mfx_borderblur","bblurpow",mfx_bblurpow);
+		Shader.SetUniform1f(p,"mfx_borderblur","bblurmul",mfx_bblurmul);
+		Shader.SetUniform1f(p,"mfx_borderblur","bblurbump",mfx_bblurbump);
+		Shader.SetUniform1f(p,"mfx_borderblur","bblurradius",mfx_bblurradius);
+		Shader.SetEnabled(p,"mfx_vignette",mfx_vigenable);
+		Shader.SetUniform3f(p,"mfx_vignette","vigcolor",(mfx_vigcolor_r,mfx_vigcolor_g,mfx_vigcolor_b));
+		Shader.SetUniform1f(p,"mfx_vignette","vigpow",mfx_vigpow);
+		Shader.SetUniform1f(p,"mfx_vignette","vigmul",mfx_vigmul);
+		Shader.SetUniform1f(p,"mfx_vignette","vigbump",mfx_vigbump);
+		Shader.SetUniform1i(p,"mfx_vignette","vigshape",mfx_vigshape);
+		Shader.SetUniform1i(p,"mfx_vignette","vigmode",mfx_vigmode);
+		// RETRO FX
+		Vector2 rresl = (Screen.GetWidth(),Screen.GetHeight());
+		Vector2 bresl = rresl;
+		switch ( mfx_retroscalemode )
+		{
+		case 0:
+			bresl = (CleanWidth,CleanHeight);
+			break;
+		case 1:
+			bresl = (CleanWidth_1,CleanHeight_1);
+			break;
+		case 2:
+			bresl = (max(1,rresl.x*mfx_bscl_x),max(1,rresl.y*mfx_bscl_y));
+			break;
+		case 3:
+			bresl = (clamp(mfx_bres_x,1,rresl.x),clamp(mfx_bres_y,1,rresl.y));
+			break;
+		}
+		Shader.SetEnabled(p,"mfx_retrofx",mfx_retroenable);
+		Shader.SetUniform2f(p,"mfx_retrofx","bresl",bresl);
+		Shader.SetEnabled(p,"mfx_palette",mfx_palenable);
+		Shader.SetUniform2f(p,"mfx_palette","sfact",mfx_retroenable?bresl:rresl);
+		Shader.SetUniform1f(p,"mfx_palette","palsat",mfx_palsat);
+		Shader.SetUniform1f(p,"mfx_palette","palpow",mfx_palpow);
+		Shader.SetUniform1i(p,"mfx_palette","palnum",mfx_palnum);
+		Shader.SetUniform1f(p,"mfx_palette","paldither",mfx_paldither);
+	}
+	override void ConsoleProcess( ConsoleEvent e )
+	{
+		PlayerInfo p = players[consoleplayer];
+		if ( e.Name ~== "loadmfxpreset" )
+		{
+			int slot = clamp(mfx_presetslot,0,7);
+			MFXPresetUtility.LoadPreset(slot);
+		}
+		else if ( e.Name ~== "savemfxpreset" )
+		{
+			int slot = clamp(mfx_presetslot,0,7);
+			MFXPresetUtility.SavePreset(slot);
+		}
+		else if ( e.Name ~== "resetmfxvars" )
+		{
+			switch( e.args[0] )
+			{
+			case 0:
+				CVar.FindCVar('mfx_ne').ResetToDefault();
+				CVar.FindCVar('mfx_ni').ResetToDefault();
+				CVar.FindCVar('mfx_ns').ResetToDefault();
+				CVar.FindCVar('mfx_np').ResetToDefault();
+				CVar.FindCVar('mfx_bnp').ResetToDefault();
+				CVar.FindCVar('mfx_nb').ResetToDefault();
+				break;
+			case 1:
+				CVar.FindCVar('mfx_dirtenable').ResetToDefault();
+				CVar.FindCVar('mfx_dirtmc').ResetToDefault();
+				CVar.FindCVar('mfx_dirtcfactor').ResetToDefault();
+				break;
+			case 2:
+				CVar.FindCVar('mfx_gradeenable').ResetToDefault();
+				CVar.FindCVar('mfx_grademul_r').ResetToDefault();
+				CVar.FindCVar('mfx_grademul_g').ResetToDefault();
+				CVar.FindCVar('mfx_grademul_b').ResetToDefault();
+				CVar.FindCVar('mfx_gradepow_r').ResetToDefault();
+				CVar.FindCVar('mfx_gradepow_g').ResetToDefault();
+				CVar.FindCVar('mfx_gradepow_b').ResetToDefault();
+				CVar.FindCVar('mfx_gradecol_r').ResetToDefault();
+				CVar.FindCVar('mfx_gradecol_g').ResetToDefault();
+				CVar.FindCVar('mfx_gradecol_b').ResetToDefault();
+				CVar.FindCVar('mfx_gradecolfact').ResetToDefault();
+				CVar.FindCVar('mfx_gradesatmul').ResetToDefault();
+				CVar.FindCVar('mfx_gradesatpow').ResetToDefault();
+				CVar.FindCVar('mfx_gradevalmul').ResetToDefault();
+				CVar.FindCVar('mfx_gradevalpow').ResetToDefault();
+				break;
+			case 3:
+				CVar.FindCVar('mfx_cmatenable').ResetToDefault();
+				CVar.FindCVar('mfx_cmat_rr').ResetToDefault();
+				CVar.FindCVar('mfx_cmat_rg').ResetToDefault();
+				CVar.FindCVar('mfx_cmat_rb').ResetToDefault();
+				CVar.FindCVar('mfx_cmat_gr').ResetToDefault();
+				CVar.FindCVar('mfx_cmat_gg').ResetToDefault();
+				CVar.FindCVar('mfx_cmat_gb').ResetToDefault();
+				CVar.FindCVar('mfx_cmat_br').ResetToDefault();
+				CVar.FindCVar('mfx_cmat_bg').ResetToDefault();
+				CVar.FindCVar('mfx_cmat_bb').ResetToDefault();
+				break;
+			case 4:
+				CVar.FindCVar('mfx_hsenable').ResetToDefault();
+				CVar.FindCVar('mfx_hsover').ResetToDefault();
+				CVar.FindCVar('mfx_hshue_a').ResetToDefault();
+				CVar.FindCVar('mfx_hssat_a').ResetToDefault();
+				CVar.FindCVar('mfx_hsval_a').ResetToDefault();
+				CVar.FindCVar('mfx_hshue_r').ResetToDefault();
+				CVar.FindCVar('mfx_hssat_r').ResetToDefault();
+				CVar.FindCVar('mfx_hsval_r').ResetToDefault();
+				CVar.FindCVar('mfx_hshue_y').ResetToDefault();
+				CVar.FindCVar('mfx_hssat_y').ResetToDefault();
+				CVar.FindCVar('mfx_hsval_y').ResetToDefault();
+				CVar.FindCVar('mfx_hshue_g').ResetToDefault();
+				CVar.FindCVar('mfx_hssat_g').ResetToDefault();
+				CVar.FindCVar('mfx_hsval_g').ResetToDefault();
+				CVar.FindCVar('mfx_hshue_c').ResetToDefault();
+				CVar.FindCVar('mfx_hssat_c').ResetToDefault();
+				CVar.FindCVar('mfx_hsval_c').ResetToDefault();
+				CVar.FindCVar('mfx_hshue_b').ResetToDefault();
+				CVar.FindCVar('mfx_hssat_b').ResetToDefault();
+				CVar.FindCVar('mfx_hsval_b').ResetToDefault();
+				CVar.FindCVar('mfx_hshue_m').ResetToDefault();
+				CVar.FindCVar('mfx_hssat_m').ResetToDefault();
+				CVar.FindCVar('mfx_hsval_m').ResetToDefault();
+				break;
+			case 5:
+				CVar.FindCVar('mfx_bssblurenable').ResetToDefault();
+				CVar.FindCVar('mfx_bssblurradius').ResetToDefault();
+				CVar.FindCVar('mfx_bsssharpenable').ResetToDefault();
+				CVar.FindCVar('mfx_bsssharpradius').ResetToDefault();
+				CVar.FindCVar('mfx_bsssharpamount').ResetToDefault();
+				CVar.FindCVar('mfx_bssshiftenable').ResetToDefault();
+				CVar.FindCVar('mfx_bssshiftradius').ResetToDefault();
+				break;
+			case 6:
+				CVar.FindCVar('mfx_bblurenable').ResetToDefault();
+				CVar.FindCVar('mfx_bblurpow').ResetToDefault();
+				CVar.FindCVar('mfx_bblurmul').ResetToDefault();
+				CVar.FindCVar('mfx_bblurbump').ResetToDefault();
+				CVar.FindCVar('mfx_bblurradius').ResetToDefault();
+				CVar.FindCVar('mfx_vigenable').ResetToDefault();
+				CVar.FindCVar('mfx_vigcolor_r').ResetToDefault();
+				CVar.FindCVar('mfx_vigcolor_g').ResetToDefault();
+				CVar.FindCVar('mfx_vigcolor_b').ResetToDefault();
+				CVar.FindCVar('mfx_vigpow').ResetToDefault();
+				CVar.FindCVar('mfx_vigmul').ResetToDefault();
+				CVar.FindCVar('mfx_vigbump').ResetToDefault();
+				CVar.FindCVar('mfx_vigshape').ResetToDefault();
+				CVar.FindCVar('mfx_vigmode').ResetToDefault();
+				break;
+			case 7:
+				CVar.FindCVar('mfx_retroenable').ResetToDefault();
+				CVar.FindCVar('mfx_retroscalemode').ResetToDefault();
+				CVar.FindCVar('mfx_bres_x').ResetToDefault();
+				CVar.FindCVar('mfx_bres_y').ResetToDefault();
+				CVar.FindCVar('mfx_bscl_x').ResetToDefault();
+				CVar.FindCVar('mfx_bscl_y').ResetToDefault();
+				CVar.FindCVar('mfx_palenable').ResetToDefault();
+				CVar.FindCVar('mfx_palnum').ResetToDefault();
+				CVar.FindCVar('mfx_palsat').ResetToDefault();
+				CVar.FindCVar('mfx_palpow').ResetToDefault();
+				CVar.FindCVar('mfx_paldither').ResetToDefault();
+				break;
+			case 8:
+				CVar.FindCVar('mfx_lsharpenable').ResetToDefault();
+				CVar.FindCVar('mfx_lsharpradius').ResetToDefault();
+				CVar.FindCVar('mfx_lsharpclamp').ResetToDefault();
+				CVar.FindCVar('mfx_lsharpblend').ResetToDefault();
+				break;
+			case 9:
+				CVar.FindCVar('mfx_lutenable').ResetToDefault();
+				CVar.FindCVar('mfx_lutindex').ResetToDefault();
+				CVar.FindCVar('mfx_lutblend').ResetToDefault();
+				break;
+			case 10:
+				CVar.FindCVar('mfx_techenable').ResetToDefault();
+				CVar.FindCVar('mfx_techblend').ResetToDefault();
+				break;
+			}
+		}
+	}
+}

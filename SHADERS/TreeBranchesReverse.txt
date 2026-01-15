@@ -1,0 +1,14 @@
+uniform float timer;
+vec4 Process(vec4 color)
+{
+  const float pi = 3.14159265358979323846;
+  vec2 texCoord = gl_TexCoord[0].st;
+
+  // ripple 1
+  vec2 offset = vec2(0,0);
+  offset.y = sin(pi * 1.0 * (texCoord.x - timer * 1.0)) * 0.01;
+  offset.x = sin(pi * 1.0 * (texCoord.y + timer * 1.0)) * 0.01;
+  texCoord += offset;
+  
+  return getTexel(texCoord) * color;
+}

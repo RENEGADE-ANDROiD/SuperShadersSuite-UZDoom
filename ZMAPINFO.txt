@@ -1,0 +1,13 @@
+GameInfo
+{
+	AddEventHandlers = "FishEyePostProcessHandler"
+	AddEventHandlers = "VHSCRTPostProcessHandler"
+	AddEventHandlers = "ACESTonemapHandler"
+	AddEventHandlers = "OldVideoShaderHandler"
+	AddEventHandlers = "TcPostProcessShaderHandler"
+	AddEventHandlers = "WorldGammaHandler"
+	AddEventHandlers = "ScreeMHandler"
+	AddEventHandlers = "BBHandler"
+	AddEventHandlers = "SDPWHScreenEffects"
+	AddEventHandlers = "MariFXHandler"
+}

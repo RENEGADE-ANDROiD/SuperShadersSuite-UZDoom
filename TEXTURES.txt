@@ -1,0 +1,7 @@
+Texture "SFSHDLUT", 512, 512
+{
+	Patch "Graphics/p_neutral_lut.png", 0, 0
+	{
+		Translation "0:0=0:0"
+	}
+}

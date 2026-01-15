@@ -1,0 +1,448 @@
+HardwareShader PostProcess beforebloom
+{
+    Name "MBlur"
+    Shader "MBlur.fp" 330
+    Uniform vec2 steps
+    Uniform int samples
+    Uniform float increment
+    Uniform int blendmode
+    Uniform float saturation
+}
+
+HardwareShader PostProcess Scene
+{
+	Name "lensflareshader"
+	Shader "shaders/PostProcess/LensFlare.fp" 330
+	Uniform float threshold
+	Uniform int samples
+	Uniform float distance
+	Uniform float amount
+}
+
+HardwareShader PostProcess Scene
+{
+	Name "motionblurshader"
+	Shader "shaders/PostProcess/MotionBlur.fp" 330
+	Uniform float bx
+	Uniform float by
+	Uniform int samples
+}
+
+HardwareShader PostProcess scene
+{
+	Name "vignetteshader"
+	Shader "shaders/PostProcess/Vignette.fp" 330
+	Uniform float intensity
+	Uniform float falloff
+}
+
+HardwareShader PostProcess Scene
+{
+	Name "noiseshader"
+	Shader "shaders/PostProcess/Noise.fp" 330
+	Uniform float timer
+	Uniform float amount
+}
+
+HardwareShader PostProcess scene
+{
+	Name "WorldGammaPostBloom"
+	Shader "shaders/WorldGamma.fp" 330
+	Uniform float gamma
+	Uniform float contrast
+	Uniform float brightness
+}
+
+HardwareShader PostProcess beforebloom
+{
+	Name "WorldGammaPreBloom"
+	Shader "shaders/WorldGamma.fp" 330
+	Uniform float gamma
+	Uniform float contrast
+	Uniform float brightness
+}
+
+HardwareShader PostProcess beforebloom
+{
+	Name "WidescreemZ"
+	Shader "shaders/WidescreemZ.fp" 330
+	Uniform float pitch
+}
+
+HardwareShader PostProcess beforebloom
+{
+	Name "Widescreem"
+	Shader "shaders/Widescreem.fp" 330
+	Uniform float pitch
+}
+
+HardwareShader PostProcess beforebloom
+{
+	Name "BloomBoostPre"
+	Shader "shaders/BloomBoostPre.fp" 330
+	Uniform float gamma
+	Uniform float contrast
+	Uniform float brightness
+}
+
+HardwareShader PostProcess scene
+{
+	Name "BloomBoostPost"
+	Shader "shaders/BloomBoostPost.fp" 330
+	Uniform float gamma
+	Uniform float contrast
+	Uniform float brightness
+}
+
+HardwareShader PostProcess scene
+{
+	Name "res"
+	Shader "shaders/Res.fp" 330
+	Uniform float xlevel
+	Uniform float ylevel
+}
+
+HardwareShader PostProcess screen
+{
+	Name "OldPals"
+	Shader "shaders/oldpals.fp" 330
+	Texture OldPalLut"textures/OldPalLut.png"
+	Uniform float amount
+	Uniform float invamount
+	//Uniform float Ybias
+	//Uniform float invYbias
+}
+
+HardwareShader PostProcess screen
+{
+	Name "Gamma"
+	Shader "shaders/gamma.fp" 330
+	Uniform float gamma
+	Uniform float brightness
+	Uniform float contrast
+	Uniform float saturation
+	Uniform float invsat
+}
+
+HardwareShader PostProcess screen
+{
+	Name "Temp"
+	Shader "shaders/Temp.fp" 330
+	//Uniform float kelvin
+	Uniform vec3 temp
+}
+
+HardwareShader PostProcess screen
+{
+	Name "TempColour"
+	Shader "shaders/TempColour.fp" 330
+	//Uniform float kelvin
+	Uniform vec3 temp
+}
+
+HardwareShader PostProcess screen
+{
+	Name "TempGrey"
+	Shader "shaders/TempGrey.fp" 330
+	//Uniform float kelvin
+	Uniform vec3 temp
+}
+
+HardwareShader PostProcess screen
+{
+	Name "Fos4"
+	Shader "shaders/Fos4.fp" 330
+	Uniform float rgbsplit
+	Uniform float residue
+}
+
+HardwareShader PostProcess screen
+{
+	Name "GrillerDivvy"
+	Shader "shaders/GrillerDivvy.fp" 330
+	Uniform float grilldepth
+}
+
+HardwareShader PostProcess screen
+{
+	Name "GrillerSubby"
+	Shader "shaders/GrillerSubby.fp" 330
+	Uniform float grilldepth
+}
+
+HardwareShader PostProcess scene
+{
+	Name "FilmicTonemap"
+	Texture ColourmapLUT "textures/lut.png"
+	Shader "shaders/FilmicTonemap.fp" 330
+}
+HardwareShader PostProcess scene
+{
+	Name "TonemapDefault"
+	Texture ColourmapLUT "textures/lut.png"
+	Shader "shaders/FilmicTonemap.fp" 330
+}
+
+HardwareShader PostProcess scene
+{
+	Name "CubicCA"
+	Shader "shaders/CubicCA.fp" 330
+}
+
+
+HardwareShader PostProcess scene
+{
+	Name "FilmGrain"
+	Uniform float timer
+	Shader "shaders/FilmGrain.fp" 330
+}
+
+HardwareShader postprocess scene
+{
+	Name "mfx_lumasharp"
+	Shader "shaders/glsl/mfx_lumasharp.fp" 330
+	Uniform float sharpradius
+	Uniform float sharpclamp
+	Uniform float sharpblend
+}
+
+HardwareShader postprocess scene
+{
+	Name "mfx_grading"
+	Shader "shaders/glsl/mfx_grading.fp" 330
+	Uniform vec3 grademul
+	Uniform vec3 gradepow
+	Uniform vec3 gradecol
+	Uniform float gradecolfact
+	Uniform float gradesatmul
+	Uniform float gradesatpow
+	Uniform float gradevalmul
+	Uniform float gradevalpow
+}
+
+HardwareShader postprocess scene
+{
+	Name "mfx_technicolor"
+	Shader "shaders/glsl/mfx_technicolor.fp" 330
+	Uniform float techblend
+}
+
+HardwareShader postprocess scene
+{
+	Name "mfx_lutgrading"
+	Shader "shaders/glsl/mfx_lutgrading.fp" 330
+	Texture LUTTexture "textures/mfxlut.png"
+	Uniform int lutindex
+	Uniform float lutblend
+}
+
+HardwareShader postprocess scene
+{
+	Name "mfx_colormatrix"
+	Shader "shaders/glsl/mfx_colormatrix.fp" 330
+	Uniform vec3 redrow
+	Uniform vec3 greenrow
+	Uniform vec3 bluerow
+}
+
+HardwareShader postprocess scene
+{
+	Name "mfx_huesaturation"
+	Shader "shaders/glsl/mfx_huesaturation.fp" 330
+	Uniform float hsover
+	Uniform float hshue_a
+	Uniform float hssat_a
+	Uniform float hsval_a
+	Uniform float hshue_r
+	Uniform float hssat_r
+	Uniform float hsval_r
+	Uniform float hshue_y
+	Uniform float hssat_y
+	Uniform float hsval_y
+	Uniform float hshue_g
+	Uniform float hssat_g
+	Uniform float hsval_g
+	Uniform float hshue_c
+	Uniform float hssat_c
+	Uniform float hsval_c
+	Uniform float hshue_b
+	Uniform float hssat_b
+	Uniform float hsval_b
+	Uniform float hshue_m
+	Uniform float hssat_m
+	Uniform float hsval_m
+}
+
+HardwareShader postprocess scene
+{
+	Name "mfx_bss_blur"
+	Shader "shaders/glsl/mfx_bss_blur.fp" 330
+	Uniform float bssblurradius
+}
+HardwareShader postprocess scene
+{
+	Name "mfx_bss_sharp"
+	Shader "shaders/glsl/mfx_bss_sharp.fp" 330
+	Uniform float bsssharpradius
+	Uniform float bsssharpamount
+}
+HardwareShader postprocess scene
+{
+	Name "mfx_bss_shift"
+	Shader "shaders/glsl/mfx_bss_shift.fp" 330
+	Uniform float bssshiftradius
+}
+
+HardwareShader postprocess scene
+{
+	Name "mfx_borderblur"
+	Shader "shaders/glsl/mfx_borderblur.fp" 330
+	Uniform float vigpow
+	Uniform float vigmul
+	Uniform float vigbump
+	Uniform int vigshape
+	Uniform float bblurpow
+	Uniform float bblurmul
+	Uniform float bblurbump
+	Uniform float bblurradius
+	Texture VignetteTexture "textures/mfxvig.png"
+}
+
+HardwareShader postprocess scene
+{
+	Name "mfx_grain"
+	Shader "shaders/glsl/mfx_grain.fp" 330
+	Uniform float Timer
+	Uniform float ni
+	Uniform float ns
+	Uniform float np
+	Uniform float bnp
+	Uniform int nb
+	Texture NoiseTexture "textures/mfxnoise.png"
+}
+
+HardwareShader postprocess scene
+{
+	Name "mfx_dirt"
+	Shader "shaders/glsl/mfx_dirt.fp" 330
+	Uniform float dirtcfactor
+	Uniform float dirtmc
+	Texture NoiseTexture "textures/mfxdirt.png"
+}
+
+HardwareShader postprocess scene
+{
+	Name "mfx_vignette"
+	Shader "shaders/glsl/mfx_vignette.fp" 330
+	Uniform vec3 vigcolor
+	Uniform float vigpow
+	Uniform float vigmul
+	Uniform float vigbump
+	Uniform int vigshape
+	Uniform int vigmode
+	Texture VignetteTexture "textures/mfxvig.png"
+}
+
+HardwareShader postprocess scene
+{
+	Name "mfx_retrofx"
+	Shader "shaders/glsl/mfx_retrofx.fp" 330
+	Uniform vec2 bresl
+}
+
+HardwareShader postprocess scene
+{
+	Name "mfx_palette"
+	Shader "shaders/glsl/mfx_palette.fp" 330
+	Texture PalLUTTexture "textures/mfxpal.png"
+	Uniform vec2 sfact
+	Uniform float palsat
+	Uniform float palpow
+	Uniform float paldither
+	Uniform int palnum
+}
+
+HardwareShader PostProcess Scene
+{
+	Name "fisheyeshader"
+	Shader "shaders/PostProcess/fisheye.fp" 330
+	Uniform float strength
+	Uniform int chromo
+}
+
+HardwareShader PostProcess Screen 
+{
+	Name 	"VHSCRTShader"
+	Shader 	"shaders/PostProcess/VHSCRTShader.fp" 330
+	Uniform int 	VHSEnable
+	Uniform int 	CRTEnable
+	Uniform float 	iTime
+	Uniform float 	range
+	Uniform float 	noiseQuality
+	Uniform float 	noiseIntensity
+	Uniform float 	offsetIntensity
+	Uniform float 	colorOffsetIntensity
+	Uniform float 	lineCount
+	Uniform float 	lineSpeed
+	Uniform int 	lineEnable
+	Uniform int 	CRThardScan
+	Uniform int 	warpEnable
+	Uniform int 	warpMultX
+	Uniform int 	warpMultY
+	Uniform float 	grainIntensity
+	Uniform float 	contrast
+	Uniform float 	saturation
+}
+
+HardwareShader PostProcess Scene
+{
+	Name "AcesTonemap"
+	Shader "shaders/PostProcess/ACES.fp" 330
+	Uniform int ExposureMode
+	Uniform float ApertureFNumber
+	Uniform float ISO
+	Uniform float ShutterSpeedValue
+	Uniform float crossTalk
+	Uniform float saturation
+	Uniform float crossSaturation
+}
+
+HardwareShader PostProcess Scene
+{
+    Name "db_softshade"
+    Shader "SHADERS/PostProcess/SoftShade.fp" 330
+    Texture TexLUT8 "SFSHDLUT"
+    Texture TexLUT "Graphics/p_neutral_lut.png"
+    Uniform float paldither
+    Uniform float resscalefac
+}
+
+HardwareShader PostProcess scene
+{
+	Name "oldvideoshader"
+	Shader "shaders/PostProcess/OldVideo.fp" 330
+	Uniform float timer
+}
+
+
+//#include "materials_industrial.gl"
+
+
+
+/*
+
+material texture model/T_Bubble.png {
+	shader "SHADERS/envBubble.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	
+    normal MATERIALS/normal/T_null.jpg
+    specular MATERIALS/specular/T_null.jpg
+	specularlevel 4.0
+    glossiness 25
+}
+
+*/
+
+
+
+// 

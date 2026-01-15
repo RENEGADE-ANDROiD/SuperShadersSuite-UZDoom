@@ -1,0 +1,605 @@
+AddOptionMenu "OptionsMenu"
+{
+    Submenu "Super Shaders Suite UZ Options",			"ShaderOptions"
+}
+
+//-------------------------------------------------------------------------------------------
+//
+// The option menu
+//
+//-------------------------------------------------------------------------------------------
+
+//OptionMenuSettings
+//{
+	// These can be overridden if a different menu fonts requires //it.
+	//Linespacing 8
+	//IfGame(Heretic, Hexen)
+	//{
+	//	Linespacing 19
+	//}
+//}
+
+//DefaultOptionMenu
+//{
+//	Position -15
+//	IfGame(Heretic, Hexen)
+//	{
+//		Position -13
+//	}
+//}
+
+OptionValue "ToneOpts"
+{
+	0, "Off"
+	1, "Uncharted 2"
+	2, "Hejl Dawson"
+	3, "Reinhard"
+	4, "Linear"
+	5, "Palette"
+}
+
+OptionValue "grillmode"
+{
+	0, "0"
+	1, "/"
+	2, "-"
+}
+
+OptionValue "TempMode"
+{
+	0, "Off"
+	1, "On"
+	2, "Colour Only"
+	3, "Grey Only"
+	//3, "Smooth Colour"
+}
+
+OptionValue "PixelAspect"
+{
+	0, "Off"
+	1, "Square"
+	2, "Tall"
+}
+
+OptionValue "WideOptions"
+{
+	0, "Off"
+	1, "On"
+	2, "Maintain zoom"
+}
+
+OptionValue "MFXGrainBlend"
+{
+	0, "$MFX_BLENDMODE1"
+	1, "$MFX_BLENDMODE2"
+	2, "$MFX_BLENDMODE3"
+}
+
+OptionValue "MFXVigShape"
+{
+	0, "$MFX_VIGSHAPE1"
+	1, "$MFX_VIGSHAPE2"
+	2, "$MFX_VIGSHAPE3"
+}
+
+OptionValue "MFXVigMode"
+{
+	0, "$MFX_VIGMODE1"
+	1, "$MFX_VIGMODE2"
+	2, "$MFX_VIGMODE3"
+}
+
+OptionValue "MFXScaleMode"
+{
+	0, "$MFX_SCLMODE1"
+	1, "$MFX_SCLMODE2"
+	2, "$MFX_SCLMODE3"
+	3, "$MFX_SCLMODE4"
+}
+
+OptionValue "MFXPalette"
+{
+	0, "$MFX_PALETTE1"
+	1, "$MFX_PALETTE2"
+	2, "$MFX_PALETTE3"
+	3, "$MFX_PALETTE4"
+	4, "$MFX_PALETTE5"
+	5, "$MFX_PALETTE6"
+	6, "$MFX_PALETTE7"
+	7, "$MFX_PALETTE8"
+	8, "$MFX_PALETTE9"
+	9, "$MFX_PALETTE10"
+	10, "$MFX_PALETTE11"
+	11, "$MFX_PALETTE12"
+	12, "$MFX_PALETTE13"
+	13, "$MFX_PALETTE14"
+	14, "$MFX_PALETTE15"
+	15, "$MFX_PALETTE16"
+	16, "$MFX_PALETTE17"
+	17, "$MFX_PALETTE18"
+	18, "$MFX_PALETTE19"
+	19, "$MFX_PALETTE20"
+	20, "$MFX_PALETTE21"
+	21, "$MFX_PALETTE22"
+	22, "$MFX_PALETTE23"
+	23, "$MFX_PALETTE24"
+	24, "$MFX_PALETTE25"
+	25, "$MFX_PALETTE26"
+	26, "$MFX_PALETTE27"
+	27, "$MFX_PALETTE28"
+	28, "$MFX_PALETTE29"
+	29, "$MFX_PALETTE30"
+	30, "$MFX_PALETTE31"
+	31, "$MFX_PALETTE32"
+	32, "$MFX_PALETTE33"
+	33, "$MFX_PALETTE34"
+	34, "$MFX_PALETTE35"
+	35, "$MFX_PALETTE36"
+	36, "$MFX_PALETTE37"
+	37, "$MFX_PALETTE38"
+	38, "$MFX_PALETTE39"
+	39, "$MFX_PALETTE40"
+	40, "$MFX_PALETTE41"
+	41, "$MFX_PALETTE42"
+	42, "$MFX_PALETTE43"
+	43, "$MFX_PALETTE44"
+	44, "$MFX_PALETTE45"
+	45, "$MFX_PALETTE46"
+	46, "$MFX_PALETTE47"
+	47, "$MFX_PALETTE48"
+	48, "$MFX_PALETTE49"
+	49, "$MFX_PALETTE50"
+	50, "$MFX_PALETTE51"
+	51, "$MFX_PALETTE52"
+	52, "$MFX_PALETTE53"
+	53, "$MFX_PALETTE54"
+	54, "$MFX_PALETTE55"
+	55, "$MFX_PALETTE56"
+	56, "$MFX_PALETTE57"
+	57, "$MFX_PALETTE58"
+	58, "$MFX_PALETTE59"
+	59, "$MFX_PALETTE60"
+	60, "$MFX_PALETTE61"
+	61, "$MFX_PALETTE62"
+	62, "$MFX_PALETTE63"
+	63, "$MFX_PALETTE64"
+}
+
+OptionValue "MFXLUT"
+{
+	0, "$MFX_LUT1"
+	1, "$MFX_LUT2"
+	2, "$MFX_LUT3"
+	3, "$MFX_LUT4"
+	4, "$MFX_LUT5"
+	5, "$MFX_LUT6"
+	6, "$MFX_LUT7"
+	7, "$MFX_LUT8"
+	8, "$MFX_LUT9"
+	9, "$MFX_LUT10"
+	10, "$MFX_LUT11"
+	11, "$MFX_LUT12"
+	12, "$MFX_LUT13"
+	13, "$MFX_LUT14"
+	14, "$MFX_LUT15"
+	15, "$MFX_LUT16"
+}
+
+OptionValue "ExposureMode"
+{
+	0, "SaturationBased"
+	1, "Standard"
+}
+
+OptionValue "ISOValues"
+{
+	0, "50"
+	1, "100"
+	2, "200"
+	3, "400"
+	4, "800"
+	5, "1600"
+	6, "3200"
+	7, "6400"
+	8, "12800"
+	9, "25600"
+	10, "51200"
+	11, "102400"
+	12, "204800"
+	13, "409600"
+	14, "819200"
+	15, "1638400"
+	16, "3280000"
+	17, "4560000"
+	18, "Custom"
+}
+
+OptionValue "ShutterSpeeds"
+{
+    0, "1s"
+    1, "1/2s"
+    2, "1/4s"
+    3, "1/8s"
+    4, "1/15s"
+    5, "1/30s"
+    6, "1/60s"
+	7, "1/100s"
+    8, "1/125s"
+    9, "1/250s"
+    10, "1/500s"
+    11, "1/1000s"
+    12, "1/2000s"
+    13, "1/4000s"
+	14, "Custom"
+}
+
+OptionMenu "ShaderOptions"
+{
+	Position -15
+	Title "Super Shaders Suite UZ Options"
+	StaticText ""
+    Position -15
+    Title "Advanced Settings"
+    Option "Auto Stop", "mblur_autostop", OnOff
+    Slider "Stop Recovery", "mblur_recovery2", 0, 100, 5, 2
+    Slider "Stop Threshold", "mblur_threshold", 0, 100, 10, 2
+    Option "Pitch Curve", "mblur_pcurve", "MBlurCurves"
+    StaticText " "
+    StaticText " "
+    StaticText "MBlurOpts"
+    Position -15
+    Title "Motion Blur"
+    Option "Enabled", "mblur", YesNo
+    statictext ""
+    StaticText " "
+    Option "Preset", "mblur_preset", "MBlurPresets"
+    Command "Save Current as Custom", "mblur_savecustom_trigger 1"
+    StaticText " "
+    statictext ""
+    Option "Blend Mode", "mblur_blendmode", "MBlurBlendModes"
+    statictext ""
+    Slider "Samples", "mblur_samples", 1, 50, 1, 0
+    Option "Dynamic", "mblur_dynsamps", YesNo
+    statictext ""
+    Slider "Look Strength", "mblur_strength", 1, 500, 8, 2
+    Slider "Walk Strength", "mblur_strength_walk", 1, 100, 5, 2
+    Slider "Jump Strength", "mblur_strength_jump", 1, 100, 5, 2
+    Slider "Saturation", "mblur_saturation", 0.1, 3.0, 0.1, 1
+    Slider "Recovery", "mblur_recovery", 4, 100, 4, 1
+    Submenu "Advanced...", "MBlurAdvOpts"
+    StaticText ""
+	Submenu "Fisheye","FisheyeOptions"
+	StaticText ""
+	Submenu "VHS/CRT","VHSCRTOptions"
+	StaticText ""
+	Submenu "ACES Tonemap Options","TonemapOptions"
+	StaticText ""
+	SubMenu "SoftShade Options", "Db_SoftShadeMenu"
+	StaticText ""
+	Submenu "Old Video Shader Options", "OldVideoShaderOptions"
+	StaticText ""
+	StaticText "Vignette", "Yellow"
+	Option "Enabled", "tc_pp_vignette", "YesNo"
+	Slider "Intensity", "tc_pp_vignette_intensity", 0, 500, 0.05, 3
+	Slider "Falloff", "tc_pp_vignette_falloff", 0, 10, 0.05, 3
+	StaticText ""
+	StaticText "Lens Flares", "Yellow"
+	Option "Enabled", "tc_pp_lensflares", "YesNo"
+	Slider "Intensity", "tc_pp_lensflares_amount", 0, 5, 0.05
+	Slider "Threshold", "tc_pp_lensflares_threshold", 0, 5, 0.05
+	StaticText ""
+	StaticText "Noise", "Yellow"
+	Option "Enabled", "tc_pp_noise", "YesNo"
+	Slider "Intensity", "tc_pp_noise_amount", 0, 5, 0.05
+	StaticText ""
+	//Title "FOV Setting (Field of View)"
+	StaticText "FOV", "Yellow"
+	Slider "Field of View", "fov", 30, 180, 1
+	StaticText ""
+	StaticText "World Gamma", "Yellow"
+	Option "Enabled", "gl_worldgamma_enabled", OnOff
+	Slider "Gamma", "gl_worldgamma", 0.45, 2.2, 0.1, 2
+	Slider "Contrast", "gl_worldgamma_contrast", 50, 200, 0.1, 1
+	Slider "Brightness", "gl_worldgamma_brightness", -50, 50, 10, 1
+	Option "Tonemap Mode", "gl_tonemap", "ToneOpts"
+	StaticText ""
+	StaticText "Screen-M", "Yellow"
+	Option "Active", "gl_screem", YesNo
+	Slider "Old Pal Makeover", "gl_screem_oldpallut", 0, 100, 0.1, 1
+	Slider "Gamma Bias", "gl_screem_ybias", 0.45, 2.2, 0.01, 2
+	Option "Autochthonic Widescreen", "gl_screem_wide", "WideOptions"
+	Option "Res. Mode", "gl_screem_res_mode", "PixelAspect"
+	Slider "Resolution 1:x", "gl_screem_res_detail", 1, 100, 1, 0
+	Option "Tone Controls", "gl_screem_tonecontrols", OnOff
+	Slider "Gamma", "gl_screem_gamma", 0.45, 3, 0.01, 2
+	Slider "Brightness", "gl_screem_brightness", -80, 80, 0.1, 1
+	Slider "Contrast", "gl_screem_contrast", 10, 300, 0.1, 1
+	Slider "Saturation", "gl_screem_saturation", -300, 300, 0.1, 1
+	Option "Temp. Mode", "gl_screem_tempmode", "TempMode"
+	Slider "Temperature (k)", "gl_screem_kelvin", -4600, 4600, 0.1, 1
+	Option "Enable Phosphors", "gl_screem_phosphor", YesNo
+	Slider "RGB Dispersion", "gl_screem_phosphor_amount", 0, 100, 0.1, 1
+	Slider "Residual Light", "gl_screem_phosphor_residue", 0, 100, 0.1, 1
+	Option "Grill Mode", "gl_screem_grillmode", "grillmode"
+	Slider "Grill Depth", "gl_screem_grilldepth", 0, 100, 0.01, 2
+	Option "Forced Ratio Style", "vid_cropaspect", "CropAspect"
+	Option "Force Aspect Ratio", "vid_aspect", "ForceRatios"
+	StaticText ""
+	StaticText "Bloom Boost 2", "Yellow"
+	Option "Bloom", "gl_bloom", OnOff
+	Slider "Bloom Amount", "gl_bloom_amount", 0, 4, 0.1, 2
+	Option "Active", "gl_bloomboost", YesNo
+	Slider "Gamma", "gl_bloomboost_gamma", 0.45, 2.2, 0.1, 2
+	Slider "Contrast", "gl_bloomboost_contrast", 50, 200, 0.1, 1
+	Slider "Brightness", "gl_bloomboost_brightness", -50, 50, 10, 1
+    Option "Boost Bloom", "gl_worldgamma_boostbloom", YesNo
+	StaticText ""
+	StaticText "Dark Shader", "Yellow"
+	Option "Filmic Tonemap", dpwh_filmictonemap2, "OnOff"
+	Option "Film Grain",dpwh_filmgrain2, "OnOff"
+	StaticText ""
+	StaticText "MariFX", "Yellow"
+	MFXPresetList "$MFX_PRESETNUM", "mfx_presetslot"
+	TextField "$MFX_PRESETNAME", "mfx_presetname"
+	SafeCommand "$MFX_LOADPRESET", "event loadmfxpreset"
+	SafeCommand "$MFX_SAVEPRESET", "event savemfxpreset"
+	StaticText " "
+	StaticText "$MFX_LUMASHARPEN", "LightBlue"
+	Option "$MFX_ENABLE", "mfx_lsharpenable", "YesNo"
+	MFXSlider "$MFX_LSHARPRADIUS", "mfx_lsharpradius", 0, 1, 0.01, 2
+	MFXSlider "$MFX_LSHARPTRESHOLD", "mfx_lsharpclamp", 0, 1, 0.01, 2
+	MFXSlider "$MFX_LSHARPSTRENGTH", "mfx_lsharpblend", 0, 10, 0.01, 2
+	SafeCommand "$MFX_RESET", "event resetmfxvars 8"
+	StaticText " "
+	StaticText "$MFX_GRAIN", "LightBlue"
+	Option "$MFX_ENABLE", "mfx_ne", "YesNo"
+	MFXSlider "$MFX_NI", "mfx_ni", 0, 1, 0.01, 2
+	MFXSlider "$MFX_NS", "mfx_ns", -1, 1, 0.01, 2
+	MFXSlider "$MFX_NP", "mfx_np", 0.5, 8, 0.01, 2
+	Option "$MFX_NB", "mfx_nb", "MFXGrainBlend"
+	MFXSlider "$MFX_BNP", "mfx_bnp", 0.5, 10, 0.01, 2
+	SafeCommand "$MFX_RESET", "event resetmfxvars 0"
+	StaticText " "
+	StaticText "$MFX_DIRT", "LightBlue"
+	Option "$MFX_ENABLE", "mfx_dirtenable", "YesNo"
+	MFXSlider "$MFX_DIRTMC", "mfx_dirtmc", 1, 8, 0.01, 2
+	MFXSlider "$MFX_DIRTCFACTOR", "mfx_dirtcfactor", 0, 1, 0.01, 2
+	SafeCommand "$MFX_RESET", "event resetmfxvars 1"
+	StaticText " "
+	StaticText "$MFX_GRADE", "LightBlue"
+	Option "$MFX_ENABLE", "mfx_gradeenable", "YesNo"
+	MFXSlider "$MFX_GRADEMUL_R", "mfx_grademul_r", 0, 2, 0.01, 2
+	MFXSlider "$MFX_GRADEMUL_G", "mfx_grademul_g", 0, 2, 0.01, 2
+	MFXSlider "$MFX_GRADEMUL_B", "mfx_grademul_b", 0, 2, 0.01, 2
+	MFXSlider "$MFX_GRADEPOW_R", "mfx_gradepow_r", 0, 2, 0.01, 2
+	MFXSlider "$MFX_GRADEPOW_G", "mfx_gradepow_g", 0, 2, 0.01, 2
+	MFXSlider "$MFX_GRADEPOW_B", "mfx_gradepow_b", 0, 2, 0.01, 2
+	MFXSlider "$MFX_GRADECOL_R", "mfx_gradecol_r", -1, 1, 0.01, 2
+	MFXSlider "$MFX_GRADECOL_G", "mfx_gradecol_g", -1, 1, 0.01, 2
+	MFXSlider "$MFX_GRADECOL_B", "mfx_gradecol_b", -1, 1, 0.01, 2
+	MFXSlider "$MFX_GRADECOLFACT", "mfx_gradecolfact", -1, 1, 0.01, 2
+	MFXSlider "$MFX_GRADESATMUL", "mfx_gradesatmul", 0, 2, 0.01, 2
+	MFXSlider "$MFX_GRADESATPOW", "mfx_gradesatpow", 0, 2, 0.01, 2
+	MFXSlider "$MFX_GRADEVALMUL", "mfx_gradevalmul", 0, 2, 0.01, 2
+	MFXSlider "$MFX_GRADEVALPOW", "mfx_gradevalpow", 0, 2, 0.01, 2
+	SafeCommand "$MFX_RESET", "event resetmfxvars 2"
+	StaticText " "
+	StaticText "$MFX_LUTGRADE", "LightBlue"
+	Option "$MFX_ENABLE", "mfx_lutenable", "YesNo"
+	Option "$MFX_LUTTEX", "mfx_lutindex", "MFXLUT"
+	MFXSlider "$MFX_LUTBLEND", "mfx_lutblend", 0, 1, 0.01, 2
+	SafeCommand "$MFX_RESET", "event resetmfxvars 9"
+	StaticText " "
+	StaticText "$MFX_TECHNICOLOR", "LightBlue"
+	Option "$MFX_ENABLE", "mfx_techenable", "YesNo"
+	MFXSlider "$MFX_TECHBLEND", "mfx_techblend", 0, 1, 0.01, 2
+	SafeCommand "$MFX_RESET", "event resetmfxvars 10"
+	StaticText " "
+	StaticText "$MFX_CMAT", "LightBlue"
+	Option "$MFX_ENABLE", "mfx_cmatenable", "YesNo"
+	MFXSlider "$MFX_CMAT_RR", "mfx_cmat_rr", -2, 2, 0.01, 2
+	MFXSlider "$MFX_CMAT_RG", "mfx_cmat_rg", -2, 2, 0.01, 2
+	MFXSlider "$MFX_CMAT_RB", "mfx_cmat_rb", -2, 2, 0.01, 2
+	MFXSlider "$MFX_CMAT_GR", "mfx_cmat_gr", -2, 2, 0.01, 2
+	MFXSlider "$MFX_CMAT_GG", "mfx_cmat_gg", -2, 2, 0.01, 2
+	MFXSlider "$MFX_CMAT_GB", "mfx_cmat_gb", -2, 2, 0.01, 2
+	MFXSlider "$MFX_CMAT_BR", "mfx_cmat_br", -2, 2, 0.01, 2
+	MFXSlider "$MFX_CMAT_BG", "mfx_cmat_bg", -2, 2, 0.01, 2
+	MFXSlider "$MFX_CMAT_BB", "mfx_cmat_bb", -2, 2, 0.01, 2
+	SafeCommand "$MFX_RESET", "event resetmfxvars 3"
+	StaticText " "
+	StaticText "$MFX_HUESAT", "LightBlue"
+	Option "$MFX_ENABLE", "mfx_hsenable", "YesNo"
+	MFXSlider "$MFX_HSOVER", "mfx_hsover", 0, 0.5, 0.01, 2
+	MFXSlider "$MFX_HSHUE_A", "mfx_hshue_a", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSSAT_A", "mfx_hssat_a", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSVAL_A", "mfx_hsval_a", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSHUE_R", "mfx_hshue_r", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSSAT_R", "mfx_hssat_r", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSVAL_R", "mfx_hsval_r", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSHUE_Y", "mfx_hshue_y", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSSAT_Y", "mfx_hssat_y", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSVAL_Y", "mfx_hsval_y", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSHUE_G", "mfx_hshue_g", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSSAT_G", "mfx_hssat_g", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSVAL_G", "mfx_hsval_g", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSHUE_C", "mfx_hshue_c", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSSAT_C", "mfx_hssat_c", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSVAL_C", "mfx_hsval_c", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSHUE_B", "mfx_hshue_b", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSSAT_B", "mfx_hssat_b", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSVAL_B", "mfx_hsval_b", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSHUE_M", "mfx_hshue_m", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSSAT_M", "mfx_hssat_m", -1, 1, 0.01, 2
+	MFXSlider "$MFX_HSVAL_M", "mfx_hsval_m", -1, 1, 0.01, 2
+	SafeCommand "$MFX_RESET", "event resetmfxvars 4"
+	StaticText " "
+	StaticText "$MFX_BSS", "LightBlue"
+	Option "$MFX_BSSBLURENABLE", "mfx_bssblurenable", "YesNo"
+	MFXSlider "$MFX_BSSBLURRADIUS", "mfx_bssblurradius", 0, 1, 0.01, 2
+	Option "$MFX_BSSSHARPENABLE", "mfx_bsssharpenable", "YesNo"
+	MFXSlider "$MFX_BSSSHARPRADIUS", "mfx_bsssharpradius", 0, 1, 0.01, 2
+	MFXSlider "$MFX_BSSSHARPAMOUNT", "mfx_bsssharpamount", 0, 8, 0.01, 2
+	Option "$MFX_BSSSHIFTENABLE", "mfx_bssshiftenable", "YesNo"
+	MFXSlider "$MFX_BSSSHIFTRADIUS", "mfx_bssshiftradius", 0, 1, 0.05, 2
+	SafeCommand "$MFX_RESET", "event resetmfxvars 5"
+	StaticText " "
+	StaticText "$MFX_VIGBBLUR", "LightBlue"
+	Option "$MFX_VIGENABLE", "mfx_vigenable", "YesNo"
+	MFXSlider "$MFX_VIGCOLOR_R", "mfx_vigcolor_r", -1, 1, 0.01, 2
+	MFXSlider "$MFX_VIGCOLOR_G", "mfx_vigcolor_g", -1, 1, 0.01, 2
+	MFXSlider "$MFX_VIGCOLOR_B", "mfx_vigcolor_b", -1, 1, 0.01, 2
+	MFXSlider "$MFX_VIGPOW", "mfx_vigpow", 0, 16, 0.01, 2
+	MFXSlider "$MFX_VIGMUL", "mfx_vigmul", 0, 2, 0.01, 2
+	MFXSlider "$MFX_VIGBUMP", "mfx_vigbump", -1, 1, 0.01, 2
+	Option "$MFX_VIGSHAPE", "mfx_vigshape", "MFXVigShape"
+	Option "$MFX_VIGMODE", "mfx_vigmode", "MFXVigMode"
+	Option "$MFX_BBLURENABLE", "mfx_bblurenable", "YesNo"
+	MFXSlider "$MFX_BBLURPOW", "mfx_bblurpow", 0, 16, 0.01, 2
+	MFXSlider "$MFX_BBLURMUL", "mfx_bblurmul", 0, 2, 0.01, 2
+	MFXSlider "$MFX_BBLURBUMP", "mfx_bblurbump", -1, 1, 0.01, 2
+	MFXSlider "$MFX_BBLURRADIUS", "mfx_bblurradius", 0, 4, 0.01, 2
+	SafeCommand "$MFX_RESET", "event resetmfxvars 6"
+	StaticText " "
+	StaticText "$MFX_RETROFX", "LightBlue"
+	Option "$MFX_RETROENABLE", "mfx_retroenable", "YesNo"
+	Option "$MFX_RETROSCALEMODE", "mfx_retroscalemode", "MFXScaleMode"
+	TextField "$MFX_BRESX", "mfx_bres_x"
+	TextField "$MFX_BRESY", "mfx_bres_y"
+	MFXSlider "$MFX_BSCLX", "mfx_bscl_x", 0, 1, 0.01, 2
+	MFXSlider "$MFX_BSCLY", "mfx_bscl_y", 0, 1, 0.01, 2
+	Option "$MFX_PALENABLE", "mfx_palenable", "YesNo"
+	Option "$MFX_PALNUM", "mfx_palnum", "MFXPalette"
+	MFXSlider "$MFX_PALSAT", "mfx_palsat", 0, 2, 0.01, 2
+	MFXSlider "$MFX_PALPOW", "mfx_palpow", 0, 2, 0.01, 2
+	MFXSlider "$MFX_PALDITHER", "mfx_paldither", 0, 1, 0.01, 2
+	SafeCommand "$MFX_RESET", "event resetmfxvars 7"
+}
+
+OptionValue "MBlurBlendModes"
+{
+    0, "Normal"
+    1, "Lighten"
+    2, "Additive"
+}
+OptionValue "MBlurCurves"
+{
+    0, "Power"
+    1, "Sine"
+}
+OptionValue "MBlurPresets"
+{
+    0, "Light"
+    1, "Medium"
+    2, "Heavy"
+    3, "Extreme"
+    4, "Horror"
+    5, "Drunk"
+    6, "Dream"
+    7, "Custom"
+}
+OptionValue "YesNo"
+{
+	0, "$TXT_NO"
+	1, "$TXT_YES"
+}
+OptionValue "NoYes"
+{
+	0, "$TXT_YES"
+	1, "$TXT_NO"
+}
+OptionValue "OnOff"
+{
+	0, "$OPTVAL_OFF"
+	1, "$OPTVAL_ON"
+}
+OptionValue "OffOn"
+{
+	0, "$OPTVAL_ON"
+	1, "$OPTVAL_OFF"
+}
+
+//////
+OptionMenu "FisheyeOptions"
+{
+		StaticText "$FISHEYE_PP"
+		
+		StaticText " "
+		
+		Option "$FISHEYE_ENABLE", "fisheye_enabled", "YesNo"
+		
+		Option "$FISHEYE_CHROMATIC", "fisheye_chromatic", "YesNo", "fisheye_enabled"
+		
+		Slider "$FISHEYE_STRENGTH", "fisheye_strength", 0.0001, 0.1, 0.0001, 4, "fisheye_enabled"
+}
+
+OptionMenu "VHSCRTOptions"
+{
+	Title "$M_MODSHADER_TITLE"
+	
+	Option "$CV_SHENABLE_OPTION", "SH_ShaderEnable", "OnOff"
+	
+	StaticText ""
+	
+	Option "$CV_VHSENABLE_OPTION", "SH_VHSEnable", "OnOff"
+	Slider "$CV_VHSNOISEQUAL_OPTION", "SH_VHSNoiseQuality", 1.0, 500.0, 0.1, 1
+	Slider "$CV_VHSNOISEINT_OPTION", "SH_VHSNoiseIntensity", 0.0, 0.015, 0.001, 3
+	Slider "$CV_VHSOFFINT_OPTION", "SH_VHSOffsetIntensity", 0.0, 0.05, 0.001, 3
+	Slider "$CV_VHSCOLOROFF_OPTION", "SH_VHSColorOffsetIntensity", 0.0, 2.0, 0.1, 1
+	Option "$CV_VHSLINEEN_OPTION", "SH_VHSLineEnable", "OnOff"
+	Slider "$CV_VHSLINECNT_OPTION", "SH_VHSLineCount", 250, 10000, 1, 0
+	Slider "$CV_VHSLINESPD_OPTION", "SH_VHSLineSpeed", 1.0, 10.0, 0.1, 1
+	
+	StaticText ""
+	
+	Option "$CV_CRTENABLE_OPTION", "SH_CRTEnable", "OnOff"
+	Slider "$CV_CRTHARDSCAN_OPTION", "SH_CRTHardScan", 1, 100, 1, 0
+	
+	StaticText ""
+	
+	Option "$CV_WARPENABLE_OPTION", "SH_WarpEnable", "OnOff"
+	Slider "$CV_WARPMULTX_OPTION", "SH_WarpMultX", 1, 100, 1, 0
+	Slider "$CV_WARPMULTY_OPTION", "SH_WarpMultY", 1, 100, 1, 0
+	Slider "$CV_GRAININT_OPTION", "SH_GrainIntensity", 0.0, 1.0, 0.01, 2
+	Slider "$CV_CONTRAST_OPTION", "SH_Contrast", 0.0, 5.0, 0.01, 2
+	Slider "$CV_SATURATION_OPTION", "SH_Saturation", 0.0, 3.0, 0.01, 2
+	
+	StaticText ""
+	
+	Command "$AL_RESETSHADERSETTINGS", "SHA_ResetToDefault"
+}
+
+OptionMenu "TonemapOptions"
+{
+	Title "ACES Tonemap Options"
+	StaticText ""
+	Option "Enable", "at_enabled", "YesNo"
+	TextField "Aperture", "at_ApertureFNumber"
+	Option "Shutter Speed", "at_ShutterSpeedValue", "ShutterSpeeds"
+	TextField "Custom Shutter Speed 1/", "at_LastCustomShutterSpeed"
+	Option "ISO", "at_ISO", "ISOValues"
+	TextField "Custom ISO", "at_LastCustomISO"
+	Option "Exposure Mode", "at_ExposureMode", "ExposureMode"
+	StaticText ""
+	TextField "CrossTalk", "at_Crosstalk"
+	TextField "Saturation", "at_Saturation"
+	TextField "CrossSaturation", "at_CrossSaturation"	
+	SafeCommand "Reset to Default", "event resetacestonemap"
+}
+
+OptionMenu "Db_SoftShadeMenu"
+{
+    Title "SoftShade Options"
+    Option "Enabled", "db_softshade_enabled", "YesNo"
+    Slider "Dither Amount", "db_softshade_dither", 0, 1, 0.01, 2
+    Option "Resolution-scaled dither amount", "db_softshade_doscale", "YesNo"
+}
+
+OptionMenu "OldVideoShaderOptions"
+{
+	Title "Old Video Shader Options"
+	Position -15
+	Title "Old Video Shader Options"
+	Option "Enabled", "cl_oldvideoshader", "YesNo"
+}
+

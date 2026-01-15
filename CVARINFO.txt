@@ -1,0 +1,241 @@
+user float mblur_strength_walk = 30;
+user float mblur_strength_jump = 30;
+user bool mblur_dynsamps = true;
+user int mblur_pcurve = 1;
+user float mblur_saturation = 1.0;
+user int mblur_preset = 1;
+user int mblur_custom_samples = 25;
+user float mblur_custom_strength = 64;
+user float mblur_custom_strength_walk = 30;
+user float mblur_custom_strength_jump = 30;
+user float mblur_custom_recovery = 64;
+user int mblur_custom_blendmode = 0;
+user bool mblur_custom_autostop = true;
+user float mblur_custom_threshold = 30;
+user float mblur_custom_recovery2 = 90;
+user bool mblur_custom_dynsamps = true;
+user int mblur_custom_pcurve = 1;
+user float mblur_custom_saturation = 1.0;
+user int mblur_savecustom_trigger = 0;
+
+user bool tc_pp_lensflares = true;
+user float tc_pp_lensflares_threshold = 0.2;
+user int tc_pp_lensflares_samples = 16;
+user float tc_pp_lensflares_distance = 0.009;
+user float tc_pp_lensflares_amount = 0.4;
+
+user bool tc_pp_vignette = true;
+user float tc_pp_vignette_intensity = 30.0;
+user float tc_pp_vignette_falloff = 0.4;
+
+user bool tc_pp_noise = true;
+user float tc_pp_noise_amount = 0.4;
+
+user bool fisheye_enabled = false;
+user float fisheye_strength = 0.0150;
+user bool fisheye_chromatic = true;
+
+user bool 	SH_ShaderEnable = false;
+user bool 	SH_VHSEnable = true;
+user float 	SH_VHSRange = 0.05;
+user float 	SH_VHSNoiseQuality = 300.0;
+user float 	SH_VHSNoiseIntensity = 0.001;
+user float 	SH_VHSOffsetIntensity = 0.002;
+user float 	SH_VHSColorOffsetIntensity = 0.2;
+user float 	SH_VHSLineCount = 250;
+user float 	SH_VHSLineSpeed = 3;
+user bool 	SH_VHSLineEnable = true;
+user bool 	SH_CRTEnable = false;
+user int 	SH_CRTHardScan = 8;
+user bool 	SH_WarpEnable = true;
+user int 	SH_WarpMultX = 32;
+user int 	SH_WarpMultY = 24;
+user float 	SH_GrainIntensity = 0.2;
+user float 	SH_Contrast = 1.0;
+user float 	SH_Saturation = 1.0;
+
+user bool at_enabled = false;
+user float at_ApertureFNumber = 10;
+user float at_LastCustomShutterSpeed = 0;
+user float at_LastCustomISO = 0;
+user float at_ISO = 4;
+user float at_Crosstalk = 5.3;
+user float at_Saturation = 1.0;
+user float at_CrossSaturation = 1.0;
+user int at_ExposureMode = 0;
+user int at_ShutterSpeedValue = 4;
+
+nosave bool  db_softshade_enabled = false;
+nosave float db_softshade_dither  = 0.05;
+nosave bool  db_softshade_doscale = true;
+
+user bool cl_oldvideoshader = false;
+
+user bool gl_worldgamma_enabled = true;
+user float gl_worldgamma = 1.0;
+user float gl_worldgamma_contrast = 100.0;
+user float gl_worldgamma_brightness = 0.0;
+user bool gl_worldgamma_boostbloom = false;
+
+server bool gl_screem = true;
+
+user int gl_screem_grillmode = 1;
+user float gl_screem_grilldepth = 8.33;
+
+user bool gl_screem_phosphor = true;
+user float gl_screem_phosphor_amount = 21.0;
+user float gl_screem_phosphor_residue = 12.5;
+
+user float gl_screem_kelvin = 268.3;
+user int gl_screem_tempmode = 2;
+
+user float gl_screem_oldpallut = 100.0;
+//normally // below for ybias
+user float gl_screem_ybias = 1.0;
+
+user bool gl_screem_tonecontrols = true;
+user float gl_screem_gamma = 1.0;
+user float gl_screem_brightness = 0.0;
+user float gl_screem_contrast = 105.0;
+user float gl_screem_saturation = 100.0;
+
+user int gl_screem_res_detail = 2;
+user int gl_screem_res_mode = 0;
+
+user int gl_screem_wide = 0;
+
+user bool gl_bloomboost = true;
+user float gl_bloomboost_gamma = 1.0;
+user float gl_bloomboost_contrast = 100.0;
+user float gl_bloomboost_brightness = 0.0;
+
+user bool dpwh_filmictonemap2 = true;
+user bool dpwh_chromaticAberration2 = false;
+user bool dpwh_naturalVignette2 = false;
+user string dsc_scene_lut2 = "TonemapDefault";
+user bool dpwh_filmgrain2 = true;
+user bool dsc_screen_blur2 = false;
+
+nosave bool mfx_lsharpenable = false;
+nosave float mfx_lsharpradius = .8;
+nosave float mfx_lsharpclamp = .05;
+nosave float mfx_lsharpblend = 6.;
+
+nosave bool mfx_ne = false;
+nosave float mfx_ni = .05;
+nosave float mfx_ns = 0.;
+nosave float mfx_np = 4.;
+nosave float mfx_bnp = 1.5;
+nosave int mfx_nb = 2;
+
+nosave bool mfx_dirtenable = false;
+nosave float mfx_dirtcfactor = .05;
+nosave float mfx_dirtmc = 4.;
+
+nosave bool mfx_gradeenable = false;
+nosave float mfx_grademul_r = 1.;
+nosave float mfx_grademul_g = 1.;
+nosave float mfx_grademul_b = 1.;
+nosave float mfx_gradepow_r = 1.;
+nosave float mfx_gradepow_g = 1.;
+nosave float mfx_gradepow_b = 1.;
+nosave float mfx_gradecol_r = 1.;
+nosave float mfx_gradecol_g = 1.;
+nosave float mfx_gradecol_b = 1.;
+nosave float mfx_gradecolfact = 0.;
+nosave float mfx_gradesatmul = 1.;
+nosave float mfx_gradesatpow = 1.;
+nosave float mfx_gradevalmul = 1.;
+nosave float mfx_gradevalpow = 1.;
+
+nosave bool mfx_lutenable = false;
+nosave int mfx_lutindex = 0;
+nosave float mfx_lutblend = 1.;
+
+nosave bool mfx_techenable = true;
+nosave float mfx_techblend = 0.1;
+
+nosave bool mfx_cmatenable = false;
+nosave float mfx_cmat_rr = 1.;
+nosave float mfx_cmat_rg = 0.;
+nosave float mfx_cmat_rb = 0.;
+nosave float mfx_cmat_gr = 0.;
+nosave float mfx_cmat_gg = 1.;
+nosave float mfx_cmat_gb = 0.;
+nosave float mfx_cmat_br = 0.;
+nosave float mfx_cmat_bg = 0.;
+nosave float mfx_cmat_bb = 1.;
+
+nosave bool mfx_hsenable = false;
+nosave float mfx_hsover = 0.;
+nosave float mfx_hshue_a = 0.;
+nosave float mfx_hssat_a = 0.;
+nosave float mfx_hsval_a = 0.;
+nosave float mfx_hshue_r = 0.;
+nosave float mfx_hssat_r = 0.;
+nosave float mfx_hsval_r = 0.;
+nosave float mfx_hshue_y = 0.;
+nosave float mfx_hssat_y = 0.;
+nosave float mfx_hsval_y = 0.;
+nosave float mfx_hshue_g = 0.;
+nosave float mfx_hssat_g = 0.;
+nosave float mfx_hsval_g = 0.;
+nosave float mfx_hshue_c = 0.;
+nosave float mfx_hssat_c = 0.;
+nosave float mfx_hsval_c = 0.;
+nosave float mfx_hshue_b = 0.;
+nosave float mfx_hssat_b = 0.;
+nosave float mfx_hsval_b = 0.;
+nosave float mfx_hshue_m = 0.;
+nosave float mfx_hssat_m = 0.;
+nosave float mfx_hsval_m = 0.;
+
+nosave bool mfx_bssblurenable = false;
+nosave float mfx_bssblurradius = .15;
+nosave bool mfx_bsssharpenable = false;
+nosave float mfx_bsssharpradius = 1.;
+nosave float mfx_bsssharpamount = 2.;
+nosave bool mfx_bssshiftenable = false;
+nosave float mfx_bssshiftradius = .75;
+
+nosave bool mfx_bblurenable = false;
+nosave float mfx_bblurpow = 1.;
+nosave float mfx_bblurmul = 1.;
+nosave float mfx_bblurbump = 0.;
+nosave float mfx_bblurradius = 1.;
+
+nosave bool mfx_vigenable = false;
+nosave float mfx_vigcolor_r = 0.;
+nosave float mfx_vigcolor_g = 0.;
+nosave float mfx_vigcolor_b = 0.;
+nosave float mfx_vigpow = 4.;
+nosave float mfx_vigmul = .75;
+nosave float mfx_vigbump = 0.;
+nosave int mfx_vigshape = 1;
+nosave int mfx_vigmode = 0;
+
+nosave bool mfx_retroenable = false;
+nosave int mfx_retroscalemode = 0;
+nosave int mfx_bres_x = 640;
+nosave int mfx_bres_y = 480;
+nosave float mfx_bscl_x = .5;
+nosave float mfx_bscl_y = .5;
+nosave bool mfx_palenable = false;
+nosave int mfx_palnum = 0;
+nosave float mfx_palsat = 1.;
+nosave float mfx_palpow = 1.;
+nosave float mfx_paldither = .05;
+
+nosave string mfx_presetname = "Unnamed";
+
+// END PRESET VARS
+
+nosave int mfx_presetslot = 0;
+nosave string mfx_preset0 = "";
+nosave string mfx_preset1 = "";
+nosave string mfx_preset2 = "";
+nosave string mfx_preset3 = "";
+nosave string mfx_preset4 = "";
+nosave string mfx_preset5 = "";
+nosave string mfx_preset6 = "";
+nosave string mfx_preset7 = "";

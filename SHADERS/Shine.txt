@@ -1,0 +1,7 @@
+uniform float timer;
+vec4 Process(vec4 color)
+{
+	vec2 texCoord = gl_TexCoord[0].st;
+	vec2 texCoordR = gl_TexCoord[0].st * getTexel(texCoord - vec2(uCameraPos.x, -uCameraPos.z)* 0.002).xy;
+	return ((getTexel(texCoordR) * color) * (getTexel(texCoord) * color)) * 0.5;
+}

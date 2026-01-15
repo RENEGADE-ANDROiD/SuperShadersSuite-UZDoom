@@ -1,0 +1,22 @@
+uniform float timer;
+vec4 Process(vec4 color)
+{
+  const float pi = 3.14159265358979323846;
+  vec2 texCoord = gl_TexCoord[0].st;
+
+  // ripple 1
+  vec2 texCoordRip1 = gl_TexCoord[0].st;
+  vec2 offsetRip1 = vec2(0,0);
+  offsetRip1.y = sin(pi * 10.0 * (texCoordRip1.x + timer * 0.5)) * 0.1;
+  offsetRip1.x = sin(pi * 2.0 * (texCoordRip1.y + timer * 0.5)) * 0.1;
+  texCoordRip1 += offsetRip1 * (getTexel(texCoord).xy * 0.05);
+
+  // ripple 2
+  vec2 texCoordRip2 = gl_TexCoord[0].st;
+  vec2 offsetRip2 = vec2(0,0);
+  offsetRip2.y = sin(pi * -50.0 * (texCoordRip2.x + timer * 0.25)) * 0.1;
+  offsetRip2.x = sin(pi * -10.0 * (texCoordRip2.y + timer * 0.25)) * 0.1;
+  texCoordRip2 += offsetRip2 * (getTexel(texCoord).xy * 0.05);
+  
+  return ((getTexel(texCoordRip1) + getTexel(texCoordRip2)) * 0.5) * color;
+}
