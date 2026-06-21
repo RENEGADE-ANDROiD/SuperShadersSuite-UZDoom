@@ -1,6 +1,24 @@
+SuperShadersSuiteRT — License and Third-Party Notices
+=====================================================
+
+Universal post-processing, RT-lite lighting, and visual-preset addon for
+UZDoom/GZDoom 4.10+ (hardware renderer). Distributed as a PK3/WAD
+(SuperShadersSuiteRT.wad).
+
+Forum: https://forum.zdoom.org/viewtopic.php?t=62772
+
+
+1. Primary license (original work)
+----------------------------------
+
+The following applies to original code, menus, ZScript integration, visual
+presets, RT-lite handlers, BodyCam Visual, build glue, and other material
+authored for this suite that is not listed under section 2:
+
 MIT License
 
-Copyright (c) 2026 RENEGADE ANDROiD
+Copyright (c) 2025 Cynic Games
+Copyright (c) 2026 RENEGADE ANDROiD (Shawn Shackelford)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +37,190 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+2. Third-party and bundled components
+-------------------------------------
+
+This addon bundles or adapts work from several community projects and shader
+authors. Those portions remain under their original terms. Where a component
+is marked "inspired" or "lite", it is a new implementation informed by the
+named project — not a wholesale port — unless a file comment states otherwise.
+
+Integrated / adapted (ship in this PK3)
+-----------------------------------------
+
+DarkDoomZ (sector darkness + flashlight)
+  Author: Sterling "Caligari87" Parker
+  License: zlib (see section 3.1)
+  Files: Scripts/SSSDarkDoomHandler.zs, related CVARs/menus, SNDINFO flashlight sound
+
+MariFX / MariENB GPU grading stack
+  Author: Marisa Kirisame (OrdinaryMagician)
+  Files: SHADERS/glsl/mfx_*.fp, MariFXHandler and related CVARs/menus in zscript.zc
+  Note: Shader headers credit (C)2012–2021 Marisa Kirisame. GIMP hue/saturation
+        filter portions credit Michael Natterer (C)2007. Retain upstream notices
+        in shader sources.
+
+VHS & CRT post-process shader
+  Author: DRON12261 (VHS & CRT Shader Mod for GZDoom)
+  License: GNU GPL v3.0 (see section 3.3)
+  Files: SHADERS/PostProcess/VHSCRTShader.fp, Scripts/VHSCRTPostProcessHandler.zs,
+         VHSCRT options menu
+  Upstream: https://github.com/dron12261games/MOD-VHS-CRT-Shader-by-DRON12261
+  ShaderToy sources credited upstream: Timothy Lottes (FixingPixelArt), Vladimir
+        Storm (VHS tape noise), Gaktan (VHS tape effect)
+
+Vignette post-process
+  Port: Nash Muhandes
+  Original shader: Ippokratis (ShaderToy lsKSWR)
+  Files: SHADERS/PostProcess/Vignette.fp, vignette handling in zscript.zc
+
+Film grain post-process
+  Author: Martins Upitis (martinsh)
+  License: Creative Commons Attribution 3.0 Unported (see section 3.2)
+  Files: SHADERS/FilmGrain.fp
+  Perlin noise portion: toneburst (machinesdontcare.wordpress.com)
+
+Fisheye post-process
+  Based on ShaderToy view 4sSSzz
+  Files: SHADERS/PostProcess/Fisheye.fp, FishEyePostProcessHandler.zs
+
+Filmic tonemap LUT shader
+  Credits: kingeric1992 (ENB Series forum)
+  Files: SHADERS/FilmicTonemap.fp (and legacy FilmicTonemap_old*.fp)
+
+Color bleed post-process
+  Ported/adapted from ReLite 0.7.4 color-bleed grade
+  Files: SHADERS/PostProcess/ColorBleed.fp, Scripts/ColorBleedHandler.zs
+
+Screen-M (widescreen pitch, phosphor / palette / CRT-style grading)
+  Files: SHADERS/Widescreem.fp, WidescreemZ.fp, OldPals.fp, Temp*.fp,
+         ScreeMHandler in zscript.zc, related CVARs/menus
+  Temperature colour algorithms credit Tanner Helland (tannerhelland.com)
+
+SoftShade (ordered dither / palette reduction)
+  Files: SHADERS/PostProcess/SoftShade.fp, Scripts/SoftShadePostProcessHandler.zs
+
+World gamma & bloom boost
+  Files: SHADERS/WorldGamma.fp, BloomBoostPre.fp, BloomBoostPost.fp,
+         WorldGammaHandler and BBHandler in zscript.zc
+
+Tc post-process pack (lens flares, vignette toggle path, screen noise)
+  Files: SHADERS/PostProcess/LensFlare.fp, Noise.fp, TcPostProcessShaderHandler
+         in zscript.zc, tc_pp_* CVARs
+
+Old video / aged-film defects shader
+  Files: SHADERS/PostProcess/OldVideo.fp, OldVideoShaderHandler in zscript.zc
+
+SDPWH screen effects (filmic LUT tonemap path, chromatic aberration, etc.)
+  Files: SDPWHScreenEffects in zscript.zc, related shaders and TEXTURES LUTs
+
+ACES tonemap
+  Files: SHADERS/PostProcess/ACES.fp, ACESTonemapHandler in zscript.zc
+  Implements standard ACES filmic approximations (Narkowicz / full RRT+ODT paths)
+
+BodyCam Visual
+  Original integration for this suite: MIT (section 1)
+  Files: SHADERS/PostProcess/bodycam.fp, Scripts/SSSBodyCamHandler.zs
+  Digital mode pairs with the fisheye shader; analog mode reuses VHS/CRT + fisheye
+
+Environment / water / material shaders
+  Files: SHADERS/env*.fp, water.fp, GLDEFS/materials_*.gl, MATERIALS/
+
+Original RT-lite & enhanced lighting (this suite)
+  Files: Scripts/SSSLightingHandler.zs, SSSRelightEnhance.zs, SSSDoorLightHandler.zs,
+         SSSShadowHandler.zs, SSSReflectionHelper.zs, SSSVisualPresetHandler.zs,
+         SHADERS/PostProcess/ContactAO.fp, FluidSSR.fp, GLDEFS/sss_colorizations.gl, etc.
+
+Inspired by (not a port of the standalone mods; do not run alongside them)
+--------------------------------------------------------------------------
+
+Relighting (Nash Muhandes)
+  RT-Relight Enhance, door-light spill, and wall-shadow ideas are
+  Relighting-inspired, performance-tiered reimplementations.
+
+ReLite (Hey Doomer, MIT)
+  Enhanced lighting bias/bleed/colorization and ColorBleed.fp grade trace to
+  ReLite 0.7.4 concepts. ReLite itself is a fork of Relighting.
+
+Dark Doom (SidDoyle / Josh771)
+  Conceptual predecessor to DarkDoomZ sector darkening.
+
+
+3. Additional license texts
+---------------------------
+
+3.1 zlib License — DarkDoomZ (Caligari87)
+-----------------------------------------
+
+(C) 2018 Sterling Parker (aka "Caligari87")
+
+This software is provided 'as-is', without any express or implied
+warranty. In no event will the authors be held liable for any damages
+arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgment in the product documentation would be
+   appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+
+
+3.2 Creative Commons Attribution 3.0 Unported — Film Grain
+------------------------------------------------------------
+
+SHADERS/FilmGrain.fp is by Martins Upitis (martinsh), 2013.
+
+You are free to share, remix, and use commercially, provided you give
+appropriate credit. Full legal code:
+https://creativecommons.org/licenses/by/3.0/legalcode
+
+
+3.3 GNU General Public License v3.0 — VHS/CRT shader
+----------------------------------------------------
+
+SHADERS/PostProcess/VHSCRTShader.fp and its handler/menu integration are
+derived from DRON12261's VHS & CRT Shader Mod (GPL-3.0).
+
+When you receive a copy of this addon, you may also obtain the complete
+GPL-3.0 text at:
+
+  https://www.gnu.org/licenses/gpl-3.0.txt
+
+Distribution of GPL-covered shader sources in this PK3 satisfies the
+corresponding source-provision expectations for those files. If you modify
+GPL-covered portions, you must license your modifications under GPL-3.0 and
+document changes, per the GPL.
+
+
+4. Game content and engine
+--------------------------
+
+This addon is designed for Doom-engine games under UZDoom/GZDoom. You must
+comply with id Software / Raven / etc. IWAD and mod licenses for the games
+and assets you load alongside this PK3. GZDoom/UZDoom itself is licensed
+separately (see the port's docs/licenses).
+
+
+5. Trademarks
+-------------
+
+Doom, Heretic, Hexen, GZDoom, UZDoom, and other game or product names are
+trademarks of their respective owners. This project is a fan add-on and is
+not affiliated with or endorsed by id Software, ZDoom LLC, or the upstream
+authors except as credited above.
+
+
+6. Questions
+------------
+
+For licensing questions about this suite, contact the maintainers via the
+forum thread above. For upstream component issues, please refer to the
+original authors' repositories or forum threads.

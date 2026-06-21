@@ -7,7 +7,11 @@ Material ProcessMaterial()
     vec2 texCoord = vTexCoord.st;
 
     Material material;
+#if defined(NORMALMAP)
 	vec4 addEnv = texture(displacement, (normalize(transpose(tbn) * (uCameraPos.xyz - pixelpos.xyz)).xy) + (texture(normaltexture, texCoord).xy * 0.2));
+#else
+	vec4 addEnv = texture(displacement, normalize(transpose(tbn) * (uCameraPos.xyz - pixelpos.xyz)).xy);
+#endif
 	
     material.Base = addEnv;
 	

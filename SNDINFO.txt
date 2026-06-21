@@ -1,0 +1,2 @@
+DarkDoomZ/Flashlight/Click	DDZCLK01
+$pitchset DarkDoomZ/Flashlight/Click 0.9 1.1

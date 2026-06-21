@@ -1,0 +1,12 @@
+addkeysection "DarkDoomZ" "darkdoomz"
+addmenukey "Toggle Flashlight" ddz_toggleflashlight
+alias ddz_toggleflashlight "use DarkDoomZ_Flashlight"
+defaultbind "f" ddz_toggleflashlight
+
+addkeysection "Super Shaders Suite" "supershaderssuite"
+addmenukey "Toggle BodyCam Visual" sss_toggle_bodycam
+alias sss_toggle_bodycam "netevent sss_toggle_bodycam"
+defaultbind "b" sss_toggle_bodycam
+addmenukey "Toggle Hitbox Debug" sss_toggle_hitbox
+alias sss_toggle_hitbox "netevent sss_toggle_hitbox"
+defaultbind "h" sss_toggle_hitbox

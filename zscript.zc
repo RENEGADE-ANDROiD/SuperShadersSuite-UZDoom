@@ -1,7 +1,21 @@
-version "4.7"
+version "4.10.0"
+#include "Scripts/SSSGeoMixin.zs"
 #include "Scripts/FishEyePostProcessHandler.zs"
 #include "Scripts/VHSCRTPostProcessHandler.zs"
-#include "scriptS/SoftShadePostProcessHandler.zs"
+#include "Scripts/SoftShadePostProcessHandler.zs"
+#include "Scripts/ColorBleedHandler.zs"
+#include "Scripts/SSSReflectionHelper.zs"
+#include "Scripts/SSSReflectionPostProcessor.zs"
+#include "Scripts/SSSRelightEnhance.zs"
+#include "Scripts/SSSLightingHandler.zs"
+#include "Scripts/SSSLightActors.zs"
+#include "Scripts/SSSDoorLightHandler.zs"
+#include "Scripts/SSSMaterialHandler.zs"
+#include "Scripts/SSSShadowHandler.zs"
+#include "Scripts/SSSDarkDoomHandler.zs"
+#include "Scripts/SSSVisualPresetHandler.zs"
+#include "Scripts/SSSBodyCamHandler.zs"
+#include "Scripts/SSSHitboxHandler.zs"
 
 class TcPostProcessShaderHandler : StaticEventHandler
 {
@@ -100,7 +114,8 @@ Class ACESTonemapHandler : StaticEventHandler
 	transient ui CVar at_enabled, at_ApertureFNumber,
 					  at_ISO, at_ShutterSpeedValue, at_ExposureMode,
 					  at_CustomISO, at_CustomShutterSpeed,
-					  at_Crosstalk, at_Saturation, at_CrossSaturation;
+					  at_Crosstalk, at_Saturation, at_CrossSaturation,
+					  at_exposure_bias, at_aces_mode;
 
 	static const float ISOValues[] = {
 		50, 	100, 	200, 	400, 		800, 		1600,
@@ -130,10 +145,11 @@ Class ACESTonemapHandler : StaticEventHandler
 		if(!at_Crosstalk) at_Crosstalk = CVar.FindCVar("at_Crosstalk");
 		if(!at_Saturation) at_Saturation = CVar.FindCVar("at_Saturation");
 		if(!at_CrossSaturation) at_CrossSaturation = CVar.FindCVar("at_CrossSaturation");
-		
-		
-		float shutterSpeed = 0.0f;
-		float iso = 0.0f;
+		if(!at_exposure_bias) at_exposure_bias = CVar.FindCVar("at_exposure_bias");
+		if(!at_aces_mode) at_aces_mode = CVar.FindCVar("at_aces_mode");
+
+		float shutterSpeed = 0.0;
+		float iso = 0.0;
 		
 		if(at_ShutterSpeedValue.GetFloat() == 14) {
 			shutterSpeed = 1.0 / at_CustomShutterSpeed.GetFloat();
@@ -141,10 +157,10 @@ Class ACESTonemapHandler : StaticEventHandler
 			shutterSpeed = ShutterSpeeds[at_ShutterSpeedValue.GetInt()];
 		}
 		
-		if(at_ISO.GetFloat() == 18) {
+		if(at_ISO.GetInt() == 18) {
 			iso = at_CustomISO.GetFloat();
 		} else {
-			iso = ISOValues[at_ISO.GetFloat()];
+			iso = ISOValues[at_ISO.GetInt()];
 		}
 		
 		Shader.SetEnabled(p,"AcesTonemap", at_enabled.GetBool() );
@@ -157,6 +173,8 @@ Class ACESTonemapHandler : StaticEventHandler
 		
 		Shader.SetUniform1f(p,"AcesTonemap", "ShutterSpeedValue" , shutterSpeed );
 		Shader.SetUniform1i(p, "AcesTonemap", "ExposureMode", at_ExposureMode.GetInt() );
+		Shader.SetUniform1f(p, "AcesTonemap", "exposureBias", at_exposure_bias.GetFloat() );
+		Shader.SetUniform1i(p, "AcesTonemap", "ACESMode", at_aces_mode.GetInt() );
 	}
 	
 	override void ConsoleProcess( ConsoleEvent e )
@@ -175,6 +193,8 @@ Class ACESTonemapHandler : StaticEventHandler
 			if(!at_Crosstalk) at_Crosstalk = CVar.FindCVar("at_Crosstalk");
 			if(!at_Saturation) at_Saturation = CVar.FindCVar("at_Saturation");
 			if(!at_CrossSaturation) at_CrossSaturation = CVar.FindCVar("at_CrossSaturation");
+			if(!at_exposure_bias) at_exposure_bias = CVar.FindCVar("at_exposure_bias");
+			if(!at_aces_mode) at_aces_mode = CVar.FindCVar("at_aces_mode");
 			
 			at_enabled.ResetToDefault();
 			at_ApertureFNumber.ResetToDefault();
@@ -186,6 +206,8 @@ Class ACESTonemapHandler : StaticEventHandler
 			at_Crosstalk.ResetToDefault();
 			at_Saturation.ResetToDefault();
 			at_CrossSaturation.ResetToDefault();
+			at_exposure_bias.ResetToDefault();
+			at_aces_mode.ResetToDefault();
 		}
 	}
 }
@@ -520,13 +542,21 @@ Class SDPWHScreenEffects : StaticEventHandler
 
 		if (Cvar.GetCVar("dpwh_filmictonemap2", players).GetInt() > 0){
 			DisableLUTshaders();
-			Shader.SetEnabled(players, "TonemapDefault", true);
-			if((level.mapName == "TITLEMAP")){
-				DisableLUTshaders();
+			String lutName = Cvar.GetCVar("dsc_scene_lut2", players).GetString();
+			if (level.mapName == "TITLEMAP")
 				Shader.SetEnabled(players, "TonemapTitlemap", true);
-			}
+			else if (lutName != "")
+				Shader.SetEnabled(players, lutName, true);
+			else
+				Shader.SetEnabled(players, "TonemapDefault", true);
+		} else {
+			DisableLUTshaders();
+		}
 
-		} else {DisableLUTshaders();}
+		if (Cvar.GetCVar("dpwh_chromaticAberration2", players).GetBool())
+			EnableCubicCA();
+		else
+			DisableCubicCA();
 
 
 
@@ -555,10 +585,7 @@ Class SDPWHScreenEffects : StaticEventHandler
 		Shader.SetEnabled(players, "TonemapTitlemap", false);
 		Shader.SetEnabled(players, "TonemapTide", false);
 		Shader.SetEnabled(players, "TonemapSnow", false);
-		//Shader.SetEnabled(players, "TonemapBlood", false);
-
 	}
-
 
 	ui void EnableFilmGrain(RenderEvent e)
 	{
@@ -622,7 +649,9 @@ Class MFXPresetUtility
 {
 	static clearscope void SavePreset( int slot )
 	{
-		let lmp = Wads.CheckNumForFullname("cvarinfo.marifx");
+		let lmp = Wads.CheckNumForFullname("CVARINFO.txt");
+		if ( lmp < 0 ) lmp = Wads.CheckNumForFullname("cvarinfo.marifx");
+		if ( lmp < 0 ) return;
 		String dat = Wads.ReadLump(lmp);
 		// fucking Windows
 		dat.Substitute("\r","");

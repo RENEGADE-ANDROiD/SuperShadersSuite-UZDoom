@@ -19,7 +19,7 @@ void main()
 	center.y = coord.y-0.5;
 	float LensZoom = 1.0/fFisheyeZoom;
 
-    float r2 = (TexCoord.y-0.5) * (TexCoord.y-0.5) + (TexCoord.y-0.5) * (TexCoord.y-0.5);
+    float r2 = (TexCoord.x-0.5) * (TexCoord.x-0.5) + (TexCoord.y-0.5) * (TexCoord.y-0.5);
 
 	float f = 0;
 

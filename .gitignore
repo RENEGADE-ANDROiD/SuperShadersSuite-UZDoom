@@ -1,0 +1,15 @@
+# Dev-only extracts (never ship in PK3)
+_compare_relighting/
+
+# Build / deploy backups
+*.bak
+*.bak_*
+
+# Dev-only build tooling (excluded from PK3; local paths in scripts)
+tools/
+build-addon.ps1
+.gitattributes
+
+# Editor / agent local config
+.cursor/
+AGENTS.md

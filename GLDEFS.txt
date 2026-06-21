@@ -1,14 +1,3 @@
-HardwareShader PostProcess beforebloom
-{
-    Name "MBlur"
-    Shader "MBlur.fp" 330
-    Uniform vec2 steps
-    Uniform int samples
-    Uniform float increment
-    Uniform int blendmode
-    Uniform float saturation
-}
-
 HardwareShader PostProcess Scene
 {
 	Name "lensflareshader"
@@ -17,15 +6,6 @@ HardwareShader PostProcess Scene
 	Uniform int samples
 	Uniform float distance
 	Uniform float amount
-}
-
-HardwareShader PostProcess Scene
-{
-	Name "motionblurshader"
-	Shader "shaders/PostProcess/MotionBlur.fp" 330
-	Uniform float bx
-	Uniform float by
-	Uniform int samples
 }
 
 HardwareShader PostProcess scene
@@ -180,6 +160,55 @@ HardwareShader PostProcess scene
 {
 	Name "TonemapDefault"
 	Texture ColourmapLUT "textures/lut.png"
+	Shader "shaders/FilmicTonemap.fp" 330
+}
+
+HardwareShader PostProcess scene
+{
+	Name "TonemapArena"
+	Texture ColourmapLUT "textures/lut_arena.png"
+	Shader "shaders/FilmicTonemap.fp" 330
+}
+
+HardwareShader PostProcess scene
+{
+	Name "TonemapSalvation"
+	Texture ColourmapLUT "textures/lut_salvation.png"
+	Shader "shaders/FilmicTonemap.fp" 330
+}
+
+HardwareShader PostProcess scene
+{
+	Name "TonemapPlaza"
+	Texture ColourmapLUT "textures/lut_plaza.png"
+	Shader "shaders/FilmicTonemap.fp" 330
+}
+
+HardwareShader PostProcess scene
+{
+	Name "TonemapCemetery"
+	Texture ColourmapLUT "textures/lut_cemetery.png"
+	Shader "shaders/FilmicTonemap.fp" 330
+}
+
+HardwareShader PostProcess scene
+{
+	Name "TonemapTitlemap"
+	Texture ColourmapLUT "textures/lut_titlemap.png"
+	Shader "shaders/FilmicTonemap.fp" 330
+}
+
+HardwareShader PostProcess scene
+{
+	Name "TonemapTide"
+	Texture ColourmapLUT "textures/lut_tide.png"
+	Shader "shaders/FilmicTonemap.fp" 330
+}
+
+HardwareShader PostProcess scene
+{
+	Name "TonemapSnow"
+	Texture ColourmapLUT "textures/lut_snow.png"
 	Shader "shaders/FilmicTonemap.fp" 330
 }
 
@@ -362,6 +391,20 @@ HardwareShader postprocess scene
 	Uniform int palnum
 }
 
+HardwareShader PostProcess Screen
+{
+	Name "sss_bodycam"
+	Shader "shaders/PostProcess/bodycam.fp" 330
+	Uniform float iTime
+	Uniform float chromaStrength
+	Uniform float noiseStrength
+	Uniform float contrast
+	Uniform float saturation
+	Uniform float rollSkewX
+	Uniform float rollSkewY
+	Uniform float rollStrength
+}
+
 HardwareShader PostProcess Scene
 {
 	Name "fisheyeshader"
@@ -405,6 +448,8 @@ HardwareShader PostProcess Scene
 	Uniform float crossTalk
 	Uniform float saturation
 	Uniform float crossSaturation
+	Uniform float exposureBias
+	Uniform int ACESMode
 }
 
 HardwareShader PostProcess Scene
@@ -424,24 +469,36 @@ HardwareShader PostProcess scene
 	Uniform float timer
 }
 
-
-//#include "materials_industrial.gl"
-
-
-
-/*
-
-material texture model/T_Bubble.png {
-	shader "SHADERS/envBubble.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	
-    normal MATERIALS/normal/T_null.jpg
-    specular MATERIALS/specular/T_null.jpg
-	specularlevel 4.0
-    glossiness 25
+HardwareShader Postprocess Scene
+{
+	Name "sss_colorbleed"
+	Shader "shaders/PostProcess/ColorBleed.fp" 330
+	Uniform float sss_bleeding
+	Uniform float sss_bleed_gamma
+	Uniform float sss_bleed_saturation
+	Uniform float sss_bleed_rg
 }
 
-*/
+HardwareShader Postprocess Scene
+{
+	Name "sss_contactao"
+	Shader "shaders/PostProcess/ContactAO.fp" 330
+	Uniform float sss_contactao_strength
+	Uniform float sss_contactao_radius
+}
+
+HardwareShader Postprocess Scene
+{
+	Name "sss_fluidssr"
+	Shader "shaders/PostProcess/FluidSSR.fp" 330
+	Uniform float sss_fluidssr_strength
+}
+
+// Industrial env reflections need matching wall textures in the IWAD chain.
+// PB3-Universals loads before most TC texture packs, so keep disabled for universal use.
+//#include "GLDEFS/materials_industrial.gl"
+#include "GLDEFS/materials_vanilla.gl"
+#include "GLDEFS/sss_colorizations.gl"
 
 
 

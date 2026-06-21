@@ -1,0 +1,759 @@
+﻿// Auto-generated environment reflection materials for Super Shaders Suite
+
+material texture IRNR01
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/IRNR01.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture Marbfac4
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/Marbfac4.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture marbgray
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/marbgray.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture marble1
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/marble1.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture marble2
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/marble2.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture marble3
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/marble3.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture marblod1
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/marblod1.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture MEDI
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/MEDI.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture METAL01
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/METAL01.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture METAL02
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/METAL02.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture METAL03
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/METAL03.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture metal2
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/metal2.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture metal3
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/metal3.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture metal4
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/metal4.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture metal5
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/metal5.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture metal6
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/metal6.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture metal7
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/metal7.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture metal8
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/metal8.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture METC
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/METC.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture MOSSGP
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/MOSSGP.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture MWAL01b
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/MWAL01b.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture MWALL01
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/MWALL01.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture panblack
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/panblack.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture panblue
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/panblue.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture panbook
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/panbook.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture panbord1
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/panbord1.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture panbord2
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/panbord2.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture pancase1
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/pancase1.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture pancase2
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/pancase2.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture panel1
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/panel1.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture panel3
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/panel3.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture panel4
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/panel4.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture panel5
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/panel5.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_aircon_cluster_01
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_aircon_cluster_01.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_ambusher
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_ambusher.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_barrel_heavy_01
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_barrel_heavy_01.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_bucket
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_bucket.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_chair
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_chair.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_controlpanel_01
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_controlpanel_01.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_controlpanel_b
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_controlpanel_b.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_door_metal_01
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_door_metal_01.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_door_metal_ending
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_door_metal_ending.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_fallen_debris_A
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_fallen_debris_A.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_fridge
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_fridge.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_generator_01
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_generator_01.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_heater
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_heater.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_hotel_door_A
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_hotel_door_A.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_hotel_door_B
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_hotel_door_B.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_lockers
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_lockers.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_pipe_heavy_A
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_pipe_heavy_A.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_pipe_heavy_B
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_pipe_heavy_B.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_pipe_heavy_C
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_pipe_heavy_C.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_pipecluster_A
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_pipecluster_A.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_shelf_unit_A
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_shelf_unit_A.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_sign_kindy
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_sign_kindy.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_sink_A
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_sink_A.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_streetlamp
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_streetlamp.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_streetlamp_signs
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_streetlamp_signs.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_table_01
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_table_01.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture T_toilet_A
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/T_toilet_A.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture tekgren1
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/tekgren1.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture tekgren2
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/tekgren2.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture tekgren3
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/tekgren3.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture tekgren4
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/tekgren4.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture TILE01
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/TILE01.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture TILE02
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/TILE02.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture TLEE
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/TLEE.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture TLEEC
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/TLEEC.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture TLEG
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/TLEG.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture TLEH
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/TLEH.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture TLEI
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/TLEI.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture TLEJ
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/TLEJ.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture WALL01
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/WALL01.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture WALL02
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/WALL02.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture WALL03
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/WALL03.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture WALL04
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/WALL04.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture WALL05
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/WALL05.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture WAT01
+{
+	shader "SHADERS/water.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/WAT01.jpg"
+	texture watnoise "MATERIALS/ENV/waternoise.jpg"
+	speed 1.0
+}
+
+material texture WIND01
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/WIND01.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture Wood12
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/Wood12.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture wood3
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/wood3.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture wood4
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/wood4.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture wood6
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/wood6.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+material texture woodvert
+{
+	shader "SHADERS/env.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	texture envmask "MATERIALS/ENVMASK/woodvert.jpg"
+	specularlevel 0.35
+	glossiness 12
+}
+
+

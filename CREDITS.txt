@@ -1,0 +1,236 @@
+================================================================================
+  SuperShadersSuiteRT — Credits
+================================================================================
+
+Universal post-processing, RT-lite lighting, and visual-preset addon for
+UZDoom/GZDoom 4.10+ (hardware renderer).
+
+Forum: https://forum.zdoom.org/viewtopic.php?t=62772
+
+Legal terms and license texts: see LICENSE in this PK3.
+
+
+--------------------------------------------------------------------------------
+  Super Shaders Suite RT (this project)
+--------------------------------------------------------------------------------
+
+  RENEGADE ANDROiD (Shawn Shackelford)     — lead maintenance and expansion (2026)
+  Cynic Games                              — original suite foundation (2025)
+
+  Original work in this PK3 includes, among other things:
+
+    • Visual Presets (quality + style bundles across the whole stack)
+    • RT-lite screen effects (Contact AO, Fluid SSR, wall-bake integration)
+    • RT-Relight Enhance (map-load relight passes, tiered per preset)
+    • Enhanced lighting pipeline (sector bias, smooth walls, fluid glow)
+    • Door / lift light spill (runtime, lite)
+    • Sprite floor / wall shadows (lite)
+    • Planar fluid reflections and generic wall env shine (materials_vanilla.gl)
+    • BodyCam Visual (digital bodycam shader + evidence overlay)
+    • Menu integration, CVAR wiring, and preset orchestration (SSS* handlers)
+
+
+--------------------------------------------------------------------------------
+  Lighting & atmosphere
+--------------------------------------------------------------------------------
+
+  DarkDoomZ
+    Sterling "Caligari87" Parker
+    Integrated sector darkness + flashlight (replaces standalone DarkDoomZ WAD)
+    https://github.com/caligari87/darkdoomz
+
+  Dark Doom (concept)
+    SidDoyle / Josh771 — original Dark Doom mutator concept that DarkDoomZ
+    reimplements in ZScript.
+
+  ReLite (concepts & color-bleed grade)
+    Hey Doomer
+  ReLite is a fork of Relighting; this suite uses ReLite-inspired enhanced
+  lighting ideas and adapts the color-bleed post grade (see Color Bleed below).
+  Do not load the standalone ReLite or Relighting mods alongside this addon.
+
+  Relighting (concepts)
+    Nash Muhandes
+  RT-Relight Enhance, recursive bleed, window/texture lights, door spill, and
+  lite wall shadows are Relighting-inspired reimplementations — not a port of
+  the standalone Relighting PK3.
+
+
+--------------------------------------------------------------------------------
+  GPU grading & tone mapping
+--------------------------------------------------------------------------------
+
+  MariFX / MariENB
+    Marisa Kirisame (OrdinaryMagician)
+    SHADERS/glsl/mfx_*.fp — luma sharpen, grain, dirt, grading, LUT grading,
+    technicolor, color matrix, palette, retro FX, vignette, border blur, etc.
+    https://github.com/OrdinaryMagician/marifx_m
+
+  GIMP hue–saturation filter (inside mfx_huesaturation.fp)
+    Michael Natterer (C)2007 — algorithm ported via MariENB
+
+  ACES tonemap
+    SHADERS/PostProcess/ACES.fp — camera-style exposure + ACES Narkowicz (fast)
+    and full ACES (RRT+ODT) paths using standard filmic approximations.
+
+  Filmic LUT tonemap
+    kingeric1992 (ENB Series forum)
+    SHADERS/FilmicTonemap.fp
+    https://enbseries.enbdev.com/forum/viewtopic.php?f=7&t=4394
+
+  Filmic pass (legacy variant)
+    crosire — ReShade FilmicPass.fx (referenced in FilmicTonemap_old.fp)
+    https://github.com/crosire/reshade-shaders
+
+  SDPWH screen effects
+    Filmic LUT path, chromatic aberration, and related post stack wired through
+    SDPWHScreenEffects in zscript.zc (bundled with this suite).
+
+  World gamma
+    SHADERS/WorldGamma.fp — pre/post bloom gamma, contrast, brightness.
+
+  Bloom boost
+    SHADERS/BloomBoostPre.fp, BloomBoostPost.fp
+
+
+--------------------------------------------------------------------------------
+  Retro display, CRT, VHS & screen effects
+--------------------------------------------------------------------------------
+
+  Screen-M / Screem
+    Widescreen pitch correction, phosphor / palette / CRT-style colour grading.
+    SHADERS/Widescreem.fp, WidescreemZ.fp, OldPals.fp, Temp*.fp, Gamma.fp,
+    Res.fp, Fos4.fp, Griller*.fp and ScreeMHandler in zscript.zc.
+
+  VHS & CRT shader mod
+    DRON12261
+    SHADERS/PostProcess/VHSCRTShader.fp, VHSCRTPostProcessHandler.zs
+    https://github.com/dron12261games/MOD-VHS-CRT-Shader-by-DRON12261
+
+  VHS/CRT ShaderToy sources (credited upstream by DRON12261)
+    Timothy Lottes   — FixingPixelArt (https://www.shadertoy.com/view/XsjSzR)
+    Vladimir Storm   — VHS tape noise (https://www.shadertoy.com/view/MlfSWr)
+    Gaktan           — VHS tape effect (https://www.shadertoy.com/view/Ms3XWH)
+
+  SoftShade
+    Ordered dither / palette-style reduction.
+    SHADERS/PostProcess/SoftShade.fp, SoftShadePostProcessHandler.zs
+
+  Old video / aged-film defects
+    SHADERS/PostProcess/OldVideo.fp, OldVideoShaderHandler in zscript.zc
+
+  Low-detail / resolution scaler
+    SHADERS/Res.fp — code from the Low Detail Shader (community GZDoom shader)
+
+  Screen-M temperature colour
+    Tanner Helland — RGB temperature algorithm
+    http://www.tannerhelland.com/4435/convert-temperature-rgb-algorithm-code/
+    Used in SHADERS/Temp.fp, TempColour.fp, TempGrey.fp
+
+  Screen-M saturation
+    SHADERS/Gamma.fp — saturation approach adapted from The OpenGL Shading
+    Language, 3rd ed., Chapter 16.
+
+
+--------------------------------------------------------------------------------
+  Post-process FX
+--------------------------------------------------------------------------------
+
+  Vignette
+    Port: Nash Muhandes
+    Original shader: Ippokratis (ShaderToy lsKSWR)
+    https://www.shadertoy.com/view/lsKSWR
+    SHADERS/PostProcess/Vignette.fp
+
+  Film grain
+    Martins Upitis (martinsh), 2013 — CC BY 3.0
+    devlog: devlog-martinsh.blogspot.com
+    SHADERS/FilmGrain.fp
+    Perlin noise portion: toneburst
+    http://machinesdontcare.wordpress.com/2009/06/25/3d-perlin-noise-sphere-vertex-shader-sourcecode/
+
+  Fisheye
+    Based on ShaderToy 4sSSzz
+    https://www.shadertoy.com/view/4sSSzz
+    SHADERS/PostProcess/Fisheye.fp, FishEyePostProcessHandler.zs
+
+  Chromatic aberration (fisheye-style)
+    SHADERS/CubicCA.fp
+
+  Color bleed
+    Ported/adapted from ReLite 0.7.4 color-bleed grade (Hey Doomer / Relighting
+    lineage). SHADERS/PostProcess/ColorBleed.fp, ColorBleedHandler.zs
+
+  Lens flares, screen noise, tc_pp pack
+    SHADERS/PostProcess/LensFlare.fp, Noise.fp
+    TcPostProcessShaderHandler in zscript.zc (tc_pp_* CVARs)
+
+  BodyCam Visual (digital)
+    Original bodycam.fp + SSSBodyCamHandler.zs for this suite.
+    Pairs with the fisheye shader for barrel/chroma; analog mode reuses VHS/CRT
+    + fisheye.
+
+
+--------------------------------------------------------------------------------
+  RT-lite (screen-space, this suite)
+--------------------------------------------------------------------------------
+
+  Contact AO
+    SHADERS/PostProcess/ContactAO.fp — luminance-contrast crevice darkening
+    (no depth buffer).
+
+  Fluid SSR
+    SHADERS/PostProcess/FluidSSR.fp — screen-space reflection boost on
+    allowlisted fluid flats.
+
+
+--------------------------------------------------------------------------------
+  Materials & environment
+--------------------------------------------------------------------------------
+
+  Generic environment shine
+    SHADERS/envgeneric.fp — Fresnel gloss without per-texture envmasks;
+    GLDEFS/materials_vanilla.gl (stock Doom / Heretic / Hexen wall names).
+
+  Environment / water / bubble shaders
+    SHADERS/env.fp, envBubble.fp, water.fp, invglow.fp, windblast.fp,
+    displacement.fp and related GLDEFS material entries.
+
+  Optional industrial envmasks
+    GLDEFS/materials_industrial.gl — Project Brutality-style masks (disabled by
+    default; breaks on HD texture replacements).
+
+  Wall colorizations
+    GLDEFS/sss_colorizations.gl — hue-step wall tints (ReLite-style pipeline).
+
+  Cubemap & mask assets
+    MATERIALS/ENV/, MATERIALS/ENVMASK/
+
+
+--------------------------------------------------------------------------------
+  Engine & game content
+--------------------------------------------------------------------------------
+
+  UZDoom / GZDoom
+    ZDoom community — hardware renderer, shader system, and ZScript runtime.
+
+  Doom, Doom II, Heretic, Hexen
+    id Software, Raven Software, and respective rights holders — IWAD texture
+    and flat names referenced by material and fluid matching.
+
+
+--------------------------------------------------------------------------------
+  Notes
+--------------------------------------------------------------------------------
+
+  • "Inspired" systems are new, performance-tiered code informed by the named
+    projects — not wholesale ports — unless a source file comment says otherwise.
+
+  • Do not run this addon alongside standalone Relighting or ReLite; effects
+    would double-apply.
+
+  • Third-party trademarks and game names belong to their respective owners.
+    This is a fan add-on and is not endorsed by id Software, ZDoom LLC, or the
+    upstream authors listed above.
+
+  Thank you to every modder and shader author who made this stack possible.

@@ -5,6 +5,88 @@ FISHEYE_ENABLE = "Enable Fisheye Shader";
 FISHEYE_CHROMATIC = "Enable Chromatic Aberration";
 FISHEYE_STRENGTH = "Effect Strength";
 
+SSS_MENU_ROOT_TITLE = "Super Shaders Suite RT Options";
+SSS_MENU_HINT = "Reload map after world lighting or material changes.";
+SSS_SEC_PRESETS = ">> Visual Presets";
+SSS_SEC_ATMOSPHERE = ">> Lighting & Atmosphere";
+SSS_SEC_COLOR = ">> Color & Tone";
+SSS_SEC_POST = ">> Post-Process";
+SSS_SEC_MARIFX = ">> MariFX Grading";
+SSS_SEC_SPECIAL = ">> Specialty Effects";
+SSS_MENU_VISUAL_PRESETS = "Visual Presets";
+SSS_MENU_LIGHTING = "Lighting & Atmosphere";
+SSS_MENU_COLOR = "Color & Tone";
+SSS_MENU_POST = "Post-Process";
+SSS_MENU_MARIFX = "MariFX";
+SSS_MENU_FISHEYE = "Fisheye";
+SSS_MENU_BODYCAM = "BodyCam Visual";
+SSS_MENU_HITBOX = "Hitbox Debug";
+SSS_MENU_VHS = "VHS/CRT";
+SSS_MENU_SOFTSHADE = "SoftShade Options";
+SSS_MENU_OLDVIDEO = "Old Video Shader Options";
+
+SSS_PRESET_TITLE = "Visual Presets";
+SSS_PRESET_HINT1 = "Integrates lighting, RT-lite, tone, and post FX.";
+SSS_PRESET_HINT2 = "Reload map after applying a preset.";
+SSS_PRESET_AUTO_HINT = "When on, changing preset updates all systems.";
+SSS_PRESET_SEC_QUALITY = "Quality Presets";
+SSS_PRESET_SEC_STYLE = "Style Presets";
+SSS_PRESET_LITE = "Lite — clean modern look, low GPU cost.";
+SSS_PRESET_BALANCED = "Balanced — SSAO, fluids, enhanced lighting.";
+SSS_PRESET_MODERN = "Modern — RT-lite sweet spot; ACES, no heavy shadows.";
+SSS_PRESET_CINEMATIC = "Cinematic — filmic LUT, grain, stronger FX.";
+SSS_PRESET_ULTRA = "Ultra — max RT-lite stack; heavier load.";
+SSS_PRESET_TACTICAL = "Tactical — ACES clarity, operator cam grade.";
+SSS_PRESET_ARENA = "Arena — performance mode, max readability.";
+SSS_PRESET_NEON = "Neon Hell — technicolor inferno, heavy bloom.";
+SSS_PRESET_COLD = "Cold Sector — sci-fi frost, soft dither.";
+SSS_PRESET_FOOTAGE = "Found Footage — horror grain, vignette, fisheye.";
+SSS_PRESET_RETRO = "Retro Terminal — Screen-M CRT phosphor + grill.";
+SSS_PRESET_PAINTERLY = "Painterly — warm stylized sector color.";
+SSS_PRESET_PHOTOREAL = "Photoreal — ACES Full HDR, clean reflections.";
+
+SSS_RT_TITLE = "RT-Lite Effects";
+SSS_RT_HINT = "Approximates RT: SSAO, contact dark, fluid SSR.";
+SSS_RT_SEC_ENGINE = "Engine SSAO";
+SSS_RT_SEC_CONTACT = "Contact AO (Screen-Space)";
+SSS_RT_SEC_FLUID = "Fluid SSR (Screen-Space)";
+SSS_RT_SEC_WALL = "Wall Bake Lite"
+SSS_RT_SEC_RELIGHT = "RT-Relight Enhance";
+
+SSS_POST_TITLE = "Post-Process";
+SSS_POST_HINT = "Screen-space effects; apply live.";
+SSS_POST_SEC_VIG = "Vignette";
+SSS_POST_SEC_FLARE = "Lens Flares";
+SSS_POST_SEC_NOISE = "Noise";
+SSS_POST_SEC_VIEW = "View";
+
+SSS_COLOR_TITLE = "Color & Tone";
+SSS_COLOR_HINT1 = "Most options apply live without map reload.";
+SSS_COLOR_HINT2 = "Only one filmic tonemap should be active at a time.";
+SSS_COLOR_SEC_ACES = "ACES Tonemap";
+SSS_COLOR_SEC_FILMIC = "Dark Shader (Filmic LUT)";
+SSS_COLOR_SEC_GAMMA = "World Gamma";
+SSS_COLOR_SEC_SCREEM = "Screen-M (CRT Emulation)";
+SSS_COLOR_SEC_BLOOM = "Bloom Boost 2";
+
+SSS_ATMO_TITLE = "Lighting & Atmosphere";
+SSS_ATMO_HINT1 = "Reload map after world lighting or material changes.";
+SSS_ATMO_HINT2 = "Post-process color bleed updates live.";
+SSS_ATMO_SEC_BLEED = "Post-Process Color Bleed";
+SSS_ATMO_SEC_MAT = "Materials";
+
+SSS_BODYCAM_TITLE = "BodyCam Visual";
+SSS_BODYCAM_HINT1 = "Digital bodycam shader or analog found-footage.";
+SSS_BODYCAM_HINT2 = "Toggle in-game with bound key (default B).";
+SSS_BODYCAM_SEC_DIGITAL = "Digital Shader Tuning";
+
+SSS_HITBOX_TITLE = "Hitbox Debug";
+SSS_HITBOX_HINT1 = "PB-style stacked zone wireframes on crosshair target.";
+SSS_HITBOX_HINT2 = "Red head, yellow upper, magenta lower, cyan legs.";
+SSS_HITBOX_HINT3 = "Toggle in-game with H.";
+SSS_HITBOX_SEC_HUD = "HUD Zone Split";
+SSS_HITBOX_SEC_MULT = "HUD Multiplier Estimates";
+
 M_MODSHADER_TITLE = "VHS Shader Settings";
 CV_SHENABLE_OPTION = "Enable Shader";
 CV_VHSENABLE_OPTION = "Enable VHS effect";

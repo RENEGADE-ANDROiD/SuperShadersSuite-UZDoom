@@ -5,3 +5,8 @@ Texture "SFSHDLUT", 512, 512
 		Translation "0:0=0:0"
 	}
 }
+
+Sprite "SSSH", 32, 32
+{
+	Patch "Graphics/sss_shadow.png", 0, 0
+}

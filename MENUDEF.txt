@@ -1,6 +1,11 @@
 AddOptionMenu "OptionsMenu"
 {
-    Submenu "Super Shaders Suite UZ Options",			"ShaderOptions"
+    Submenu "Super Shaders Suite RT Options",			"ShaderOptions"
+}
+
+AddListMenu "MainMenu" after "OptionsMenu"
+{
+	TextItem "$SSS_MENU_ROOT_TITLE", "t", "ShaderOptions"
 }
 
 //-------------------------------------------------------------------------------------------
@@ -235,75 +240,182 @@ OptionValue "ShutterSpeeds"
 
 OptionMenu "ShaderOptions"
 {
+	Class "MFXOptionMenu"
 	Position -15
-	Title "Super Shaders Suite UZ Options"
+	Title "$SSS_MENU_ROOT_TITLE"
+	StaticText "$SSS_MENU_HINT", "Gray"
 	StaticText ""
-    Position -15
-    Title "Advanced Settings"
-    Option "Auto Stop", "mblur_autostop", OnOff
-    Slider "Stop Recovery", "mblur_recovery2", 0, 100, 5, 2
-    Slider "Stop Threshold", "mblur_threshold", 0, 100, 10, 2
-    Option "Pitch Curve", "mblur_pcurve", "MBlurCurves"
-    StaticText " "
-    StaticText " "
-    StaticText "MBlurOpts"
-    Position -15
-    Title "Motion Blur"
-    Option "Enabled", "mblur", YesNo
-    statictext ""
-    StaticText " "
-    Option "Preset", "mblur_preset", "MBlurPresets"
-    Command "Save Current as Custom", "mblur_savecustom_trigger 1"
-    StaticText " "
-    statictext ""
-    Option "Blend Mode", "mblur_blendmode", "MBlurBlendModes"
-    statictext ""
-    Slider "Samples", "mblur_samples", 1, 50, 1, 0
-    Option "Dynamic", "mblur_dynsamps", YesNo
-    statictext ""
-    Slider "Look Strength", "mblur_strength", 1, 500, 8, 2
-    Slider "Walk Strength", "mblur_strength_walk", 1, 100, 5, 2
-    Slider "Jump Strength", "mblur_strength_jump", 1, 100, 5, 2
-    Slider "Saturation", "mblur_saturation", 0.1, 3.0, 0.1, 1
-    Slider "Recovery", "mblur_recovery", 4, 100, 4, 1
-    Submenu "Advanced...", "MBlurAdvOpts"
-    StaticText ""
-	Submenu "Fisheye","FisheyeOptions"
+	StaticText "$SSS_SEC_PRESETS", "Gold"
+	Submenu "$SSS_MENU_VISUAL_PRESETS", "SSSVisualPresetOptions"
 	StaticText ""
-	Submenu "VHS/CRT","VHSCRTOptions"
+	StaticText "$SSS_SEC_ATMOSPHERE", "Green"
+	Submenu "$SSS_MENU_LIGHTING", "SSSAtmosphereOptions"
 	StaticText ""
-	Submenu "ACES Tonemap Options","TonemapOptions"
+	StaticText "$SSS_SEC_COLOR", "Cyan"
+	Submenu "$SSS_MENU_COLOR", "SSSColorToneOptions"
 	StaticText ""
-	SubMenu "SoftShade Options", "Db_SoftShadeMenu"
+	StaticText "$SSS_SEC_POST", "Purple"
+	Submenu "$SSS_MENU_POST", "SSSPostProcessOptions"
 	StaticText ""
-	Submenu "Old Video Shader Options", "OldVideoShaderOptions"
+	StaticText "$SSS_SEC_MARIFX", "LightBlue"
+	Submenu "$SSS_MENU_MARIFX", "SSSMariFXOptions"
 	StaticText ""
-	StaticText "Vignette", "Yellow"
+	StaticText "$SSS_SEC_SPECIAL", "Orange"
+	Submenu "$SSS_MENU_FISHEYE", "FisheyeOptions"
+	Submenu "$SSS_MENU_BODYCAM", "SSSBodyCamOptions"
+	Submenu "$SSS_MENU_HITBOX", "SSSHitboxOptions"
+	Submenu "$SSS_MENU_VHS", "VHSCRTOptions"
+	SubMenu "$SSS_MENU_SOFTSHADE", "Db_SoftShadeMenu"
+	Submenu "$SSS_MENU_OLDVIDEO", "OldVideoShaderOptions"
+}
+
+OptionValue "SSSVisualPresets"
+{
+	0, "Custom (Manual)"
+	1, "Lite — Modern"
+	2, "Balanced — Enhanced"
+	13, "Modern — RT Enhanced"
+	3, "Cinematic"
+	4, "Ultra — RT-Lite"
+	5, "Tactical — Operator"
+	6, "Arena — Competitive"
+	7, "Neon Hell — Inferno"
+	8, "Cold Sector — Sci-Fi"
+	9, "Found Footage — Horror"
+	10, "Retro Terminal — CRT"
+	11, "Painterly — Stylized"
+	12, "Photoreal — HDR"
+}
+
+OptionMenu "SSSVisualPresetOptions"
+{
+	Position -15
+	Title "$SSS_PRESET_TITLE"
+	StaticText "$SSS_PRESET_HINT1", "Gray"
+	StaticText "$SSS_PRESET_HINT2", "Cyan"
+	StaticText ""
+	Option "Preset", "sss_visual_preset", "SSSVisualPresets"
+	Option "Auto-Apply Preset", "sss_visual_preset_auto", OnOff
+	StaticText "$SSS_PRESET_AUTO_HINT", "Gray"
+	SafeCommand "Apply Preset Now", "event sss_apply_visual_preset"
+	StaticText ""
+	StaticText "$SSS_PRESET_SEC_QUALITY", "Gold"
+	StaticText "$SSS_PRESET_LITE", "LightBlue"
+	StaticText "$SSS_PRESET_BALANCED", "Green"
+	StaticText "$SSS_PRESET_MODERN", "Teal"
+	StaticText "$SSS_PRESET_CINEMATIC", "Purple"
+	StaticText "$SSS_PRESET_ULTRA", "Fire"
+	StaticText ""
+	StaticText "$SSS_PRESET_SEC_STYLE", "Orange"
+	StaticText "$SSS_PRESET_TACTICAL", "Cyan"
+	StaticText "$SSS_PRESET_ARENA", "Yellow"
+	StaticText "$SSS_PRESET_NEON", "Fire"
+	StaticText "$SSS_PRESET_COLD", "Ice"
+	StaticText "$SSS_PRESET_FOOTAGE", "DarkRed"
+	StaticText "$SSS_PRESET_RETRO", "Green"
+	StaticText "$SSS_PRESET_PAINTERLY", "Purple"
+	StaticText "$SSS_PRESET_PHOTOREAL", "Teal"
+	StaticText ""
+	Submenu "RT-Lite Effects (Manual)", "SSSRTLiteOptions"
+}
+
+OptionMenu "SSSRTLiteOptions"
+{
+	Position -15
+	Title "$SSS_RT_TITLE"
+	StaticText "$SSS_RT_HINT", "Gray"
+	StaticText "Engine SSAO uses real depth; sprites may clip.", "DarkGray"
+	StaticText "Fluid SSR only runs while standing on a fluid flat.", "DarkGray"
+	StaticText ""
+	StaticText "$SSS_RT_SEC_ENGINE", "Gold"
+	Option "Enabled", "gl_ssao", OnOff
+	Slider "Strength", "gl_ssao_strength", 0.0, 1.0, 0.05, 2
+	Slider "Radius", "gl_ssao_radius", 40.0, 200.0, 5.0, 0
+	StaticText "Engine CVARs; adjust manually per preset tier.", "Gray"
+	StaticText ""
+	StaticText "$SSS_RT_SEC_CONTACT", "Teal"
+	Option "Enabled", "sss_contactao", OnOff
+	Slider "Strength", "sss_contactao_strength", 0.0, 1.0, 0.02, 2
+	Slider "Sample Radius", "sss_contactao_radius", 0.5, 6.0, 0.25, 1
+	StaticText ""
+	StaticText "$SSS_RT_SEC_FLUID", "Cyan"
+	Option "Enabled", "sss_fluidssr", OnOff
+	Slider "Strength", "sss_fluidssr_strength", 0.0, 1.0, 0.02, 2
+	StaticText "Boosts reflective look on nukage/water/lava.", "Gray"
+	StaticText ""
+	StaticText "$SSS_RT_SEC_WALL", "Green"
+	Slider "Wall Light Fill", "sss_wall_bake", 0.0, 1.0, 0.05, 2
+	StaticText "Softens wall shadow crush; reload map.", "Gray"
+	StaticText ""
+	StaticText "$SSS_RT_SEC_RELIGHT", "Gold"
+	Option "Flat / Palette Sector Color", "sss_relight_flats", OnOff
+	Option "Recursive Color Bleed", "sss_relight_recursive", OnOff
+	Slider "Recursive Depth", "sss_relight_rec_depth", 1, 4, 1, 0
+	Option "Dimness Bleed", "sss_relight_dimbleed", OnOff
+	Option "Smart Volume Adjust", "sss_relight_smart", OnOff
+	Option "Window Spot Lights", "sss_relight_window", OnOff
+	Option "Texture Wall Lights", "sss_relight_texture", OnOff
+	Option "GLDEF Prop Lights", "sss_relight_gldef", OnOff
+	Option "Polylabel Fluid Placement", "sss_relight_polylabel", OnOff
+	Option "Door / Lift Light Spill", "sss_relight_doors", OnOff
+	Slider "Door Light Strength", "sss_relight_door_strength", 0.0, 1.5, 0.05, 2
+	Slider "Max Active Door Lights", "sss_relight_door_max", 1, 16, 1, 0
+	Slider "Door Light Update Interval", "sss_relight_door_interval", 1, 4, 1, 0
+	Slider "Procedural Light Budget", "sss_relight_proc_max", 0, 24, 1, 0
+	StaticText "RT-Relight world passes; reload map after changes.", "Gray"
+	StaticText "Door lights update live while doors move.", "DarkGray"
+}
+
+OptionMenu "SSSPostProcessOptions"
+{
+	Position -15
+	Title "$SSS_POST_TITLE"
+	StaticText "$SSS_POST_HINT", "Gray"
+	StaticText ""
+	StaticText "$SSS_POST_SEC_VIG", "Purple"
 	Option "Enabled", "tc_pp_vignette", "YesNo"
 	Slider "Intensity", "tc_pp_vignette_intensity", 0, 500, 0.05, 3
 	Slider "Falloff", "tc_pp_vignette_falloff", 0, 10, 0.05, 3
 	StaticText ""
-	StaticText "Lens Flares", "Yellow"
+	StaticText "$SSS_POST_SEC_FLARE", "Gold"
 	Option "Enabled", "tc_pp_lensflares", "YesNo"
 	Slider "Intensity", "tc_pp_lensflares_amount", 0, 5, 0.05
 	Slider "Threshold", "tc_pp_lensflares_threshold", 0, 5, 0.05
 	StaticText ""
-	StaticText "Noise", "Yellow"
+	StaticText "$SSS_POST_SEC_NOISE", "DarkGray"
 	Option "Enabled", "tc_pp_noise", "YesNo"
 	Slider "Intensity", "tc_pp_noise_amount", 0, 5, 0.05
 	StaticText ""
-	//Title "FOV Setting (Field of View)"
-	StaticText "FOV", "Yellow"
+	StaticText "$SSS_POST_SEC_VIEW", "Cyan"
 	Slider "Field of View", "fov", 30, 180, 1
+}
+
+OptionMenu "SSSColorToneOptions"
+{
+	Position -15
+	Title "$SSS_COLOR_TITLE"
+	StaticText "$SSS_COLOR_HINT1", "Gray"
+	StaticText "$SSS_COLOR_HINT2", "Orange"
 	StaticText ""
-	StaticText "World Gamma", "Yellow"
+	Submenu "$SSS_COLOR_SEC_ACES", "TonemapOptions"
+	StaticText "Camera-style HDR tonemap; off by default.", "Gray"
+	StaticText ""
+	StaticText "$SSS_COLOR_SEC_FILMIC", "Gold"
+	Option "Filmic Tonemap", dpwh_filmictonemap2, "OnOff"
+	Option "Filmic LUT", "dsc_scene_lut2", "FilmicLUTPresets"
+	StaticText "LUT-based look; separate from MariFX grading.", "Gray"
+	Option "Chromatic Aberration", dpwh_chromaticAberration2, "OnOff"
+	Option "Film Grain", dpwh_filmgrain2, "OnOff"
+	StaticText ""
+	StaticText "$SSS_COLOR_SEC_GAMMA", "Green"
 	Option "Enabled", "gl_worldgamma_enabled", OnOff
 	Slider "Gamma", "gl_worldgamma", 0.45, 2.2, 0.1, 2
 	Slider "Contrast", "gl_worldgamma_contrast", 50, 200, 0.1, 1
 	Slider "Brightness", "gl_worldgamma_brightness", -50, 50, 10, 1
-	Option "Tonemap Mode", "gl_tonemap", "ToneOpts"
+	Option "Engine Tonemap Mode", "gl_tonemap", "ToneOpts"
+	StaticText "GZDoom built-in tonemap when ACES/filmic off.", "Gray"
 	StaticText ""
-	StaticText "Screen-M", "Yellow"
+	StaticText "$SSS_COLOR_SEC_SCREEM", "LightBlue"
 	Option "Active", "gl_screem", YesNo
 	Slider "Old Pal Makeover", "gl_screem_oldpallut", 0, 100, 0.1, 1
 	Slider "Gamma Bias", "gl_screem_ybias", 0.45, 2.2, 0.01, 2
@@ -325,33 +437,66 @@ OptionMenu "ShaderOptions"
 	Option "Forced Ratio Style", "vid_cropaspect", "CropAspect"
 	Option "Force Aspect Ratio", "vid_aspect", "ForceRatios"
 	StaticText ""
-	StaticText "Bloom Boost 2", "Yellow"
-	Option "Bloom", "gl_bloom", OnOff
+	StaticText "$SSS_COLOR_SEC_BLOOM", "Fire"
+	Option "Engine Bloom", "gl_bloom", OnOff
 	Slider "Bloom Amount", "gl_bloom_amount", 0, 4, 0.1, 2
-	Option "Active", "gl_bloomboost", YesNo
+	Option "Bloom Boost Active", "gl_bloomboost", YesNo
 	Slider "Gamma", "gl_bloomboost_gamma", 0.45, 2.2, 0.1, 2
 	Slider "Contrast", "gl_bloomboost_contrast", 50, 200, 0.1, 1
 	Slider "Brightness", "gl_bloomboost_brightness", -50, 50, 10, 1
-    Option "Boost Bloom", "gl_worldgamma_boostbloom", YesNo
+	Option "Boost Bloom", "gl_worldgamma_boostbloom", YesNo
+}
+
+OptionMenu "SSSAtmosphereOptions"
+{
+	Position -15
+	Title "$SSS_ATMO_TITLE"
+	StaticText "$SSS_ATMO_HINT1", "Gray"
+	StaticText "$SSS_ATMO_HINT2", "Cyan"
 	StaticText ""
-	StaticText "Dark Shader", "Yellow"
-	Option "Filmic Tonemap", dpwh_filmictonemap2, "OnOff"
-	Option "Film Grain",dpwh_filmgrain2, "OnOff"
+	Submenu "Dark Doom", "SSSDarkDoomSettings"
+	StaticText "Sector darkness + optional ReLite preset sync.", "DarkGray"
 	StaticText ""
-	StaticText "MariFX", "Yellow"
+	Submenu "Enhanced Lighting", "SSSLightingOptions"
+	StaticText "ReLite-style bias, fluids, reflections, shadows.", "DarkGray"
+	StaticText ""
+	StaticText "$SSS_ATMO_SEC_BLEED", "Purple"
+	Option "Enabled", "sss_colorbleed", OnOff
+	Slider "Bleeding Strength", "sss_bleeding", 0.001, 0.200, 0.001, 3
+	Slider "Bleed Gamma", "sss_bleed_gamma", 0.0, 1.5, 0.05, 2
+	Slider "Bleed Saturation", "sss_bleed_saturation", 0.5, 1.5, 0.05, 2
+	Option "RG Bleed Mode", "sss_bleed_rg", OnOff
+	StaticText "Shader haze between bright and dark areas.", "Gray"
+	StaticText "Distinct from sector color bleed below.", "Gray"
+	StaticText ""
+	StaticText "$SSS_ATMO_SEC_MAT", "Teal"
+	Option "Environment Reflections", "sss_material_reflect", OnOff
+	StaticText "Generic env shine on stock Doom wall names.", "Gray"
+	StaticText "No patterned masks; works with texture replacers.", "Gray"
+	StaticText "Reload map after toggling.", "Gray"
+}
+
+OptionMenu "SSSMariFXOptions"
+{
+	Class "MFXOptionMenu"
+	Position -15
+	Title "$MFX_TITLE"
+	StaticText "GPU post-process stack; changes apply live.", "Gray"
+	StaticText "Shift/Alt on sliders for fine adjustment.", "Cyan"
+	StaticText ""
 	MFXPresetList "$MFX_PRESETNUM", "mfx_presetslot"
 	TextField "$MFX_PRESETNAME", "mfx_presetname"
 	SafeCommand "$MFX_LOADPRESET", "event loadmfxpreset"
 	SafeCommand "$MFX_SAVEPRESET", "event savemfxpreset"
 	StaticText " "
-	StaticText "$MFX_LUMASHARPEN", "LightBlue"
+	StaticText "$MFX_LUMASHARPEN", "Gold"
 	Option "$MFX_ENABLE", "mfx_lsharpenable", "YesNo"
 	MFXSlider "$MFX_LSHARPRADIUS", "mfx_lsharpradius", 0, 1, 0.01, 2
 	MFXSlider "$MFX_LSHARPTRESHOLD", "mfx_lsharpclamp", 0, 1, 0.01, 2
 	MFXSlider "$MFX_LSHARPSTRENGTH", "mfx_lsharpblend", 0, 10, 0.01, 2
 	SafeCommand "$MFX_RESET", "event resetmfxvars 8"
 	StaticText " "
-	StaticText "$MFX_GRAIN", "LightBlue"
+	StaticText "$MFX_GRAIN", "DarkGray"
 	Option "$MFX_ENABLE", "mfx_ne", "YesNo"
 	MFXSlider "$MFX_NI", "mfx_ni", 0, 1, 0.01, 2
 	MFXSlider "$MFX_NS", "mfx_ns", -1, 1, 0.01, 2
@@ -360,13 +505,13 @@ OptionMenu "ShaderOptions"
 	MFXSlider "$MFX_BNP", "mfx_bnp", 0.5, 10, 0.01, 2
 	SafeCommand "$MFX_RESET", "event resetmfxvars 0"
 	StaticText " "
-	StaticText "$MFX_DIRT", "LightBlue"
+	StaticText "$MFX_DIRT", "Brown"
 	Option "$MFX_ENABLE", "mfx_dirtenable", "YesNo"
 	MFXSlider "$MFX_DIRTMC", "mfx_dirtmc", 1, 8, 0.01, 2
 	MFXSlider "$MFX_DIRTCFACTOR", "mfx_dirtcfactor", 0, 1, 0.01, 2
 	SafeCommand "$MFX_RESET", "event resetmfxvars 1"
 	StaticText " "
-	StaticText "$MFX_GRADE", "LightBlue"
+	StaticText "$MFX_GRADE", "Purple"
 	Option "$MFX_ENABLE", "mfx_gradeenable", "YesNo"
 	MFXSlider "$MFX_GRADEMUL_R", "mfx_grademul_r", 0, 2, 0.01, 2
 	MFXSlider "$MFX_GRADEMUL_G", "mfx_grademul_g", 0, 2, 0.01, 2
@@ -384,18 +529,18 @@ OptionMenu "ShaderOptions"
 	MFXSlider "$MFX_GRADEVALPOW", "mfx_gradevalpow", 0, 2, 0.01, 2
 	SafeCommand "$MFX_RESET", "event resetmfxvars 2"
 	StaticText " "
-	StaticText "$MFX_LUTGRADE", "LightBlue"
+	StaticText "$MFX_LUTGRADE", "Cyan"
 	Option "$MFX_ENABLE", "mfx_lutenable", "YesNo"
 	Option "$MFX_LUTTEX", "mfx_lutindex", "MFXLUT"
 	MFXSlider "$MFX_LUTBLEND", "mfx_lutblend", 0, 1, 0.01, 2
 	SafeCommand "$MFX_RESET", "event resetmfxvars 9"
 	StaticText " "
-	StaticText "$MFX_TECHNICOLOR", "LightBlue"
+	StaticText "$MFX_TECHNICOLOR", "Fire"
 	Option "$MFX_ENABLE", "mfx_techenable", "YesNo"
 	MFXSlider "$MFX_TECHBLEND", "mfx_techblend", 0, 1, 0.01, 2
 	SafeCommand "$MFX_RESET", "event resetmfxvars 10"
 	StaticText " "
-	StaticText "$MFX_CMAT", "LightBlue"
+	StaticText "$MFX_CMAT", "Orange"
 	Option "$MFX_ENABLE", "mfx_cmatenable", "YesNo"
 	MFXSlider "$MFX_CMAT_RR", "mfx_cmat_rr", -2, 2, 0.01, 2
 	MFXSlider "$MFX_CMAT_RG", "mfx_cmat_rg", -2, 2, 0.01, 2
@@ -408,7 +553,7 @@ OptionMenu "ShaderOptions"
 	MFXSlider "$MFX_CMAT_BB", "mfx_cmat_bb", -2, 2, 0.01, 2
 	SafeCommand "$MFX_RESET", "event resetmfxvars 3"
 	StaticText " "
-	StaticText "$MFX_HUESAT", "LightBlue"
+	StaticText "$MFX_HUESAT", "Green"
 	Option "$MFX_ENABLE", "mfx_hsenable", "YesNo"
 	MFXSlider "$MFX_HSOVER", "mfx_hsover", 0, 0.5, 0.01, 2
 	MFXSlider "$MFX_HSHUE_A", "mfx_hshue_a", -1, 1, 0.01, 2
@@ -434,7 +579,7 @@ OptionMenu "ShaderOptions"
 	MFXSlider "$MFX_HSVAL_M", "mfx_hsval_m", -1, 1, 0.01, 2
 	SafeCommand "$MFX_RESET", "event resetmfxvars 4"
 	StaticText " "
-	StaticText "$MFX_BSS", "LightBlue"
+	StaticText "$MFX_BSS", "Teal"
 	Option "$MFX_BSSBLURENABLE", "mfx_bssblurenable", "YesNo"
 	MFXSlider "$MFX_BSSBLURRADIUS", "mfx_bssblurradius", 0, 1, 0.01, 2
 	Option "$MFX_BSSSHARPENABLE", "mfx_bsssharpenable", "YesNo"
@@ -444,7 +589,7 @@ OptionMenu "ShaderOptions"
 	MFXSlider "$MFX_BSSSHIFTRADIUS", "mfx_bssshiftradius", 0, 1, 0.05, 2
 	SafeCommand "$MFX_RESET", "event resetmfxvars 5"
 	StaticText " "
-	StaticText "$MFX_VIGBBLUR", "LightBlue"
+	StaticText "$MFX_VIGBBLUR", "Purple"
 	Option "$MFX_VIGENABLE", "mfx_vigenable", "YesNo"
 	MFXSlider "$MFX_VIGCOLOR_R", "mfx_vigcolor_r", -1, 1, 0.01, 2
 	MFXSlider "$MFX_VIGCOLOR_G", "mfx_vigcolor_g", -1, 1, 0.01, 2
@@ -476,28 +621,18 @@ OptionMenu "ShaderOptions"
 	SafeCommand "$MFX_RESET", "event resetmfxvars 7"
 }
 
-OptionValue "MBlurBlendModes"
+OptionString "FilmicLUTPresets"
 {
-    0, "Normal"
-    1, "Lighten"
-    2, "Additive"
+	"TonemapDefault", "Default"
+	"TonemapArena", "Arena"
+	"TonemapSalvation", "Salvation"
+	"TonemapPlaza", "Plaza"
+	"TonemapCemetery", "Cemetery"
+	"TonemapTitlemap", "Title Map"
+	"TonemapTide", "Tide"
+	"TonemapSnow", "Snow"
 }
-OptionValue "MBlurCurves"
-{
-    0, "Power"
-    1, "Sine"
-}
-OptionValue "MBlurPresets"
-{
-    0, "Light"
-    1, "Medium"
-    2, "Heavy"
-    3, "Extreme"
-    4, "Horror"
-    5, "Drunk"
-    6, "Dream"
-    7, "Custom"
-}
+
 OptionValue "YesNo"
 {
 	0, "$TXT_NO"
@@ -522,7 +657,7 @@ OptionValue "OffOn"
 //////
 OptionMenu "FisheyeOptions"
 {
-		StaticText "$FISHEYE_PP"
+		StaticText "$FISHEYE_PP", "Cyan"
 		
 		StaticText " "
 		
@@ -531,6 +666,77 @@ OptionMenu "FisheyeOptions"
 		Option "$FISHEYE_CHROMATIC", "fisheye_chromatic", "YesNo", "fisheye_enabled"
 		
 		Slider "$FISHEYE_STRENGTH", "fisheye_strength", 0.0001, 0.1, 0.0001, 4, "fisheye_enabled"
+}
+
+OptionValue "SSSBodyCamModes"
+{
+	0, "Digital (BWC shader)"
+	1, "Analog (VHS + fisheye)"
+}
+
+OptionMenu "SSSHitboxOptions"
+{
+	Title "$SSS_HITBOX_TITLE"
+	StaticText "$SSS_HITBOX_HINT1", "Gray"
+	StaticText "$SSS_HITBOX_HINT2", "Gold"
+	StaticText "$SSS_HITBOX_HINT3", "Cyan"
+	StaticText " "
+	SafeCommand "Toggle Hitbox Debug", "netevent sss_toggle_hitbox"
+	Control "Toggle Key", "sss_toggle_hitbox"
+	StaticText " "
+	Option "Show Wireframe", "sss_hitbox_debug", OnOff
+	Option "Target Info HUD", "sss_hitbox_hud", OnOff
+	Option "Draw All Nearby", "sss_hitbox_all", OnOff
+	StaticText "Off = crosshair target only (recommended).", "DarkGray"
+	Option "Cull Back Faces", "sss_hitbox_cullback", OnOff
+	StaticText "On hides sides you cannot see (recommended).", "DarkGray"
+	Option "Cull Blocked Targets", "sss_hitbox_sightcull", OnOff
+	Option "Health Tint (solid phases)", "sss_hitbox_healthcolor", OnOff
+	StaticText "Off uses PB zone colors (red/yellow/magenta/cyan).", "DarkGray"
+	Option "Wrap Visible Sides", "sss_hitbox_wrapvisible", OnOff
+	StaticText "Health mode: grid on camera-facing faces only.", "DarkGray"
+	Option "Fill Side Faces", "sss_hitbox_fillfaces", OnOff
+	StaticText "Zone mode only: dense grid on visible faces.", "DarkGray"
+	Slider "Max Distance", "sss_hitbox_maxdist", 512, 4096, 64, 0
+	Slider "Update Interval", "sss_hitbox_interval", 1, 4, 1, 0
+	Slider "Particle Spacing", "sss_hitbox_spacing", 1.0, 8.0, 0.5, 1
+	Slider "Particle Size", "sss_hitbox_size", 0.4, 4.0, 0.1, 1
+	StaticText " "
+	StaticText "$SSS_HITBOX_SEC_HUD", "Yellow"
+	Slider "Head Min", "sss_hitbox_head_min", 0.70, 0.95, 0.01, 2
+	Slider "Upper Torso Min", "sss_hitbox_upper_min", 0.50, 0.80, 0.01, 2
+	Slider "Lower Torso Min", "sss_hitbox_lower_min", 0.20, 0.60, 0.01, 2
+	StaticText "PB default upper split is ~0.65 (POSTORSOHB).", "Gray"
+	StaticText " "
+	StaticText "$SSS_HITBOX_SEC_MULT", "Purple"
+	Slider "Head Mult", "sss_hitbox_head_mult", 0.25, 4.0, 0.05, 2
+	Slider "Upper Torso Mult", "sss_hitbox_upper_mult", 0.25, 4.0, 0.05, 2
+	Slider "Lower Torso Mult", "sss_hitbox_lower_mult", 0.25, 4.0, 0.05, 2
+	Slider "Legs Mult", "sss_hitbox_legs_mult", 0.25, 4.0, 0.05, 2
+}
+
+OptionMenu "SSSBodyCamOptions"
+{
+	Title "$SSS_BODYCAM_TITLE"
+	StaticText "$SSS_BODYCAM_HINT1", "Gray"
+	StaticText "$SSS_BODYCAM_HINT2", "Cyan"
+	StaticText " "
+	SafeCommand "Toggle BodyCam Visual", "netevent sss_toggle_bodycam"
+	Control "Toggle Key", "sss_toggle_bodycam"
+	StaticText " "
+	Option "Style", "sss_bodycam_mode", "SSSBodyCamModes"
+	Option "Evidence Overlay", "sss_bodycam_overlay", "OnOff"
+	TextField "Unit ID", "sss_bodycam_unit"
+	StaticText "Digital = fisheye wide-angle + screen artifacts.", "DarkGray"
+	StaticText "Barrel slider sets fisheye strength in digital mode.", "DarkGray"
+	StaticText " "
+	StaticText "$SSS_BODYCAM_SEC_DIGITAL", "Orange"
+	Slider "Barrel / Fisheye", "sss_bodycam_barrel", 0.01, 0.15, 0.005, 3
+	Slider "Edge Chromatic", "sss_bodycam_chroma", 0.0, 0.04, 0.001, 3
+	Slider "Sensor Noise", "sss_bodycam_noise", 0.0, 0.15, 0.005, 3
+	Slider "Contrast", "sss_bodycam_contrast", 0.8, 1.4, 0.05, 2
+	Slider "Saturation", "sss_bodycam_saturation", 0.6, 1.2, 0.05, 2
+	Slider "Rolling Shutter", "sss_bodycam_rolling", 0.0, 2.0, 0.1, 1
 }
 
 OptionMenu "VHSCRTOptions"
@@ -569,27 +775,230 @@ OptionMenu "VHSCRTOptions"
 	Command "$AL_RESETSHADERSETTINGS", "SHA_ResetToDefault"
 }
 
+OptionValue "ACESMode"
+{
+	0, "Full ACES (RRT+ODT)"
+	1, "ACES Narkowicz (Fast)"
+}
+
 OptionMenu "TonemapOptions"
 {
-	Title "ACES Tonemap Options"
+	Title "ACES Tonemap"
+	StaticText "Live post-process HDR tonemap.", "Gray"
+	StaticText "Disable Filmic Tonemap if using ACES.", "Orange"
 	StaticText ""
 	Option "Enable", "at_enabled", "YesNo"
-	TextField "Aperture", "at_ApertureFNumber"
+	Option "ACES Mode", "at_aces_mode", "ACESMode"
+	StaticText "Narkowicz: punchy game look, lower cost.", "DarkGray"
+	StaticText ""
+	StaticText "Camera Exposure", "Gold"
+	Slider "Aperture (f-stop)", "at_ApertureFNumber", 1.0, 32.0, 0.1, 1
 	Option "Shutter Speed", "at_ShutterSpeedValue", "ShutterSpeeds"
 	TextField "Custom Shutter Speed 1/", "at_LastCustomShutterSpeed"
 	Option "ISO", "at_ISO", "ISOValues"
 	TextField "Custom ISO", "at_LastCustomISO"
 	Option "Exposure Mode", "at_ExposureMode", "ExposureMode"
+	Slider "Exposure Bias", "at_exposure_bias", 0.25, 3.0, 0.05, 2
+	StaticText "Overall brightness after camera math.", "Gray"
 	StaticText ""
-	TextField "CrossTalk", "at_Crosstalk"
-	TextField "Saturation", "at_Saturation"
-	TextField "CrossSaturation", "at_CrossSaturation"	
+	StaticText "Color Response", "Cyan"
+	Slider "Saturation", "at_Saturation", 0.0, 2.0, 0.05, 2
+	Slider "Cross Saturation", "at_CrossSaturation", 0.0, 2.0, 0.05, 2
+	Slider "Highlight Crosstalk", "at_Crosstalk", 0.0, 8.0, 0.1, 1
+	StaticText "Higher crosstalk = less hue in bright areas.", "Gray"
+	StaticText ""
 	SafeCommand "Reset to Default", "event resetacestonemap"
+}
+
+OptionValue "SSSDarkDoomModes"
+{
+	0, "Disable"
+	1, "Subtract"
+	2, "Compress"
+	3, "Clamp"
+	4, "Crush"
+	10, "DarkDoom Lite"
+	11, "DarkDoom Classic"
+	12, "DarkDoom Black"
+}
+
+OptionValue "SSSDarkDoomPresets"
+{
+	0, "Disable"
+	1, "Dim"
+	2, "Murky"
+	3, "Dismal"
+	4, "Oppressive"
+	5, "Inky"
+	6, "Stygian"
+	7, "Pitch"
+	8, "Pure"
+}
+
+OptionValue "SSSDarkDoomFlashlightQuality"
+{
+	0, "Simple"
+	1, "Fancy"
+}
+
+OptionValue "SSSDarkDoomFlashlightType"
+{
+	0, "Incandescent"
+	1, "Halogen"
+	2, "LED"
+	3, "Red Filter"
+}
+
+OptionValue "SSSDarkDoomFlashlightPosition"
+{
+	0, "Handheld"
+	1, "Left Shoulder"
+	2, "Right Shoulder"
+	3, "Helmet"
+}
+
+OptionValue "SSSDarkDoomSectorEffects"
+{
+	0, "Remove"
+	1, "Keep"
+}
+
+OptionMenu "SSSDarkDoomSettings"
+{
+	Class "SSSDarkDoomOptionMenu"
+	Title "Dark Doom"
+	StaticText "Sector darkness applies live in this menu.", "Gray"
+	StaticText "Reload map for full ReLite sync.", "Cyan"
+	StaticText " "
+	StaticText "Main", "Gold"
+	Option "Mode", "ddz_mode", "SSSDarkDoomModes"
+	StaticText "How light levels are reduced.", "DarkGray"
+	Option "Setting", "ddz_preset", "SSSDarkDoomPresets"
+	StaticText "Darkness amount: Dim (32) through Pure (256).", "DarkGray"
+	StaticText " "
+	StaticText "ReLite Integration", "Green"
+	Option "Sync Enhanced & RT-Lite", "sss_darkdoom_relite_sync", OnOff
+	StaticText "Preset adjusts lighting, SSAO, contact AO,", "Gray"
+	StaticText "fluid SSR, wall bake, and shadows.", "Gray"
+	StaticText " "
+	Submenu "Advanced Settings", "SSSDarkDoomAdvanced"
+	Submenu "Fog Settings", "SSSDarkDoomFog"
+	Submenu "Flashlight Settings", "SSSDarkDoomFlashlight"
+	StaticText " "
+	StaticText "Classic modes (Lite/Classic/Black) override Setting.", "darkgrey"
+}
+
+OptionMenu "SSSDarkDoomAdvanced"
+{
+	Class "SSSDarkDoomOptionMenu"
+	Title "Dark Doom Advanced"
+	StaticText " "
+	Slider "Pre-Gain", "ddz_pregain", -255, 255, 1, 0
+	Slider "Post-Gain", "ddz_postgain", -255, 255, 1, 0
+	StaticText "Adjust initial and final light levels.", "darkgrey"
+	StaticText " "
+	Slider "Min. Lightlevel", "ddz_minlight", 0, 16, 1, 0
+	StaticText "Clamps darkest lightlevel to this minimum.", "darkgrey"
+	StaticText " "
+	Slider "Sky Sectors", "ddz_skymode", 0.0, 1.0, 0.1, 1
+	StaticText "Sky sector adjustment scale.", "darkgrey"
+	StaticText " "
+	Option "Sector Light Effects", "ddz_lighting", "SSSDarkDoomSectorEffects"
+	StaticText "Requires reloading the map.", "darkgrey"
+}
+
+OptionMenu "SSSDarkDoomFog"
+{
+	Class "SSSDarkDoomOptionMenu"
+	Title "Dark Doom Fog"
+	StaticText "Per-sector fog density; applies live.", "Gray"
+	StaticText " "
+	Option "$GLPREFMNU_FOGMODE", gl_fogmode, "FogMode"
+	Slider "Fog Density", ddz_fog, 0, 512, 8, 0
+	StaticText "Higher = darker sight lines in distance.", "Gray"
+}
+
+OptionMenu "SSSDarkDoomFlashlight"
+{
+	Class "SSSDarkDoomOptionMenu"
+	Title "Dark Doom Flashlight"
+	StaticText "Toggle in-game with bound key (default F).", "Gray"
+	StaticText " "
+	Option "Enabled", "sss_darkdoom_flashlight", OnOff
+	StaticText "Give flashlight inventory on spawn.", "Gray"
+	StaticText " "
+	Option "Quality", "ddz_fl_quality", "SSSDarkDoomFlashlightQuality"
+	Option "Type", "ddz_fl_type", "SSSDarkDoomFlashlightType"
+	StaticText "LED is brightest; may affect performance.", "Gray"
+	Option "Position", "ddz_fl_pos", "SSSDarkDoomFlashlightPosition"
+	Control "Toggle Key", "ddz_toggleflashlight"
+}
+
+OptionMenu "SSSLightingOptions"
+{
+	Position -15
+	Title "Enhanced Lighting"
+	StaticText "Reload map after changing these options.", "Gray"
+	StaticText "Overwritten when Dark Doom sync is on.", "Orange"
+	StaticText ""
+	Option "Enabled", "sss_lighting", OnOff
+	StaticText ""
+	StaticText "Sector Lighting", "Gold"
+	Option "Bias Lighting", "sss_bias", OnOff
+	StaticText "Smooths light between adjacent sectors.", "Gray"
+	Slider "Darken Weight", "sss_darken", 0.0, 1.0, 0.05, 2
+	Slider "Brighten Weight", "sss_brighten", 0.0, 1.0, 0.05, 2
+	StaticText "Bias toward darker or brighter neighbor.", "Gray"
+	Slider "Additive Darkness", "sss_additive", 0.0, 1.0, 0.05, 2
+	StaticText "Crushes mid-tones; deepens wall shadows.", "Gray"
+	Option "Smooth Wall Lighting", "sss_smooth_walls", OnOff
+	Option "Performance Mode", "sss_performance", OnOff
+	StaticText "Skips sector/wall color + reflections.", "Gray"
+	StaticText "Caps fluid point lights at 8.", "Gray"
+	StaticText ""
+	StaticText "Fluid Lighting (Lite)", "Cyan"
+	Slider "Flat Glow", "sss_flat_glow", 0.0, 1.5, 0.05, 2
+	Slider "Wall Glow Boost", "sss_wall_glow", 0.0, 1.0, 0.05, 2
+	Slider "Point Light Strength", "sss_flat_lights", 0.0, 1.5, 0.05, 2
+	Slider "Point Light Max Count", "sss_flat_light_max", 0, 32, 1, 0
+	Slider "Point Light Min Size", "sss_flat_light_minsize", 32, 256, 8, 0
+	StaticText "Point lights: largest fluid pools only.", "Gray"
+	StaticText ""
+	StaticText "Sprite Shadows (Lite)", "Purple"
+	Option "Enabled", "sss_shadows", OnOff
+	Slider "Update Interval", "sss_shadow_interval", 1, 8, 1, 0
+	Option "Player Shadow", "sss_shadow_players", OnOff
+	Option "Monster Shadows", "sss_shadow_monsters", OnOff
+	Option "Wall Shadows (Lite)", "sss_wall_shadows", OnOff
+	StaticText "Floor blob + optional wall trace shadow.", "Gray"
+	StaticText ""
+	StaticText "Sector Color", "Green"
+	Option "Sector Color Bleed", "sss_color_sec", OnOff
+	StaticText "Sector light tints nearby geometry.", "Gray"
+	Option "Wall Hue Tint", "sss_color_walls", OnOff
+	Option "Sprite Color Tint", "sss_color_spr", OnOff
+	StaticText ""
+	StaticText "Reflections", "Teal"
+	StaticText "Doom / Heretic / Hexen stock fluids + optional name heuristics; reload map after flat edits.", "Gray"
+	Option "Match Fluid Name Patterns", "sss_floor_match_heuristic", OnOff
+	StaticText "Also matches FLTWAWA*, X_001*, *WATER*, *LAVA*, *NUKAGE*, etc.", "Gray"
+	Option "Floor Reflections", "sss_floorreflections", OnOff
+	Slider "Floor Strength", "sss_floorstrength", 0, 100, 1, 0
+	TextField "Floor Flat 1", "sss_floor1"
+	TextField "Floor Flat 2", "sss_floor2"
+	TextField "Floor Flat 3", "sss_floor3"
+	Option "Ceiling Reflections", "sss_ceilreflections", OnOff
+	Slider "Ceiling Strength", "sss_ceilstrength", 0, 100, 1, 0
+	TextField "Ceiling Flat 1", "sss_ceil1"
+	TextField "Ceiling Flat 2", "sss_ceil2"
+	TextField "Ceiling Flat 3", "sss_ceil3"
 }
 
 OptionMenu "Db_SoftShadeMenu"
 {
     Title "SoftShade Options"
+    StaticText "Band-free gradients via ordered dither.", "Gray"
+    StaticText " "
     Option "Enabled", "db_softshade_enabled", "YesNo"
     Slider "Dither Amount", "db_softshade_dither", 0, 1, 0.01, 2
     Option "Resolution-scaled dither amount", "db_softshade_doscale", "YesNo"

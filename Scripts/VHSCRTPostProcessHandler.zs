@@ -31,6 +31,7 @@ class VHSCRTPostProcessHandler : StaticEventHandler
 	
 		Shader.SetUniform1f(p, "VHSCRTShader", "VHSEnable", 			VHSEnable);
 		Shader.SetUniform1f(p, "VHSCRTShader", "CRTEnable", 			CRTEnable);
+		Shader.SetUniform1f(p, "VHSCRTShader", "range", 				Range);
 		Shader.SetUniform1f(p, "VHSCRTShader", "noiseQuality", 			NoiseQuality);
 		Shader.SetUniform1f(p, "VHSCRTShader", "noiseIntensity", 		NoiseIntensity);
 		Shader.SetUniform1f(p, "VHSCRTShader", "offsetIntensity", 		OffsetIntensity);
