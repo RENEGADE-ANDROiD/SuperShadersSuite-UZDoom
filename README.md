@@ -44,6 +44,8 @@ The fastest way to use the addon. **Options → Visual Presets** applies coordin
 
 **Auto-Apply Preset** is on by default. Post-process effects update live; **reload the current map** after changing presets so sector lighting, wall bake, fluid lights, and reflections take full effect.
 
+<img width="576" height="488" alt="Screenshot 2026-06-21 021842" src="https://github.com/user-attachments/assets/2b9c2bf1-d030-484b-ab75-521dcf4ac5d9" />
+
 ---
 
 ## RT-Lite (toward ray-traced look)
