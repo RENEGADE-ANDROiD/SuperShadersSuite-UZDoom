@@ -2,6 +2,8 @@
 
 A universal post-processing and material enhancement addon for Doom/Doom 2/Heretic/Hexen running on GZDoom or UZDoom which introduces RayTrace-lite effects and bundles MariFX, Screen-M, ACES tonemap, VHS/CRT, fisheye, **BodyCam Visual**, SoftShade, filmic LUTs, ReLite-inspired enhanced lighting, integrated DarkDoomZ, and unified **Visual Presets** that apply the whole stack at once.
 
+<img width="578" height="456" alt="Screenshot 2026-06-21 021757" src="https://github.com/user-attachments/assets/6153699b-2331-4cee-ba3a-d919c10cd3dd" />
+
 **Requires UZDoom/GZDoom 4.10 or newer** with the **hardware renderer** (OpenGL or Vulkan). Not compatible with the software renderer.
 
 Forum link: https://forum.zdoom.org/viewtopic.php?t=62772
@@ -41,6 +43,8 @@ The fastest way to use the addon. **Options → Visual Presets** applies coordin
 | **Photoreal — HDR** | Modern DOOM, RE4 | Ultra RT-lite + ACES Full, low bleed, ceiling reflections, clean bloom — no stylized post FX |
 
 **Auto-Apply Preset** is on by default. Post-process effects update live; **reload the current map** after changing presets so sector lighting, wall bake, fluid lights, and reflections take full effect.
+
+<img width="576" height="488" alt="Screenshot 2026-06-21 021842" src="https://github.com/user-attachments/assets/2b9c2bf1-d030-484b-ab75-521dcf4ac5d9" />
 
 ---
 
