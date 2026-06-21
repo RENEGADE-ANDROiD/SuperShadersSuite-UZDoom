@@ -3,9 +3,14 @@ class VHSCRTPostProcessHandler : StaticEventHandler
 	override void RenderOverlay(RenderEvent e) 
 	{
 		PlayerInfo p = players[consoleplayer];
+		if (!CVar.GetCVar("SH_ShaderEnable", p).GetBool())
+		{
+			Shader.SetEnabled(p, "VHSCRTShader", false);
+			return;
+		}
+
 		Shader.SetUniform1f(p, "VHSCRTShader", "iTime", (gametic + e.FracTic) / 35);
 		
-		bool shaderEnabled 	= CVar.GetCVar("SH_ShaderEnable", p).GetBool();
 		int VHSEnable 		= int(CVar.GetCVar("SH_VHSEnable", p).GetBool());
 		int CRTEnable 		= int(CVar.GetCVar("SH_CRTEnable", p).GetBool());
 		
@@ -46,8 +51,6 @@ class VHSCRTPostProcessHandler : StaticEventHandler
 		Shader.SetUniform1f(p, "VHSCRTShader", "grainIntensity", 		grainIntensity);
 		Shader.SetUniform1f(p, "VHSCRTShader", "contrast", 				contrast);
 		Shader.SetUniform1f(p, "VHSCRTShader", "saturation", 			saturation);
-		
-		if (shaderEnabled) 	Shader.SetEnabled(p, "VHSCRTShader", true);
-		else 				Shader.SetEnabled(p, "VHSCRTShader", false);
+		Shader.SetEnabled(p, "VHSCRTShader", true);
 	}
 }

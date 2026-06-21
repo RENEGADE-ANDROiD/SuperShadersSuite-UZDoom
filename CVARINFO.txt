@@ -91,9 +91,9 @@ user bool sss_fluidssr = false;
 user float sss_fluidssr_strength = 0.45;
 user float sss_wall_bake = 0.0;
 
-user bool tc_pp_lensflares = true;
+user bool tc_pp_lensflares = false;
 user float tc_pp_lensflares_threshold = 0.75;
-user int tc_pp_lensflares_samples = 16;
+user int tc_pp_lensflares_samples = 12;
 user float tc_pp_lensflares_distance = 0.009;
 user float tc_pp_lensflares_amount = 0.15;
 
@@ -135,13 +135,14 @@ user float sss_bodycam_rolling = 0.2;
 user bool sss_bodycam_overlay = true;
 user string sss_bodycam_unit = "BWC-01";
 
-user bool sss_hitbox_debug = false;
+user bool sss_hitbox_debug = true;
 user bool sss_hitbox_hud = true;
 user bool sss_hitbox_all = false;
+user bool sss_hitbox_gibs = false;
 user bool sss_hitbox_cullback = true;
-user bool sss_hitbox_sightcull = false;
+user bool sss_hitbox_sightcull = true;
 user bool sss_hitbox_healthcolor = true;
-user bool sss_hitbox_fillfaces = false;
+user bool sss_hitbox_fillfaces = true;
 user bool sss_hitbox_wrapvisible = true;
 user int sss_hitbox_maxdist = 2048;
 user int sss_hitbox_interval = 1;

@@ -67,14 +67,14 @@ class SSSHitboxHandler : StaticEventHandler
 			Actor mo;
 			while (mo = Actor(it.Next()))
 			{
-				if (!IsValidTarget(mo, pl.mo, maxDist))
+				if (!IsValidTarget(mo, pl.mo, maxDist, pl))
 					continue;
 				DrawHitbox(mo, pl.mo, pl, step, life, psize, fillFaces, wrapVisible);
 			}
 		}
 		else
 		{
-			Actor target = GetCrosshairTarget(pl.mo, maxDist);
+			Actor target = GetCrosshairTarget(pl.mo, maxDist, pl);
 			if (target)
 				DrawHitbox(target, pl.mo, pl, step, life, psize, fillFaces, wrapVisible);
 		}
@@ -88,7 +88,7 @@ class SSSHitboxHandler : StaticEventHandler
 		if (!GetBool("sss_hitbox_hud", pl))
 			return;
 
-		Actor target = GetCrosshairTarget(pl.mo, maxDist);
+		Actor target = GetCrosshairTarget(pl.mo, maxDist, pl);
 		if (!target)
 			return;
 
@@ -213,7 +213,7 @@ class SSSHitboxHandler : StaticEventHandler
 		return c ? c.GetFloat() : 0.0;
 	}
 
-	bool IsValidTarget(Actor mo, Actor viewer, int maxDist)
+	bool IsValidTarget(Actor mo, Actor viewer, int maxDist, PlayerInfo pl)
 	{
 		if (!mo || !viewer)
 			return false;
@@ -221,11 +221,67 @@ class SSSHitboxHandler : StaticEventHandler
 			return false;
 		if (!mo.bShootable && !mo.bIsMonster && !mo.CountsAsKill())
 			return false;
+		if (!GetBool("sss_hitbox_gibs", pl) && IsGoreOrGibActor(mo))
+			return false;
 		if (mo.height < 4 || mo.radius < 1)
 			return false;
 		if (mo.Distance2D(viewer) > maxDist)
 			return false;
 		return true;
+	}
+
+	bool IsGoreOrGibActor(Actor mo)
+	{
+		if (!mo || mo.player)
+			return false;
+
+		if (mo.bIsMonster && mo.health <= 0)
+			return true;
+
+		if (mo.bShootable && !mo.bIsMonster)
+			return true;
+
+		if (mo.bShootable && !mo.CountsAsKill())
+			return true;
+
+		return ClassNameLooksLikeGore(mo.GetClassName());
+	}
+
+	bool ClassNameLooksLikeGore(String cn)
+	{
+		if (cn.IndexOf("Gib") >= 0)
+			return true;
+		if (cn.IndexOf("GIB") >= 0)
+			return true;
+		if (cn.IndexOf("gib") >= 0)
+			return true;
+		if (cn.IndexOf("Gore") >= 0)
+			return true;
+		if (cn.IndexOf("GORE") >= 0)
+			return true;
+		if (cn.IndexOf("gore") >= 0)
+			return true;
+		if (cn.IndexOf("Meat") >= 0)
+			return true;
+		if (cn.IndexOf("Chunk") >= 0)
+			return true;
+		if (cn.IndexOf("Ragdoll") >= 0)
+			return true;
+		if (cn.IndexOf("Bodypart") >= 0)
+			return true;
+		if (cn.IndexOf("BodyPart") >= 0)
+			return true;
+		if (cn.IndexOf("Corpse") >= 0)
+			return true;
+		if (cn.IndexOf("Organ") >= 0)
+			return true;
+		if (cn.IndexOf("Intestine") >= 0)
+			return true;
+		if (cn.IndexOf("Remains") >= 0)
+			return true;
+		if (cn.IndexOf("Debris") >= 0)
+			return true;
+		return false;
 	}
 
 	double GetTraceOffsetZ(Actor viewer)
@@ -235,9 +291,9 @@ class SSSHitboxHandler : StaticEventHandler
 		return 41.0;
 	}
 
-	Actor GetCrosshairTarget(Actor viewer, int maxDist)
+	Actor GetCrosshairTarget(Actor viewer, int maxDist, PlayerInfo pl)
 	{
-		if (!viewer)
+		if (!viewer || !pl)
 			return null;
 
 		FLineTraceData tr;
@@ -245,7 +301,7 @@ class SSSHitboxHandler : StaticEventHandler
 			return null;
 		if (tr.HitType != FLineTraceData.TRACE_HitActor || !tr.HitActor)
 			return null;
-		if (!IsValidTarget(tr.HitActor, viewer, maxDist))
+		if (!IsValidTarget(tr.HitActor, viewer, maxDist, pl))
 			return null;
 
 		LastHitActor = tr.HitActor;

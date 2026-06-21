@@ -21,6 +21,11 @@ void main()
 	}
 	else vigdata = texture(VignetteTexture,coord).a;
 	float bfact = clamp(pow(max(vigdata,0.0),bblurpow)*bblurmul+bblurbump,0.0,1.0);
+	if (bblurradius <= 0.0 || bfact < 0.001)
+	{
+		FragColor = texture(InputTexture, coord);
+		return;
+	}
 	vec2 bof = (1.0/bresl)*bblurradius*bfact;
 	res.rgb *= 0;
 	int i,j;

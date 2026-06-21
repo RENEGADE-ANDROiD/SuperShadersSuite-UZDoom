@@ -217,7 +217,7 @@ class SSSVisualPresets
 		SetFilmic(false, "TonemapDefault");
 		SetACESConfig(true, 0, 3.2, 1.32, 1.0);
 		SetMariFXModern();
-		SetPostFXEx(false, 0.0, true, 12.0);
+		SetPostFXEx(false, 0.0, false, 0.0);
 		SetFilmGrain(false);
 		SetBloomBoost(true, 1.0, 100.0, 0.0);
 	}
@@ -256,7 +256,7 @@ class SSSVisualPresets
 		SetFilmic(true, "TonemapCemetery");
 		SetACES(false);
 		SetMariFXCinematic();
-		SetPostFX(true, 0.12);
+		SetPostFX(true, 0.12, 10);
 		SetFilmGrain(true);
 	}
 
@@ -297,7 +297,7 @@ class SSSVisualPresets
 		SetFilmic(true, "TonemapTide");
 		SetACES(false);
 		SetMariFXUltra();
-		SetPostFX(true, 0.18);
+		SetPostFX(true, 0.18, 12);
 	}
 
 	clearscope static void ApplyTactical()
@@ -331,7 +331,7 @@ class SSSVisualPresets
 		SetFilmic(false, "TonemapDefault");
 		SetACESConfig(true, 0, 3.0, 1.30, 0.98);
 		SetMariFXTactical();
-		SetPostFXEx(false, 0.0, true, 14.0);
+		SetPostFXEx(false, 0.0, false, 0.0);
 		SetFilmGrain(false);
 		SetBloomBoost(true, 1.0, 100.0, 0.0);
 	}
@@ -403,7 +403,7 @@ class SSSVisualPresets
 		SetFilmic(true, "TonemapSalvation");
 		SetACESConfig(false, 1, 6.0, 1.8, 1.0);
 		SetMariFXNeon();
-		SetPostFXEx(true, 0.14, true, 24.0);
+		SetPostFXEx(true, 0.14, false, 0.0, 10);
 		SetFilmGrain(false);
 		SetBloomBoost(true, 0.95, 110.0, 2.0);
 	}
@@ -476,7 +476,7 @@ class SSSVisualPresets
 		SetFilmic(false, "TonemapDefault");
 		SetACESConfig(false, 1, 6.0, 1.8, 1.0);
 		SetMariFXFoundFootage();
-		SetPostFXEx(false, 0.0, true, 28.0);
+		SetPostFXEx(false, 0.0, false, 0.0);
 		SetFilmGrain(false);
 		SetBool("dpwh_chromaticAberration2", true);
 		SetBool("fisheye_enabled", true);
@@ -677,15 +677,16 @@ class SSSVisualPresets
 		SetBool("mfx_ne", false);
 	}
 
-	clearscope static void SetPostFX(bool lens, double lensAmount)
+	clearscope static void SetPostFX(bool lens, double lensAmount, int lensSamples = 12)
 	{
-		SetPostFXEx(lens, lensAmount, lens, lens ? 22.0 : 0.0);
+		SetPostFXEx(lens, lensAmount, false, 0.0, lensSamples);
 	}
 
-	clearscope static void SetPostFXEx(bool lens, double lensAmount, bool vig, double vigIntensity)
+	clearscope static void SetPostFXEx(bool lens, double lensAmount, bool vig, double vigIntensity, int lensSamples = 12)
 	{
 		SetBool("tc_pp_lensflares", lens);
 		SetFloat("tc_pp_lensflares_amount", lensAmount);
+		SetInt("tc_pp_lensflares_samples", lensSamples);
 		SetBool("tc_pp_vignette", vig);
 		SetFloat("tc_pp_vignette_intensity", vigIntensity);
 		SetBool("tc_pp_noise", false);
@@ -876,15 +877,29 @@ class SSSRTLiteHandler : StaticEventHandler
 		bool contact = CVar.GetCVar("sss_contactao", p).GetBool();
 		double contactStr = CVar.GetCVar("sss_contactao_strength", p).GetFloat();
 		double contactRad = CVar.GetCVar("sss_contactao_radius", p).GetFloat();
-		Shader.SetUniform1f(p, "sss_contactao", "sss_contactao_strength", contactStr);
-		Shader.SetUniform1f(p, "sss_contactao", "sss_contactao_radius", contactRad);
-		Shader.SetEnabled(p, "sss_contactao", contact);
+		if (contact && contactStr > 0.0)
+		{
+			Shader.SetUniform1f(p, "sss_contactao", "sss_contactao_strength", contactStr);
+			Shader.SetUniform1f(p, "sss_contactao", "sss_contactao_radius", contactRad);
+			Shader.SetEnabled(p, "sss_contactao", true);
+		}
+		else
+		{
+			Shader.SetEnabled(p, "sss_contactao", false);
+		}
 
-		bool fluid = CVar.GetCVar("sss_fluidssr", p).GetBool()
-			&& SSSReflectionHelper.PlayerOnFluidFlat(p);
+		bool fluidOn = CVar.GetCVar("sss_fluidssr", p).GetBool();
 		double fluidStr = CVar.GetCVar("sss_fluidssr_strength", p).GetFloat();
-		Shader.SetUniform1f(p, "sss_fluidssr", "sss_fluidssr_strength", fluidStr);
-		Shader.SetEnabled(p, "sss_fluidssr", fluid);
+		bool fluid = fluidOn && fluidStr > 0.0 && SSSReflectionHelper.PlayerOnFluidFlat(p);
+		if (fluid)
+		{
+			Shader.SetUniform1f(p, "sss_fluidssr", "sss_fluidssr_strength", fluidStr);
+			Shader.SetEnabled(p, "sss_fluidssr", true);
+		}
+		else
+		{
+			Shader.SetEnabled(p, "sss_fluidssr", false);
+		}
 	}
 }
 

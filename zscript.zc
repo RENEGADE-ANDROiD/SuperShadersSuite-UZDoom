@@ -1,4 +1,4 @@
-version "4.10.0"
+﻿version "4.10.0"
 #include "Scripts/SSSGeoMixin.zs"
 #include "Scripts/FishEyePostProcessHandler.zs"
 #include "Scripts/VHSCRTPostProcessHandler.zs"
@@ -16,27 +16,31 @@ version "4.10.0"
 #include "Scripts/SSSVisualPresetHandler.zs"
 #include "Scripts/SSSBodyCamHandler.zs"
 #include "Scripts/SSSHitboxHandler.zs"
+#include "Scripts/MariFXHandler.zs"
 
 class TcPostProcessShaderHandler : StaticEventHandler
 {
 	override void RenderOverlay(RenderEvent e)
 	{
-		// get correct player
 		PlayerInfo p = players[consoleplayer];
-		
-		if (Cvar.GetCVar("tc_pp_lensflares", p).GetInt() > 0)			EnableLensFlares();
-		else														DisableLensFlares();
-		
-		
-		if (Cvar.GetCVar("tc_pp_vignette", p).GetInt() > 0)			EnableVignette();
-		else														DisableVignette();
-		
+
+		if (Cvar.GetCVar("tc_pp_lensflares", p).GetInt() > 0)
+			EnableLensFlares();
+		else
+			DisableLensFlares();
+
+		if (Cvar.GetCVar("tc_pp_vignette", p).GetInt() > 0)
+			EnableVignette();
+		else
+			DisableVignette();
+
 		if (Cvar.GetCVar("tc_pp_noise", p).GetInt() > 0)
 		{
 			Shader.SetUniform1f(p, "noiseshader", "timer", gametic + e.FracTic);
 			EnableNoise();
 		}
-		else														DisableNoise();
+		else
+			DisableNoise();
 	}
 
 	//===========================================================================
@@ -46,11 +50,18 @@ class TcPostProcessShaderHandler : StaticEventHandler
 	ui void EnableLensFlares(void)
 	{
 		PlayerInfo p = players[consoleplayer];
-		
+
+		double amount = CVar.GetCVar("tc_pp_lensflares_amount", p).GetFloat();
+		int samples = CVar.GetCVar("tc_pp_lensflares_samples", p).GetInt();
+		samples = max(4, min(samples, 12));
+		if (amount <= 0.0 || samples <= 0)
+		{
+			DisableLensFlares();
+			return;
+		}
+
 		double threshold = CVar.GetCVar("tc_pp_lensflares_threshold", p).GetFloat();
 		double distance = CVar.GetCVar("tc_pp_lensflares_distance", p).GetFloat();
-		double amount = CVar.GetCVar("tc_pp_lensflares_amount", p).GetFloat();
-		double samples = CVar.GetCVar("tc_pp_lensflares_samples", p).GetInt();
 		Shader.SetUniform1f(p, "lensflareshader", "threshold", threshold);
 		Shader.SetUniform1f(p, "lensflareshader", "distance", distance);
 		Shader.SetUniform1f(p, "lensflareshader", "samples", samples);
@@ -244,33 +255,49 @@ class OldVideoShaderHandler : StaticEventHandler
 class WorldGammaHandler : EventHandler
 {
 	PlayerInfo p;
+
+	private ui bool IsWorldGammaIdentity(PlayerInfo plr)
+	{
+		double gamma = Cvar.GetCVar("gl_worldgamma", plr).GetFloat();
+		double contrast = Cvar.GetCVar("gl_worldgamma_contrast", plr).GetFloat();
+		double brightness = Cvar.GetCVar("gl_worldgamma_brightness", plr).GetFloat();
+		return abs(gamma - 1.0) < 0.001
+			&& abs(contrast - 100.0) < 0.01
+			&& abs(brightness) < 0.0001;
+	}
+
 	override void UiTick()
 	{
-		if (p)
-			if (Cvar.GetCVar("gl_worldgamma_enabled", p).GetInt() > 0)
-			{
-				if (Cvar.GetCVar("gl_bloom", p).GetInt() + Cvar.GetCVar("gl_worldgamma_boostbloom", p).GetInt() > 1)
-				{
-					Shader.SetEnabled(p, "WorldGammaPostBloom", false);
-					Shader.SetUniform1f(p, "WorldGammaPreBloom", "gamma", 1.0 / Cvar.GetCVar("gl_worldgamma", p).GetFloat());
-					Shader.SetUniform1f(p, "WorldGammaPreBloom", "contrast", Cvar.GetCVar("gl_worldgamma_contrast", p).GetFloat() * 0.01);
-					Shader.SetUniform1f(p, "WorldGammaPreBloom", "brightness", Cvar.GetCVar("gl_worldgamma_brightness", p).GetFloat() * 0.01);
-					Shader.SetEnabled(p, "WorldGammaPreBloom", true);
-				}
-				else
-				{
-					Shader.SetEnabled(p, "WorldGammaPreBloom", false);
-					Shader.SetUniform1f(p, "WorldGammaPostBloom", "gamma", 1.0 / Cvar.GetCVar("gl_worldgamma", p).GetFloat());
-					Shader.SetUniform1f(p, "WorldGammaPostBloom", "contrast", Cvar.GetCVar("gl_worldgamma_contrast", p).GetFloat() * 0.01);
-					Shader.SetUniform1f(p, "WorldGammaPostBloom", "brightness", Cvar.GetCVar("gl_worldgamma_brightness", p).GetFloat() * 0.01);
-					Shader.SetEnabled(p, "WorldGammaPostBloom", true);
-				}
-			}
-			else
-			{
-				Shader.SetEnabled(p, "WorldGammaPostBloom", false);
-				Shader.SetEnabled(p, "WorldGammaPreBloom", false);
-			}
+		if (!p)
+			return;
+
+		if (Cvar.GetCVar("gl_worldgamma_enabled", p).GetInt() <= 0 || IsWorldGammaIdentity(p))
+		{
+			Shader.SetEnabled(p, "WorldGammaPostBloom", false);
+			Shader.SetEnabled(p, "WorldGammaPreBloom", false);
+			return;
+		}
+
+		double invGamma = 1.0 / Cvar.GetCVar("gl_worldgamma", p).GetFloat();
+		double contrast = Cvar.GetCVar("gl_worldgamma_contrast", p).GetFloat() * 0.01;
+		double brightness = Cvar.GetCVar("gl_worldgamma_brightness", p).GetFloat() * 0.01;
+
+		if (Cvar.GetCVar("gl_bloom", p).GetInt() + Cvar.GetCVar("gl_worldgamma_boostbloom", p).GetInt() > 1)
+		{
+			Shader.SetEnabled(p, "WorldGammaPostBloom", false);
+			Shader.SetUniform1f(p, "WorldGammaPreBloom", "gamma", invGamma);
+			Shader.SetUniform1f(p, "WorldGammaPreBloom", "contrast", contrast);
+			Shader.SetUniform1f(p, "WorldGammaPreBloom", "brightness", brightness);
+			Shader.SetEnabled(p, "WorldGammaPreBloom", true);
+		}
+		else
+		{
+			Shader.SetEnabled(p, "WorldGammaPreBloom", false);
+			Shader.SetUniform1f(p, "WorldGammaPostBloom", "gamma", invGamma);
+			Shader.SetUniform1f(p, "WorldGammaPostBloom", "contrast", contrast);
+			Shader.SetUniform1f(p, "WorldGammaPostBloom", "brightness", brightness);
+			Shader.SetEnabled(p, "WorldGammaPostBloom", true);
+		}
 	}
 	override void PlayerEntered(PlayerEvent e)
 	{
@@ -486,26 +513,44 @@ class ScreeMHandler : EventHandler
 class BBHandler : EventHandler
 {
 	PlayerInfo p;
+
+	private ui bool IsBloomBoostIdentity(PlayerInfo plr)
+	{
+		double gamma = Cvar.GetCVar("gl_bloomboost_gamma", plr).GetFloat();
+		double contrast = Cvar.GetCVar("gl_bloomboost_contrast", plr).GetFloat();
+		double brightness = Cvar.GetCVar("gl_bloomboost_brightness", plr).GetFloat();
+		return abs(gamma - 1.0) < 0.001
+			&& abs(contrast - 100.0) < 0.01
+			&& abs(brightness) < 0.0001;
+	}
+
 	override void UiTick()
 	{
-		if (p)
-			if (Cvar.GetCVar("gl_bloom", p).GetInt() + Cvar.GetCVar("gl_bloomboost", p).GetInt() > 1)
-			{
-					Shader.SetUniform1f(p, "BloomBoostPre", "gamma", 1.0 / Cvar.GetCVar("gl_bloomboost_gamma", p).GetFloat());
-					Shader.SetUniform1f(p, "BloomBoostPre", "contrast", Cvar.GetCVar("gl_bloomboost_contrast", p).GetFloat() * 0.01);
-					Shader.SetUniform1f(p, "BloomBoostPre", "brightness", Cvar.GetCVar("gl_bloomboost_brightness", p).GetFloat() * 0.01);
-					Shader.SetEnabled(p, "BloomBoostPre", true);
-					
-					Shader.SetUniform1f(p, "BloomBoostPost", "gamma", Cvar.GetCVar("gl_bloomboost_gamma", p).GetFloat());
-					Shader.SetUniform1f(p, "BloomBoostPost", "contrast", 1.0 / (Cvar.GetCVar("gl_bloomboost_contrast", p).GetFloat() * 0.01));
-					Shader.SetUniform1f(p, "BloomBoostPost", "brightness", Cvar.GetCVar("gl_bloomboost_brightness", p).GetFloat() * 0.01);
-					Shader.SetEnabled(p, "BloomBoostPost", true);
-			}
-			else
-			{
-				Shader.SetEnabled(p, "BloomBoostPre", false);
-				Shader.SetEnabled(p, "BloomBoostPost", false);
-			}
+		if (!p)
+			return;
+
+		if (Cvar.GetCVar("gl_bloom", p).GetInt() + Cvar.GetCVar("gl_bloomboost", p).GetInt() <= 1
+			|| IsBloomBoostIdentity(p))
+		{
+			Shader.SetEnabled(p, "BloomBoostPre", false);
+			Shader.SetEnabled(p, "BloomBoostPost", false);
+			return;
+		}
+
+		double gamma = Cvar.GetCVar("gl_bloomboost_gamma", p).GetFloat();
+		double contrastPct = Cvar.GetCVar("gl_bloomboost_contrast", p).GetFloat();
+		double contrast = contrastPct * 0.01;
+		double brightness = Cvar.GetCVar("gl_bloomboost_brightness", p).GetFloat() * 0.01;
+
+		Shader.SetUniform1f(p, "BloomBoostPre", "gamma", 1.0 / gamma);
+		Shader.SetUniform1f(p, "BloomBoostPre", "contrast", contrast);
+		Shader.SetUniform1f(p, "BloomBoostPre", "brightness", brightness);
+		Shader.SetEnabled(p, "BloomBoostPre", true);
+
+		Shader.SetUniform1f(p, "BloomBoostPost", "gamma", gamma);
+		Shader.SetUniform1f(p, "BloomBoostPost", "contrast", 1.0 / contrast);
+		Shader.SetUniform1f(p, "BloomBoostPost", "brightness", brightness);
+		Shader.SetEnabled(p, "BloomBoostPost", true);
 	}
 	override void PlayerEntered(PlayerEvent e)
 	{
@@ -832,268 +877,6 @@ Class MFXOptionMenu : OptionMenu
 			if ( !(mDesc.mItems[i] is 'OptionMenuItemMFXPresetList') )
 				continue;
 			OptionMenuItemMFXPresetList(mDesc.mItems[i]).UpdateNames();
-		}
-	}
-}
-
-Class MariFXHandler : StaticEventHandler
-{
-	override void RenderOverlay( RenderEvent e )
-	{
-		PlayerInfo p = players[consoleplayer];
-		// LUMA SHARPEN
-		Shader.SetEnabled(p,"mfx_lumasharp",mfx_lsharpenable);
-		Shader.SetUniform1f(p,"mfx_lumasharp","sharpradius",mfx_lsharpradius);
-		Shader.SetUniform1f(p,"mfx_lumasharp","sharpclamp",mfx_lsharpclamp);
-		Shader.SetUniform1f(p,"mfx_lumasharp","sharpblend",mfx_lsharpblend);
-		// FILM GRAIN
-		Shader.SetEnabled(p,"mfx_grain",mfx_ne);
-		Shader.SetUniform1f(p,"mfx_grain","ni",mfx_ni);
-		Shader.SetUniform1f(p,"mfx_grain","ns",mfx_ns);
-		Shader.SetUniform1f(p,"mfx_grain","np",mfx_np);
-		Shader.SetUniform1f(p,"mfx_grain","bnp",mfx_bnp);
-		Shader.SetUniform1i(p,"mfx_grain","nb",mfx_nb);
-		Shader.SetUniform1f(p,"mfx_grain","Timer",(gametic+e.fractic)/35.);
-		// SCREEN DIRT
-		Shader.SetEnabled(p,"mfx_dirt",mfx_dirtenable);
-		Shader.SetUniform1f(p,"mfx_dirt","dirtmc",mfx_dirtmc);
-		Shader.SetUniform1f(p,"mfx_dirt","dirtcfactor",mfx_dirtcfactor);
-		// COLOR GRADING
-		Shader.SetEnabled(p,"mfx_grading",mfx_gradeenable);
-		Shader.SetUniform3f(p,"mfx_grading","grademul",(mfx_grademul_r,mfx_grademul_g,mfx_grademul_b));
-		Shader.SetUniform3f(p,"mfx_grading","gradepow",(mfx_gradepow_r,mfx_gradepow_g,mfx_gradepow_b));
-		Shader.SetUniform3f(p,"mfx_grading","gradecol",(mfx_gradecol_r,mfx_gradecol_g,mfx_gradecol_b));
-		Shader.SetUniform1f(p,"mfx_grading","gradecolfact",mfx_gradecolfact);
-		Shader.SetUniform1f(p,"mfx_grading","gradesatmul",mfx_gradesatmul);
-		Shader.SetUniform1f(p,"mfx_grading","gradesatpow",mfx_gradesatpow);
-		Shader.SetUniform1f(p,"mfx_grading","gradevalmul",mfx_gradevalmul);
-		Shader.SetUniform1f(p,"mfx_grading","gradevalpow",mfx_gradevalpow);
-		// LUT GRADING
-		Shader.SetEnabled(p,"mfx_lutgrading",mfx_lutenable);
-		Shader.SetUniform1i(p,"mfx_lutgrading","lutindex",mfx_lutindex);
-		Shader.SetUniform1f(p,"mfx_lutgrading","lutblend",mfx_lutblend);
-		// TECHNICOLOR
-		Shader.SetEnabled(p,"mfx_technicolor",mfx_techenable);
-		Shader.SetUniform1f(p,"mfx_technicolor","techblend",mfx_techblend);
-		// COLOR MATRIX
-		Shader.SetEnabled(p,"mfx_colormatrix",mfx_cmatenable);
-		Shader.SetUniform3f(p,"mfx_colormatrix","redrow",(mfx_cmat_rr,mfx_cmat_rg,mfx_cmat_rb));
-		Shader.SetUniform3f(p,"mfx_colormatrix","greenrow",(mfx_cmat_gr,mfx_cmat_gg,mfx_cmat_gb));
-		Shader.SetUniform3f(p,"mfx_colormatrix","bluerow",(mfx_cmat_br,mfx_cmat_bg,mfx_cmat_bb));
-		// HUE-SATURATION
-		Shader.SetEnabled(p,"mfx_huesaturation",mfx_hsenable);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hsover",mfx_hsover);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hshue_a",mfx_hshue_a);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hssat_a",mfx_hssat_a);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hsval_a",mfx_hsval_a);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hshue_r",mfx_hshue_r);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hssat_r",mfx_hssat_r);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hsval_r",mfx_hsval_r);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hshue_y",mfx_hshue_y);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hssat_y",mfx_hssat_y);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hsval_y",mfx_hsval_y);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hshue_g",mfx_hshue_g);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hssat_g",mfx_hssat_g);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hsval_g",mfx_hsval_g);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hshue_c",mfx_hshue_c);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hssat_c",mfx_hssat_c);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hsval_c",mfx_hsval_c);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hshue_b",mfx_hshue_b);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hssat_b",mfx_hssat_b);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hsval_b",mfx_hsval_b);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hshue_m",mfx_hshue_m);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hssat_m",mfx_hssat_m);
-		Shader.SetUniform1f(p,"mfx_huesaturation","hsval_m",mfx_hsval_m);
-		// BLURSHARPSHIFT
-		Shader.SetEnabled(p,"mfx_bss_blur",mfx_bssblurenable);
-		Shader.SetUniform1f(p,"mfx_bss_blur","bssblurradius",mfx_bssblurradius);
-		Shader.SetEnabled(p,"mfx_bss_sharp",mfx_bsssharpenable);
-		Shader.SetUniform1f(p,"mfx_bss_sharp","bsssharpradius",mfx_bsssharpradius);
-		Shader.SetUniform1f(p,"mfx_bss_sharp","bsssharpamount",mfx_bsssharpamount);
-		Shader.SetEnabled(p,"mfx_bss_shift",mfx_bssshiftenable);
-		Shader.SetUniform1f(p,"mfx_bss_shift","bssshiftradius",mfx_bssshiftradius);
-		// VIGNETTE / BORDER BLUR
-		Shader.SetEnabled(p,"mfx_borderblur",mfx_bblurenable);
-		Shader.SetUniform1f(p,"mfx_borderblur","vigpow",mfx_vigpow);
-		Shader.SetUniform1f(p,"mfx_borderblur","vigmul",mfx_vigmul);
-		Shader.SetUniform1f(p,"mfx_borderblur","vigbump",mfx_vigbump);
-		Shader.SetUniform1i(p,"mfx_borderblur","vigshape",mfx_vigshape);
-		Shader.SetUniform1f(p,"mfx_borderblur","bblurpow",mfx_bblurpow);
-		Shader.SetUniform1f(p,"mfx_borderblur","bblurmul",mfx_bblurmul);
-		Shader.SetUniform1f(p,"mfx_borderblur","bblurbump",mfx_bblurbump);
-		Shader.SetUniform1f(p,"mfx_borderblur","bblurradius",mfx_bblurradius);
-		Shader.SetEnabled(p,"mfx_vignette",mfx_vigenable);
-		Shader.SetUniform3f(p,"mfx_vignette","vigcolor",(mfx_vigcolor_r,mfx_vigcolor_g,mfx_vigcolor_b));
-		Shader.SetUniform1f(p,"mfx_vignette","vigpow",mfx_vigpow);
-		Shader.SetUniform1f(p,"mfx_vignette","vigmul",mfx_vigmul);
-		Shader.SetUniform1f(p,"mfx_vignette","vigbump",mfx_vigbump);
-		Shader.SetUniform1i(p,"mfx_vignette","vigshape",mfx_vigshape);
-		Shader.SetUniform1i(p,"mfx_vignette","vigmode",mfx_vigmode);
-		// RETRO FX
-		Vector2 rresl = (Screen.GetWidth(),Screen.GetHeight());
-		Vector2 bresl = rresl;
-		switch ( mfx_retroscalemode )
-		{
-		case 0:
-			bresl = (CleanWidth,CleanHeight);
-			break;
-		case 1:
-			bresl = (CleanWidth_1,CleanHeight_1);
-			break;
-		case 2:
-			bresl = (max(1,rresl.x*mfx_bscl_x),max(1,rresl.y*mfx_bscl_y));
-			break;
-		case 3:
-			bresl = (clamp(mfx_bres_x,1,rresl.x),clamp(mfx_bres_y,1,rresl.y));
-			break;
-		}
-		Shader.SetEnabled(p,"mfx_retrofx",mfx_retroenable);
-		Shader.SetUniform2f(p,"mfx_retrofx","bresl",bresl);
-		Shader.SetEnabled(p,"mfx_palette",mfx_palenable);
-		Shader.SetUniform2f(p,"mfx_palette","sfact",mfx_retroenable?bresl:rresl);
-		Shader.SetUniform1f(p,"mfx_palette","palsat",mfx_palsat);
-		Shader.SetUniform1f(p,"mfx_palette","palpow",mfx_palpow);
-		Shader.SetUniform1i(p,"mfx_palette","palnum",mfx_palnum);
-		Shader.SetUniform1f(p,"mfx_palette","paldither",mfx_paldither);
-	}
-	override void ConsoleProcess( ConsoleEvent e )
-	{
-		PlayerInfo p = players[consoleplayer];
-		if ( e.Name ~== "loadmfxpreset" )
-		{
-			int slot = clamp(mfx_presetslot,0,7);
-			MFXPresetUtility.LoadPreset(slot);
-		}
-		else if ( e.Name ~== "savemfxpreset" )
-		{
-			int slot = clamp(mfx_presetslot,0,7);
-			MFXPresetUtility.SavePreset(slot);
-		}
-		else if ( e.Name ~== "resetmfxvars" )
-		{
-			switch( e.args[0] )
-			{
-			case 0:
-				CVar.FindCVar('mfx_ne').ResetToDefault();
-				CVar.FindCVar('mfx_ni').ResetToDefault();
-				CVar.FindCVar('mfx_ns').ResetToDefault();
-				CVar.FindCVar('mfx_np').ResetToDefault();
-				CVar.FindCVar('mfx_bnp').ResetToDefault();
-				CVar.FindCVar('mfx_nb').ResetToDefault();
-				break;
-			case 1:
-				CVar.FindCVar('mfx_dirtenable').ResetToDefault();
-				CVar.FindCVar('mfx_dirtmc').ResetToDefault();
-				CVar.FindCVar('mfx_dirtcfactor').ResetToDefault();
-				break;
-			case 2:
-				CVar.FindCVar('mfx_gradeenable').ResetToDefault();
-				CVar.FindCVar('mfx_grademul_r').ResetToDefault();
-				CVar.FindCVar('mfx_grademul_g').ResetToDefault();
-				CVar.FindCVar('mfx_grademul_b').ResetToDefault();
-				CVar.FindCVar('mfx_gradepow_r').ResetToDefault();
-				CVar.FindCVar('mfx_gradepow_g').ResetToDefault();
-				CVar.FindCVar('mfx_gradepow_b').ResetToDefault();
-				CVar.FindCVar('mfx_gradecol_r').ResetToDefault();
-				CVar.FindCVar('mfx_gradecol_g').ResetToDefault();
-				CVar.FindCVar('mfx_gradecol_b').ResetToDefault();
-				CVar.FindCVar('mfx_gradecolfact').ResetToDefault();
-				CVar.FindCVar('mfx_gradesatmul').ResetToDefault();
-				CVar.FindCVar('mfx_gradesatpow').ResetToDefault();
-				CVar.FindCVar('mfx_gradevalmul').ResetToDefault();
-				CVar.FindCVar('mfx_gradevalpow').ResetToDefault();
-				break;
-			case 3:
-				CVar.FindCVar('mfx_cmatenable').ResetToDefault();
-				CVar.FindCVar('mfx_cmat_rr').ResetToDefault();
-				CVar.FindCVar('mfx_cmat_rg').ResetToDefault();
-				CVar.FindCVar('mfx_cmat_rb').ResetToDefault();
-				CVar.FindCVar('mfx_cmat_gr').ResetToDefault();
-				CVar.FindCVar('mfx_cmat_gg').ResetToDefault();
-				CVar.FindCVar('mfx_cmat_gb').ResetToDefault();
-				CVar.FindCVar('mfx_cmat_br').ResetToDefault();
-				CVar.FindCVar('mfx_cmat_bg').ResetToDefault();
-				CVar.FindCVar('mfx_cmat_bb').ResetToDefault();
-				break;
-			case 4:
-				CVar.FindCVar('mfx_hsenable').ResetToDefault();
-				CVar.FindCVar('mfx_hsover').ResetToDefault();
-				CVar.FindCVar('mfx_hshue_a').ResetToDefault();
-				CVar.FindCVar('mfx_hssat_a').ResetToDefault();
-				CVar.FindCVar('mfx_hsval_a').ResetToDefault();
-				CVar.FindCVar('mfx_hshue_r').ResetToDefault();
-				CVar.FindCVar('mfx_hssat_r').ResetToDefault();
-				CVar.FindCVar('mfx_hsval_r').ResetToDefault();
-				CVar.FindCVar('mfx_hshue_y').ResetToDefault();
-				CVar.FindCVar('mfx_hssat_y').ResetToDefault();
-				CVar.FindCVar('mfx_hsval_y').ResetToDefault();
-				CVar.FindCVar('mfx_hshue_g').ResetToDefault();
-				CVar.FindCVar('mfx_hssat_g').ResetToDefault();
-				CVar.FindCVar('mfx_hsval_g').ResetToDefault();
-				CVar.FindCVar('mfx_hshue_c').ResetToDefault();
-				CVar.FindCVar('mfx_hssat_c').ResetToDefault();
-				CVar.FindCVar('mfx_hsval_c').ResetToDefault();
-				CVar.FindCVar('mfx_hshue_b').ResetToDefault();
-				CVar.FindCVar('mfx_hssat_b').ResetToDefault();
-				CVar.FindCVar('mfx_hsval_b').ResetToDefault();
-				CVar.FindCVar('mfx_hshue_m').ResetToDefault();
-				CVar.FindCVar('mfx_hssat_m').ResetToDefault();
-				CVar.FindCVar('mfx_hsval_m').ResetToDefault();
-				break;
-			case 5:
-				CVar.FindCVar('mfx_bssblurenable').ResetToDefault();
-				CVar.FindCVar('mfx_bssblurradius').ResetToDefault();
-				CVar.FindCVar('mfx_bsssharpenable').ResetToDefault();
-				CVar.FindCVar('mfx_bsssharpradius').ResetToDefault();
-				CVar.FindCVar('mfx_bsssharpamount').ResetToDefault();
-				CVar.FindCVar('mfx_bssshiftenable').ResetToDefault();
-				CVar.FindCVar('mfx_bssshiftradius').ResetToDefault();
-				break;
-			case 6:
-				CVar.FindCVar('mfx_bblurenable').ResetToDefault();
-				CVar.FindCVar('mfx_bblurpow').ResetToDefault();
-				CVar.FindCVar('mfx_bblurmul').ResetToDefault();
-				CVar.FindCVar('mfx_bblurbump').ResetToDefault();
-				CVar.FindCVar('mfx_bblurradius').ResetToDefault();
-				CVar.FindCVar('mfx_vigenable').ResetToDefault();
-				CVar.FindCVar('mfx_vigcolor_r').ResetToDefault();
-				CVar.FindCVar('mfx_vigcolor_g').ResetToDefault();
-				CVar.FindCVar('mfx_vigcolor_b').ResetToDefault();
-				CVar.FindCVar('mfx_vigpow').ResetToDefault();
-				CVar.FindCVar('mfx_vigmul').ResetToDefault();
-				CVar.FindCVar('mfx_vigbump').ResetToDefault();
-				CVar.FindCVar('mfx_vigshape').ResetToDefault();
-				CVar.FindCVar('mfx_vigmode').ResetToDefault();
-				break;
-			case 7:
-				CVar.FindCVar('mfx_retroenable').ResetToDefault();
-				CVar.FindCVar('mfx_retroscalemode').ResetToDefault();
-				CVar.FindCVar('mfx_bres_x').ResetToDefault();
-				CVar.FindCVar('mfx_bres_y').ResetToDefault();
-				CVar.FindCVar('mfx_bscl_x').ResetToDefault();
-				CVar.FindCVar('mfx_bscl_y').ResetToDefault();
-				CVar.FindCVar('mfx_palenable').ResetToDefault();
-				CVar.FindCVar('mfx_palnum').ResetToDefault();
-				CVar.FindCVar('mfx_palsat').ResetToDefault();
-				CVar.FindCVar('mfx_palpow').ResetToDefault();
-				CVar.FindCVar('mfx_paldither').ResetToDefault();
-				break;
-			case 8:
-				CVar.FindCVar('mfx_lsharpenable').ResetToDefault();
-				CVar.FindCVar('mfx_lsharpradius').ResetToDefault();
-				CVar.FindCVar('mfx_lsharpclamp').ResetToDefault();
-				CVar.FindCVar('mfx_lsharpblend').ResetToDefault();
-				break;
-			case 9:
-				CVar.FindCVar('mfx_lutenable').ResetToDefault();
-				CVar.FindCVar('mfx_lutindex').ResetToDefault();
-				CVar.FindCVar('mfx_lutblend').ResetToDefault();
-				break;
-			case 10:
-				CVar.FindCVar('mfx_techenable').ResetToDefault();
-				CVar.FindCVar('mfx_techblend').ResetToDefault();
-				break;
-			}
 		}
 	}
 }

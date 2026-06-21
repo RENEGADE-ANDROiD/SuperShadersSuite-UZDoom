@@ -171,6 +171,24 @@ class SSSDarkDoom_Handler : EventHandler
 
 	override void UiTick()
 	{
+		int mode = CVar.FindCVar("ddz_mode").GetInt();
+		int preset = CVar.FindCVar("ddz_preset").GetInt();
+		int preGain = CVar.FindCVar("ddz_pregain").GetInt();
+		int postGain = CVar.FindCVar("ddz_postgain").GetInt();
+		double skyMode = CVar.FindCVar("ddz_skymode").GetFloat();
+		int fogDensity = CVar.FindCVar("ddz_fog").GetInt();
+		int minLight = CVar.FindCVar("ddz_minlight").GetInt();
+		bool reliteSync = CVar.FindCVar("sss_darkdoom_relite_sync").GetBool();
+		if (OldMode == mode
+			&& OldPreset == preset
+			&& OldPreGain == preGain
+			&& OldPostGain == postGain
+			&& OldSkyMode == skyMode
+			&& OldFogDensity == fogDensity
+			&& OldMinLight == minLight
+			&& OldReliteSync == reliteSync)
+			return;
+
 		EventHandler.SendNetworkEvent("SSSUpdateDarkDoom");
 	}
 

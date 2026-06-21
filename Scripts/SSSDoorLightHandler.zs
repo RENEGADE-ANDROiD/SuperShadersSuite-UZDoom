@@ -36,7 +36,7 @@ class SSSDoorLightHandler : EventHandler
 	{
 		if (!CVar.FindCVar("sss_lighting").GetBool())
 		{
-			if (Built)
+			if (Built && HasActiveLights())
 				ClearAllLights();
 			return;
 		}
@@ -49,7 +49,8 @@ class SSSDoorLightHandler : EventHandler
 
 		if (!CVar.FindCVar("sss_relight_doors").GetBool() || CVar.FindCVar("sss_performance").GetBool())
 		{
-			ClearAllLights();
+			if (HasActiveLights())
+				ClearAllLights();
 			return;
 		}
 
@@ -267,6 +268,16 @@ class SSSDoorLightHandler : EventHandler
 			track.Light.Destroy();
 			track.Light = null;
 		}
+	}
+
+	bool HasActiveLights()
+	{
+		for (int i = 0; i < Tracks.Size(); i++)
+		{
+			if (Tracks[i].Light)
+				return true;
+		}
+		return false;
 	}
 
 	void ClearAllLights()

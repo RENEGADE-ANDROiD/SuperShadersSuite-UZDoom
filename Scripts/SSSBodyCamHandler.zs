@@ -5,6 +5,8 @@ class SSSBodyCamHandler : StaticEventHandler
 	double PrevYaw;
 	double PrevPitch;
 	bool AnglesInit;
+	double RollSkewX;
+	double RollSkewY;
 
 	override void WorldLoaded(WorldEvent e)
 	{
@@ -34,7 +36,6 @@ class SSSBodyCamHandler : StaticEventHandler
 		if (GetInt(p, "sss_bodycam_mode") != 0)
 			return;
 
-		SyncDigitalFisheye(p);
 		UpdateRollingShutter(p);
 	}
 
@@ -65,14 +66,16 @@ class SSSBodyCamHandler : StaticEventHandler
 			let rollX = CVar.FindCVar("sss_bodycam_roll_x");
 			let rollY = CVar.FindCVar("sss_bodycam_roll_y");
 			double t = (gametic + e.FracTic) / 35.0;
+			double skewX = rollX ? rollX.GetFloat() : RollSkewX;
+			double skewY = rollY ? rollY.GetFloat() : RollSkewY;
 
 			Shader.SetUniform1f(p, "sss_bodycam", "iTime", t);
 			Shader.SetUniform1f(p, "sss_bodycam", "chromaStrength", CVar.GetCVar("sss_bodycam_chroma", p).GetFloat());
 			Shader.SetUniform1f(p, "sss_bodycam", "noiseStrength", CVar.GetCVar("sss_bodycam_noise", p).GetFloat());
 			Shader.SetUniform1f(p, "sss_bodycam", "contrast", CVar.GetCVar("sss_bodycam_contrast", p).GetFloat());
 			Shader.SetUniform1f(p, "sss_bodycam", "saturation", CVar.GetCVar("sss_bodycam_saturation", p).GetFloat());
-			Shader.SetUniform1f(p, "sss_bodycam", "rollSkewX", rollX ? rollX.GetFloat() : 0.0);
-			Shader.SetUniform1f(p, "sss_bodycam", "rollSkewY", rollY ? rollY.GetFloat() : 0.0);
+			Shader.SetUniform1f(p, "sss_bodycam", "rollSkewX", skewX);
+			Shader.SetUniform1f(p, "sss_bodycam", "rollSkewY", skewY);
 			Shader.SetUniform1f(p, "sss_bodycam", "rollStrength", CVar.GetCVar("sss_bodycam_rolling", p).GetFloat());
 			Shader.SetEnabled(p, "sss_bodycam", true);
 
@@ -184,19 +187,12 @@ class SSSBodyCamHandler : StaticEventHandler
 		Shader.SetEnabled(p, "fisheyeshader", true);
 	}
 
-	void SyncDigitalFisheye(PlayerInfo p)
-	{
-		double barrel = GetFloat(p, "sss_bodycam_barrel");
-		SetFloat(p, "fisheye_strength", clamp(barrel * 0.85, 0.012, 0.12));
-		SetBool(p, "fisheye_chromatic", GetFloat(p, "sss_bodycam_chroma") > 0.001);
-		SetBool(p, "fisheye_enabled", true);
-	}
-
 	void ApplyDigitalValues(PlayerInfo p)
 	{
 		SetBool(p, "SH_ShaderEnable", false);
 		SetBool(p, "SH_VHSEnable", false);
-		SyncDigitalFisheye(p);
+		RollSkewX = 0;
+		RollSkewY = 0;
 	}
 
 	void ApplyAnalogValues(PlayerInfo p)
@@ -235,13 +231,13 @@ class SSSBodyCamHandler : StaticEventHandler
 		PrevYaw = yaw;
 		PrevPitch = pitch;
 
-		double smoothX = GetSessionFloat("sss_bodycam_roll_x");
-		double smoothY = GetSessionFloat("sss_bodycam_roll_y");
-		smoothX = smoothX * 0.50 + dYaw * 0.00085 * 0.50;
-		smoothY = smoothY * 0.50 + dPitch * 0.00060 * 0.50;
-		SetRollSkew(smoothX, smoothY);
+		double smoothX = RollSkewX * 0.50 + dYaw * 0.00085 * 0.50;
+		double smoothY = RollSkewY * 0.50 + dPitch * 0.00060 * 0.50;
+		RollSkewX = smoothX;
+		RollSkewY = smoothY;
+		SetSessionFloat("sss_bodycam_roll_x", smoothX);
+		SetSessionFloat("sss_bodycam_roll_y", smoothY);
 	}
-
 
 	void SaveCurrent(PlayerInfo p)
 	{
@@ -288,6 +284,8 @@ class SSSBodyCamHandler : StaticEventHandler
 
 	void SetRollSkew(double x, double y)
 	{
+		RollSkewX = x;
+		RollSkewY = y;
 		SetSessionFloat("sss_bodycam_roll_x", x);
 		SetSessionFloat("sss_bodycam_roll_y", y);
 	}

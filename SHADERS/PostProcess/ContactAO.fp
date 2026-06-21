@@ -7,6 +7,12 @@ float Luma(vec3 c)
 
 void main()
 {
+	if (sss_contactao_strength <= 0.0)
+	{
+		FragColor = texture(InputTexture, TexCoord);
+		return;
+	}
+
 	vec4 center = texture(InputTexture, TexCoord);
 	float lum = Luma(center.rgb);
 	vec2 texel = sss_contactao_radius / textureSize(InputTexture, 0);

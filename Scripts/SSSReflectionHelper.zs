@@ -3,7 +3,7 @@
 
 class SSSReflectionHelper
 {
-	static bool FlatMatchesNameToken(Name flatName, Name token)
+	clearscope static bool FlatMatchesNameToken(Name flatName, Name token)
 	{
 		if (flatName == token)
 			return true;
@@ -23,13 +23,13 @@ class SSSReflectionHelper
 		return false;
 	}
 
-	static bool FlatMatchesHeuristicToken(Name flatName, String entry, Name token)
+	clearscope static bool FlatMatchesHeuristicToken(Name flatName, String entry, Name token)
 	{
 		return entry == String.Format("%s", token) &&
 			FlatMatchesNameToken(flatName, token);
 	}
 
-	static bool FlatMatchesCvarEntry(Name flatName, String entry)
+	clearscope static bool FlatMatchesCvarEntry(Name flatName, String entry)
 	{
 		if (entry.Length() == 0)
 			return false;
@@ -71,7 +71,7 @@ class SSSReflectionHelper
 		return false;
 	}
 
-	static bool FlatMatchesHexenLiquid(Name flatName)
+	clearscope static bool FlatMatchesHexenLiquid(Name flatName)
 	{
 		static const Name HexenLiquidFlats[] =
 		{
@@ -88,7 +88,7 @@ class SSSReflectionHelper
 		return false;
 	}
 
-	static bool FlatNameMatchesHeuristic(Name flatName)
+	clearscope static bool FlatNameMatchesHeuristic(Name flatName)
 	{
 		if (flatName == "")
 			return false;
@@ -115,7 +115,7 @@ class SSSReflectionHelper
 		return false;
 	}
 
-	static bool FlatInCvarList(int dir, Name flatName)
+	clearscope static bool FlatInCvarList(int dir, Name flatName)
 	{
 		for (int i = 1; i <= 10; i++)
 		{
@@ -132,7 +132,7 @@ class SSSReflectionHelper
 		return false;
 	}
 
-	static bool FlatMatchesAllowlist(int dir, Name flatName)
+	clearscope static bool FlatMatchesAllowlist(int dir, Name flatName)
 	{
 		if (flatName == "")
 			return false;
@@ -175,7 +175,7 @@ class SSSReflectionHelper
 		}
 	}
 
-	static bool ActorOnFluidFlat(Actor mo)
+	clearscope static bool ActorOnFluidFlat(Actor mo)
 	{
 		if (!mo || !mo.floorsector)
 			return false;
@@ -185,7 +185,7 @@ class SSSReflectionHelper
 		return FlatMatchesAllowlist(Sector.Floor, flatName);
 	}
 
-	static bool PlayerOnFluidFlat(PlayerInfo p)
+	clearscope static bool PlayerOnFluidFlat(PlayerInfo p)
 	{
 		if (!p || !p.mo)
 			return false;

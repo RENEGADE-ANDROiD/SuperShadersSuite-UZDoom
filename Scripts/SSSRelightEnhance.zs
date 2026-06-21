@@ -7,7 +7,7 @@ class SSSRelightEnhance
 	Array<Name> FlatNames;
 	Array<String> GldefClasses;
 	Array<Color> GldefColors;
-	Array<int> BledSectors;
+	Array<bool> BledSectorMarks;
 	double IndoorLightAvg;
 	double SkyLightAvg;
 	Color SkySampleColor;
@@ -33,7 +33,7 @@ class SSSRelightEnhance
 		FlatColors.Clear();
 		GldefClasses.Clear();
 		GldefColors.Clear();
-		BledSectors.Clear();
+		ClearBledSectorMarks();
 
 		if (smart || window || texture)
 			ComputeLightAverages();
@@ -181,6 +181,7 @@ class SSSRelightEnhance
 	{
 		Texman texture;
 		Array<Color> palette;
+		Map<Name, bool> FlatSeen;
 
 		int palLump = Wads.FindLump("PLAYPAL", 0, Wads.ANYNAMESPACE);
 		if (palLump >= 0)
@@ -193,11 +194,17 @@ class SSSRelightEnhance
 		foreach (sec : Level.Sectors)
 		{
 			Name fn = texture.GetName(sec.GetTexture(Sector.Floor));
-			if (FlatNames.Find(fn) < 0)
+			if (!FlatSeen.CheckKey(fn))
+			{
+				FlatSeen.Insert(fn, true);
 				FlatNames.Push(fn);
+			}
 			Name cn = texture.GetName(sec.GetTexture(Sector.Ceiling));
-			if (FlatNames.Find(cn) < 0)
+			if (!FlatSeen.CheckKey(cn))
+			{
+				FlatSeen.Insert(cn, true);
 				FlatNames.Push(cn);
+			}
 		}
 
 		for (int i = 0; i < FlatNames.Size(); i++)
@@ -205,6 +212,32 @@ class SSSRelightEnhance
 			Color c = SampleFlatAverage(FlatNames[i], palette);
 			FlatColors.Push(c);
 		}
+	}
+
+	private play void EnsureBledSectorMarks()
+	{
+		if (BledSectorMarks.Size() != Level.Sectors.Size())
+			BledSectorMarks.Resize(Level.Sectors.Size());
+	}
+
+	private play void ClearBledSectorMarks()
+	{
+		EnsureBledSectorMarks();
+		for (int i = 0; i < BledSectorMarks.Size(); i++)
+			BledSectorMarks[i] = false;
+	}
+
+	private play bool IsSectorBled(int secNum)
+	{
+		if (secNum < 0 || secNum >= BledSectorMarks.Size())
+			return false;
+		return BledSectorMarks[secNum];
+	}
+
+	private play void MarkSectorBled(int secNum)
+	{
+		if (secNum >= 0 && secNum < BledSectorMarks.Size())
+			BledSectorMarks[secNum] = true;
 	}
 
 	private play Color SampleFlatAverage(Name flatName, Array<Color> palette)
@@ -334,7 +367,7 @@ class SSSRelightEnhance
 	private play void ApplyRecursiveColorBleed()
 	{
 		int maxDepth = clamp(CVar.FindCVar("sss_relight_rec_depth").GetInt(), 1, 4);
-		BledSectors.Clear();
+		ClearBledSectorMarks();
 
 		foreach (sec : Level.Sectors)
 		{
@@ -344,7 +377,7 @@ class SSSRelightEnhance
 			[keep, pr, hr, hg, hb] = KeepTheColor(c);
 			if (!keep)
 				continue;
-			BledSectors.Push(sec.SectorNum);
+			MarkSectorBled(sec.SectorNum);
 			BleedColorRecursive(sec, c, maxDepth, 0);
 		}
 	}
@@ -362,7 +395,7 @@ class SSSRelightEnhance
 			Sector back = lin.BackSector != sec ? lin.BackSector : lin.FrontSector;
 			if (!back || back == sec)
 				continue;
-			if (BledSectors.Find(back.SectorNum) >= 0)
+			if (IsSectorBled(back.SectorNum))
 				continue;
 
 			Color bc = back.ColorMap.LightColor;
@@ -376,7 +409,7 @@ class SSSRelightEnhance
 
 			if (srcKeep && (shr > bhr || shg > bhg))
 			{
-				BledSectors.Push(back.SectorNum);
+				MarkSectorBled(back.SectorNum);
 				back.SetColor(TintColor(src, -0.30));
 				BleedColorRecursive(back, back.ColorMap.LightColor, maxDepth, depth + 1);
 			}
@@ -387,7 +420,7 @@ class SSSRelightEnhance
 	{
 		double dimMin = 0.85;
 		int lightMin = 128;
-		BledSectors.Clear();
+		ClearBledSectorMarks();
 
 		foreach (sec : Level.Sectors)
 		{
@@ -395,7 +428,7 @@ class SSSRelightEnhance
 				continue;
 			if (sec.LightLevel <= int(lightMin * dimMin))
 				continue;
-			BledSectors.Push(sec.SectorNum);
+			MarkSectorBled(sec.SectorNum);
 			BleedDimnessRecursive(sec, dimMin, lightMin, 0, 2);
 		}
 	}
@@ -413,12 +446,12 @@ class SSSRelightEnhance
 			Sector back = lin.BackSector != sec ? lin.BackSector : lin.FrontSector;
 			if (!back || back == sec || back.GetTexture(Sector.Ceiling) == skyflatnum)
 				continue;
-			if (BledSectors.Find(back.SectorNum) >= 0)
+			if (IsSectorBled(back.SectorNum))
 				continue;
 
 			if (sec.LightLevel < back.LightLevel && back.LightLevel < lightMin)
 			{
-				BledSectors.Push(back.SectorNum);
+				MarkSectorBled(back.SectorNum);
 				int floor = int(back.LightLevel * dimMin);
 				int newLight = back.LightLevel - int(sec.LightLevel * (1.0 - dimMin));
 				back.LightLevel = max(floor, newLight);

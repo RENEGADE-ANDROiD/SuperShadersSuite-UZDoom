@@ -33,7 +33,8 @@ class SSSLightingHandler : EventHandler
 		if (CVar.FindCVar("sss_bias").GetBool())
 			BiasLighting();
 
-		if (CVar.FindCVar("sss_smooth_walls").GetBool())
+		if (CVar.FindCVar("sss_smooth_walls").GetBool()
+			&& !CVar.FindCVar("sss_performance").GetBool())
 		{
 			PrepareSectors();
 			BuildVertexLineMap();

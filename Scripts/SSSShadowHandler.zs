@@ -65,6 +65,10 @@ class sss_shadowthinker : CustomInventory
 
 class SSSShadowHandler : EventHandler
 {
+	// UZDoom 4.14.x: static const must be arrays, not scalar assignments.
+	static const int MaxFloorShadows[] = {32};
+	static const int MaxWallShadows[] = {16};
+
 	override void WorldThingSpawned(WorldEvent e)
 	{
 		if (!CVar.FindCVar("sss_shadows").GetBool() || !e.thing)
@@ -97,55 +101,65 @@ class SSSShadowHandler : EventHandler
 
 		bool perf = CVar.FindCVar("sss_performance").GetBool();
 		bool wallShadows = CVar.FindCVar("sss_wall_shadows").GetBool() && !perf;
-		int maxDist = perf ? 512 : 768;
+		double maxDist = perf ? 512.0 : 768.0;
 		PlayerInfo viewer = players[consoleplayer];
+		if (!viewer || !viewer.mo)
+			return;
 
-		ThinkerIterator it = ThinkerIterator.Create("Actor");
-		Actor mo;
+		BlockThingsIterator it = BlockThingsIterator.Create(viewer.mo, maxDist);
+		int floorCount = 0;
+		int wallCount = 0;
 
-		while (mo = Actor(it.Next()))
+		while (it.Next())
 		{
+			Actor mo = it.thing;
 			if (!mo || !mo.health)
 				continue;
 			if (!mo.FindInventory("sss_shadowthinker"))
 				continue;
 			if (mo.bInvisible || mo.bNoClip)
 				continue;
-
-			if (viewer && viewer.mo && mo.Distance2D(viewer.mo) > maxDist)
+			if (mo.Distance2D(viewer.mo) > maxDist)
 				continue;
 
-			double floorz = mo.floorz;
-			if (floorz >= mo.pos.z - 4)
-				floorz = mo.pos.z - mo.height * 0.05;
-
-			let shadow = sss_floorshadow(Actor.Spawn("sss_floorshadow", (mo.pos.x, mo.pos.y, floorz + 0.5), NO_REPLACE));
-			if (shadow)
+			if (floorCount < MaxFloorShadows[0])
 			{
-				double s = clamp(mo.radius / 24.0, 0.35, 1.4);
-				shadow.scale = (s, s * 0.55);
-				shadow.spriteAngle = mo.angle + 180;
-				shadow.lifespan = interval + 2;
-				shadow.SetStateLabel("Spawn");
+				double floorz = mo.floorz;
+				if (floorz >= mo.pos.z - 4)
+					floorz = mo.pos.z - mo.height * 0.05;
+
+				let shadow = sss_floorshadow(Actor.Spawn("sss_floorshadow", (mo.pos.x, mo.pos.y, floorz + 0.5), NO_REPLACE));
+				if (shadow)
+				{
+					double s = clamp(mo.radius / 24.0, 0.35, 1.4);
+					shadow.scale = (s, s * 0.55);
+					shadow.spriteAngle = mo.angle + 180;
+					shadow.lifespan = interval + 2;
+					shadow.SetStateLabel("Spawn");
+					floorCount++;
+				}
 			}
 
-			if (wallShadows && viewer && viewer.mo)
-				SpawnWallShadowLite(mo, viewer.mo, interval, maxDist);
+			if (wallShadows && wallCount < MaxWallShadows[0])
+			{
+				if (SpawnWallShadowLite(mo, viewer.mo, interval, int(maxDist)))
+					wallCount++;
+			}
 		}
 	}
 
-	void SpawnWallShadowLite(Actor mo, Actor viewer, int interval, int maxDist)
+	bool SpawnWallShadowLite(Actor mo, Actor viewer, int interval, int maxDist)
 	{
 		double away = mo.AngleTo(viewer) + 180.0;
 		FLineTraceData tr;
 		if (!mo.LineTrace(away, min(maxDist, 320), 0, 0, mo.height * 0.35, 0, 0, tr))
-			return;
+			return false;
 		if (tr.HitType != FLineTraceData.TRACE_HitWall)
-			return;
+			return false;
 
 		let ws = sss_wallshadow(Actor.Spawn("sss_wallshadow", tr.HitLocation, NO_REPLACE));
 		if (!ws)
-			return;
+			return false;
 
 		double s = clamp(mo.radius / 24.0, 0.35, 1.2);
 		ws.scale = (s * 0.9, s * 0.55);
@@ -153,5 +167,6 @@ class SSSShadowHandler : EventHandler
 		ws.alpha = 0.35;
 		ws.lifespan = interval + 2;
 		ws.SetStateLabel("Spawn");
+		return true;
 	}
 }

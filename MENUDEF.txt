@@ -688,6 +688,8 @@ OptionMenu "SSSHitboxOptions"
 	Option "Target Info HUD", "sss_hitbox_hud", OnOff
 	Option "Draw All Nearby", "sss_hitbox_all", OnOff
 	StaticText "Off = crosshair target only (recommended).", "DarkGray"
+	Option "Hitbox Gibs", "sss_hitbox_gibs", OnOff
+	StaticText "Off hides destroyable gore / body chunks (recommended).", "DarkGray"
 	Option "Cull Back Faces", "sss_hitbox_cullback", OnOff
 	StaticText "On hides sides you cannot see (recommended).", "DarkGray"
 	Option "Cull Blocked Targets", "sss_hitbox_sightcull", OnOff
