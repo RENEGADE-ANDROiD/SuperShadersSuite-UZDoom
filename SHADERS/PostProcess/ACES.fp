@@ -68,7 +68,7 @@ vec3 ACESTonemapFull(in vec3 color)
 	vec3 acesColor = max(color * ACESInputMat, vec3(0.0));
 	acesColor = RRTAndODTFit(acesColor);
 	acesColor = acesColor * ACESOutputMat;
-	return clamp(acesColor, 0.0, 1.0);
+	return max(acesColor, vec3(0.0));
 }
 
 vec3 ACESTonemapNarkowicz(in vec3 x)
@@ -78,7 +78,7 @@ vec3 ACESTonemapNarkowicz(in vec3 x)
 	const float c = 2.43;
 	const float d = 0.59;
 	const float e = 0.14;
-	return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+	return max((x * (a * x + b)) / (x * (c * x + d) + e), vec3(0.0));
 }
 
 vec3 ApplyTonemap(in vec3 color)
@@ -93,6 +93,12 @@ float max3(vec3 v)
 	return max(max(v.x, v.y), v.z);
 }
 
+vec3 SoftHighlightShoulder(vec3 c)
+{
+	// Gentle roll-off above ~0.9 so skies/emissives keep hue instead of clipping to white.
+	return c / (vec3(1.0) + max(c - 0.90, vec3(0.0)) * 3.0);
+}
+
 vec3 ApplyChromaPreservingTonemap(in vec3 exposed)
 {
 	vec3 peak = vec3(max3(exposed));
@@ -103,17 +109,24 @@ vec3 ApplyChromaPreservingTonemap(in vec3 exposed)
 
 	float crossSat = max(crossSaturation, 1e-3);
 	ratio = pow(ratio, vec3(saturation / crossSat));
-	ratio = mix(ratio, vec3(1.0), pow(tonemapPeak, vec3(crossTalk)));
+	// User crosstalk is aggressive at 3+; scale and cap bleach so fireballs/sky keep color.
+	float bleach = pow(clamp(max3(tonemapPeak), 0.0, 1.0), crossTalk * 0.40);
+	bleach = min(bleach, 0.50);
+	ratio = mix(ratio, vec3(1.0), bleach);
 	ratio = pow(ratio, vec3(crossSat));
 
-	return clamp(tonemapPeak * ratio, 0.0, 1.0);
+	vec3 outCol = SoftHighlightShoulder(tonemapPeak * ratio);
+	return clamp(outCol, 0.0, 1.0);
 }
 
 void main()
 {
 	vec3 color = texture(InputTexture, TexCoord).rgb;
 	vec3 lin = SRGBToLinear(color);
-	vec3 exposed = lin * exp2(CalcExposure()) * exposureBias;
+	float hot = max3(lin);
+	// Pull back exposure on already-bright emissive pixels (sky, fireballs, explosions).
+	float hlGate = 1.0 / (1.0 + max(hot - 0.65, 0.0) * 1.75);
+	vec3 exposed = lin * exp2(CalcExposure()) * exposureBias * mix(1.0, hlGate, 0.65);
 	vec3 tonemapped = ApplyChromaPreservingTonemap(exposed);
 	FragColor = vec4(LinearTosRGB(tonemapped), 1.0);
 }

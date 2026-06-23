@@ -180,12 +180,12 @@ user float at_ApertureFNumber = 12;
 user float at_LastCustomShutterSpeed = 0;
 user float at_LastCustomISO = 0;
 user float at_ISO = 4;
-user float at_Crosstalk = 6;
+user float at_Crosstalk = 2.5;
 user float at_Saturation = 1.0;
 user float at_CrossSaturation = 1.0;
 user int at_ExposureMode = 0;
 user int at_ShutterSpeedValue = 4;
-user float at_exposure_bias = 1.8;
+user float at_exposure_bias = 1.15;
 user int at_aces_mode = 1;
 
 nosave bool  db_softshade_enabled = false;

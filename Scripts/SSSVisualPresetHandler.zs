@@ -215,7 +215,7 @@ class SSSVisualPresets
 
 		SetBalancedDarkDoom();
 		SetFilmic(false, "TonemapDefault");
-		SetACESConfig(true, 0, 3.2, 1.32, 1.0);
+		SetACESConfig(true, 1, 2.0, 1.10, 1.0);
 		SetMariFXModern();
 		SetPostFXEx(false, 0.0, false, 0.0);
 		SetFilmGrain(false);
@@ -329,7 +329,7 @@ class SSSVisualPresets
 
 		SetBalancedDarkDoom();
 		SetFilmic(false, "TonemapDefault");
-		SetACESConfig(true, 0, 3.0, 1.30, 0.98);
+		SetACESConfig(true, 1, 1.6, 1.00, 0.98);
 		SetMariFXTactical();
 		SetPostFXEx(false, 0.0, false, 0.0);
 		SetFilmGrain(false);
@@ -589,11 +589,11 @@ class SSSVisualPresets
 
 		SetBalancedDarkDoom();
 		SetFilmic(false, "TonemapDefault");
-		SetACESConfig(true, 0, 3.5, 1.50, 1.0);
+		SetACESConfig(true, 1, 1.8, 1.08, 1.0);
 		SetMariFXLite(true);
 		SetPostFXEx(false, 0.0, false, 0.0);
 		SetFilmGrain(false);
-		SetBloomBoost(true, 1.0, 108.0, 0.0);
+		SetBloomBoost(true, 1.0, 100.0, 0.0);
 	}
 
 	clearscope static void SetRTLite(bool contact, double contactStr, double contactRad, bool fluidSSR, double fluidStr)
