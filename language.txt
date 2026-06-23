@@ -64,6 +64,7 @@ SSS_COLOR_TITLE = "Color & Tone";
 SSS_COLOR_HINT1 = "Most options apply live without map reload.";
 SSS_COLOR_HINT2 = "Only one filmic tonemap should be active at a time.";
 SSS_COLOR_SEC_ACES = "ACES Tonemap";
+AT_SKY_SOFTEN = "Sky Soften";
 SSS_COLOR_SEC_FILMIC = "Dark Shader (Filmic LUT)";
 SSS_COLOR_SEC_GAMMA = "World Gamma";
 SSS_COLOR_SEC_SCREEM = "Screen-M (CRT Emulation)";

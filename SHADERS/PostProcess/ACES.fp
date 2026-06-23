@@ -1,5 +1,8 @@
 const float FP16Scale = 0.0009765625;
 
+// Mild global exposure tame for Doom emissives (skies, fireballs). Tune here only.
+const float kPostExposureScale = 0.92;
+
 vec3 LinearTosRGB(in vec3 color)
 {
 	vec3 x = color * 12.920;
@@ -68,7 +71,7 @@ vec3 ACESTonemapFull(in vec3 color)
 	vec3 acesColor = max(color * ACESInputMat, vec3(0.0));
 	acesColor = RRTAndODTFit(acesColor);
 	acesColor = acesColor * ACESOutputMat;
-	return max(acesColor, vec3(0.0));
+	return clamp(acesColor, 0.0, 1.0);
 }
 
 vec3 ACESTonemapNarkowicz(in vec3 x)
@@ -78,7 +81,7 @@ vec3 ACESTonemapNarkowicz(in vec3 x)
 	const float c = 2.43;
 	const float d = 0.59;
 	const float e = 0.14;
-	return max((x * (a * x + b)) / (x * (c * x + d) + e), vec3(0.0));
+	return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
 }
 
 vec3 ApplyTonemap(in vec3 color)
@@ -93,10 +96,26 @@ float max3(vec3 v)
 	return max(max(v.x, v.y), v.z);
 }
 
+float Luma(vec3 c)
+{
+	return dot(c, vec3(0.2126, 0.7152, 0.0722));
+}
+
+// Heuristic sky mask (no depth buffer in custom PP shaders). Upper frame + clouds/moon.
+float ComputeSkyMask(vec2 uv, vec3 lin)
+{
+	float luma = Luma(lin);
+	float upper = smoothstep(0.10, 0.50, uv.y);
+	float bright = smoothstep(0.14, 0.42, luma);
+	float peak = smoothstep(0.22, 0.58, max3(lin));
+	float cloudBody = upper * smoothstep(0.10, 0.32, luma);
+	float brightSky = upper * bright * mix(0.65, 1.0, peak);
+	return clamp(max(cloudBody, brightSky), 0.0, 1.0);
+}
+
 vec3 SoftHighlightShoulder(vec3 c)
 {
-	// Gentle roll-off above ~0.9 so skies/emissives keep hue instead of clipping to white.
-	return c / (vec3(1.0) + max(c - 0.90, vec3(0.0)) * 3.0);
+	return c / (vec3(1.0) + max(c - 0.94, vec3(0.0)) * 2.0);
 }
 
 vec3 ApplyChromaPreservingTonemap(in vec3 exposed)
@@ -109,8 +128,8 @@ vec3 ApplyChromaPreservingTonemap(in vec3 exposed)
 
 	float crossSat = max(crossSaturation, 1e-3);
 	ratio = pow(ratio, vec3(saturation / crossSat));
-	// User crosstalk is aggressive at 3+; scale and cap bleach so fireballs/sky keep color.
-	float bleach = pow(clamp(max3(tonemapPeak), 0.0, 1.0), crossTalk * 0.40);
+
+	float bleach = pow(clamp(max3(tonemapPeak), 0.0, 1.0), crossTalk * 0.45);
 	bleach = min(bleach, 0.50);
 	ratio = mix(ratio, vec3(1.0), bleach);
 	ratio = pow(ratio, vec3(crossSat));
@@ -119,14 +138,25 @@ vec3 ApplyChromaPreservingTonemap(in vec3 exposed)
 	return clamp(outCol, 0.0, 1.0);
 }
 
+// Skies: skip chroma bleach (banding source) and use a gentler per-channel curve.
+vec3 ApplySkyTonemap(in vec3 exposed)
+{
+	vec3 skyExposed = exposed * 0.90;
+	vec3 outCol = ApplyTonemap(skyExposed);
+	outCol = mix(outCol, SoftHighlightShoulder(outCol), 0.35);
+	return clamp(outCol, 0.0, 1.0);
+}
+
 void main()
 {
 	vec3 color = texture(InputTexture, TexCoord).rgb;
 	vec3 lin = SRGBToLinear(color);
-	float hot = max3(lin);
-	// Pull back exposure on already-bright emissive pixels (sky, fireballs, explosions).
-	float hlGate = 1.0 / (1.0 + max(hot - 0.65, 0.0) * 1.75);
-	vec3 exposed = lin * exp2(CalcExposure()) * exposureBias * mix(1.0, hlGate, 0.65);
-	vec3 tonemapped = ApplyChromaPreservingTonemap(exposed);
+	vec3 exposed = lin * exp2(CalcExposure()) * exposureBias * kPostExposureScale;
+
+	vec3 world = ApplyChromaPreservingTonemap(exposed);
+	vec3 sky = ApplySkyTonemap(exposed);
+	float skyBlend = ComputeSkyMask(TexCoord, lin) * clamp(skySoften, 0.0, 1.0);
+	vec3 tonemapped = mix(world, sky, skyBlend);
+
 	FragColor = vec4(LinearTosRGB(tonemapped), 1.0);
 }

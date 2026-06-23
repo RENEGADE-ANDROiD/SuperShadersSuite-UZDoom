@@ -34,8 +34,17 @@ class SSSDarkDoom_Handler : EventHandler
 
 		int p = clamp(preset, 1, 8);
 
-		SetReliteFloat("sss_darken", ReliteDarkenWeight[p] / 1000.0);
-		SetReliteFloat("sss_brighten", ReliteBrightenWeight[p] / 1000.0);
+		double darken = ReliteDarkenWeight[p] / 1000.0;
+		double brighten = ReliteBrightenWeight[p] / 1000.0;
+		int visualPreset = CVar.FindCVar("sss_visual_preset").GetInt();
+		if (visualPreset == 4)
+		{
+			darken -= 0.04;
+			brighten += 0.04;
+		}
+
+		SetReliteFloat("sss_darken", darken);
+		SetReliteFloat("sss_brighten", brighten);
 		SetReliteFloat("sss_additive", ReliteAdditiveDark[p] / 1000.0);
 		SetReliteFloat("sss_flat_glow", ReliteFlatGlow[p] / 1000.0);
 		SetReliteFloat("sss_wall_glow", ReliteWallGlow[p] / 1000.0);

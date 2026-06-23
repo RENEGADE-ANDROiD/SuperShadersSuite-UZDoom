@@ -126,7 +126,7 @@ Class ACESTonemapHandler : StaticEventHandler
 					  at_ISO, at_ShutterSpeedValue, at_ExposureMode,
 					  at_CustomISO, at_CustomShutterSpeed,
 					  at_Crosstalk, at_Saturation, at_CrossSaturation,
-					  at_exposure_bias, at_aces_mode;
+					  at_exposure_bias, at_aces_mode, at_sky_soften;
 
 	static const float ISOValues[] = {
 		50, 	100, 	200, 	400, 		800, 		1600,
@@ -158,6 +158,7 @@ Class ACESTonemapHandler : StaticEventHandler
 		if(!at_CrossSaturation) at_CrossSaturation = CVar.FindCVar("at_CrossSaturation");
 		if(!at_exposure_bias) at_exposure_bias = CVar.FindCVar("at_exposure_bias");
 		if(!at_aces_mode) at_aces_mode = CVar.FindCVar("at_aces_mode");
+		if(!at_sky_soften) at_sky_soften = CVar.FindCVar("at_sky_soften");
 
 		float shutterSpeed = 0.0;
 		float iso = 0.0;
@@ -186,6 +187,7 @@ Class ACESTonemapHandler : StaticEventHandler
 		Shader.SetUniform1i(p, "AcesTonemap", "ExposureMode", at_ExposureMode.GetInt() );
 		Shader.SetUniform1f(p, "AcesTonemap", "exposureBias", at_exposure_bias.GetFloat() );
 		Shader.SetUniform1i(p, "AcesTonemap", "ACESMode", at_aces_mode.GetInt() );
+		Shader.SetUniform1f(p, "AcesTonemap", "skySoften", at_sky_soften.GetFloat() );
 	}
 	
 	override void ConsoleProcess( ConsoleEvent e )
@@ -206,6 +208,7 @@ Class ACESTonemapHandler : StaticEventHandler
 			if(!at_CrossSaturation) at_CrossSaturation = CVar.FindCVar("at_CrossSaturation");
 			if(!at_exposure_bias) at_exposure_bias = CVar.FindCVar("at_exposure_bias");
 			if(!at_aces_mode) at_aces_mode = CVar.FindCVar("at_aces_mode");
+			if(!at_sky_soften) at_sky_soften = CVar.FindCVar("at_sky_soften");
 			
 			at_enabled.ResetToDefault();
 			at_ApertureFNumber.ResetToDefault();
@@ -219,6 +222,7 @@ Class ACESTonemapHandler : StaticEventHandler
 			at_CrossSaturation.ResetToDefault();
 			at_exposure_bias.ResetToDefault();
 			at_aces_mode.ResetToDefault();
+			at_sky_soften.ResetToDefault();
 		}
 	}
 }

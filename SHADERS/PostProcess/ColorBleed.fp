@@ -16,11 +16,23 @@ vec3 hsv2rgb(vec3 c)
 	return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
+float SkyMask(vec2 uv, vec3 rgb)
+{
+	float luma = dot(rgb, vec3(0.2126, 0.7152, 0.0722));
+	float upper = smoothstep(0.10, 0.50, uv.y);
+	float bright = smoothstep(0.18, 0.48, luma);
+	float peak = smoothstep(0.45, 0.78, max(max(rgb.r, rgb.g), rgb.b));
+	float cloudBody = upper * smoothstep(0.12, 0.38, luma);
+	float brightSky = upper * bright * mix(0.7, 1.0, peak);
+	return clamp(max(cloudBody, brightSky), 0.0, 1.0);
+}
+
 void main()
 {
 	vec2 coord = TexCoord;
 	vec4 res = texture(InputTexture, coord);
-	vec3 c = res.rgb;
+	vec3 original = res.rgb;
+	vec3 c = original;
 
 	if (sss_bleed_gamma > 0.001)
 		c = pow(max(c, vec3(0.0)), vec3(1.0 / sss_bleed_gamma));
@@ -75,5 +87,7 @@ void main()
 		c = hsv2rgb(chsv);
 	}
 
+	float skyMask = SkyMask(coord, original);
+	c = mix(c, original, skyMask * 0.85);
 	FragColor = vec4(c, res.a);
 }

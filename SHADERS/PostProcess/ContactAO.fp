@@ -5,6 +5,17 @@ float Luma(vec3 c)
 	return dot(c, vec3(0.299, 0.587, 0.114));
 }
 
+float SkyMask(vec2 uv, vec3 rgb)
+{
+	float luma = Luma(rgb);
+	float upper = smoothstep(0.10, 0.50, uv.y);
+	float bright = smoothstep(0.18, 0.48, luma);
+	float peak = smoothstep(0.45, 0.78, max(max(rgb.r, rgb.g), rgb.b));
+	float cloudBody = upper * smoothstep(0.12, 0.38, luma);
+	float brightSky = upper * bright * mix(0.7, 1.0, peak);
+	return clamp(max(cloudBody, brightSky), 0.0, 1.0);
+}
+
 void main()
 {
 	if (sss_contactao_strength <= 0.0)
@@ -14,6 +25,13 @@ void main()
 	}
 
 	vec4 center = texture(InputTexture, TexCoord);
+	float sky = SkyMask(TexCoord, center.rgb);
+	if (sky > 0.40)
+	{
+		FragColor = center;
+		return;
+	}
+
 	float lum = Luma(center.rgb);
 	vec2 texel = sss_contactao_radius / textureSize(InputTexture, 0);
 
@@ -28,5 +46,6 @@ void main()
 	}
 
 	occlusion = clamp(occlusion * sss_contactao_strength * 0.35, 0.0, 0.65);
+	occlusion *= 1.0 - sky;
 	FragColor = vec4(center.rgb * (1.0 - occlusion), center.a);
 }

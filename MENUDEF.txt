@@ -791,7 +791,7 @@ OptionMenu "TonemapOptions"
 	StaticText ""
 	Option "Enable", "at_enabled", "YesNo"
 	Option "ACES Mode", "at_aces_mode", "ACESMode"
-	StaticText "Narkowicz: punchy game look, lower cost.", "DarkGray"
+	StaticText "Narkowicz recommended for Doom skies and emissives.", "DarkGray"
 	StaticText ""
 	StaticText "Camera Exposure", "Gold"
 	Slider "Aperture (f-stop)", "at_ApertureFNumber", 1.0, 32.0, 0.1, 1
@@ -807,6 +807,8 @@ OptionMenu "TonemapOptions"
 	Slider "Saturation", "at_Saturation", 0.0, 2.0, 0.05, 2
 	Slider "Cross Saturation", "at_CrossSaturation", 0.0, 2.0, 0.05, 2
 	Slider "Highlight Crosstalk", "at_Crosstalk", 0.0, 8.0, 0.1, 1
+	Slider "$AT_SKY_SOFTEN", "at_sky_soften", 0.0, 1.0, 0.05, 2
+	StaticText "Gentler ACES on bright upper sky.", "Gray"
 	StaticText "Higher crosstalk = less hue in bright areas (keep moderate).", "Gray"
 	StaticText ""
 	SafeCommand "Reset to Default", "event resetacestonemap"

@@ -215,7 +215,7 @@ class SSSVisualPresets
 
 		SetBalancedDarkDoom();
 		SetFilmic(false, "TonemapDefault");
-		SetACESConfig(true, 1, 2.0, 1.10, 1.0);
+		SetACESConfig(true, 1, 1.8, 1.05, 1.0);
 		SetMariFXModern();
 		SetPostFXEx(false, 0.0, false, 0.0);
 		SetFilmGrain(false);
@@ -269,8 +269,8 @@ class SSSVisualPresets
 
 		SetBool("sss_lighting", true);
 		SetBool("sss_bias", true);
-		SetFloat("sss_darken", 0.62);
-		SetFloat("sss_brighten", 0.38);
+		SetFloat("sss_darken", 0.52);
+		SetFloat("sss_brighten", 0.48);
 		SetFloat("sss_additive", 0.36);
 		SetBool("sss_smooth_walls", true);
 		SetBool("sss_performance", false);
@@ -294,9 +294,13 @@ class SSSVisualPresets
 		SetFloat("sss_bleeding", 0.095);
 
 		SetBalancedDarkDoom();
+		SetInt("ddz_postgain", 18);
+		SetInt("ddz_minlight", 5);
 		SetFilmic(true, "TonemapTide");
 		SetACES(false);
 		SetMariFXUltra();
+		SetFloat("mfx_vigmul", 0.30);
+		SetBloomBoost(true, 1.0, 100.0, 0.04);
 		SetPostFX(true, 0.18, 12);
 	}
 
@@ -329,7 +333,7 @@ class SSSVisualPresets
 
 		SetBalancedDarkDoom();
 		SetFilmic(false, "TonemapDefault");
-		SetACESConfig(true, 1, 1.6, 1.00, 0.98);
+		SetACESConfig(true, 1, 1.4, 1.0, 0.98);
 		SetMariFXTactical();
 		SetPostFXEx(false, 0.0, false, 0.0);
 		SetFilmGrain(false);
@@ -561,7 +565,7 @@ class SSSVisualPresets
 
 	clearscope static void ApplyPhotoreal()
 	{
-		SetRTLite(true, 0.46, 3.0, true, 0.56);
+		SetRTLite(true, 0.36, 2.8, true, 0.44);
 		SetWallBake(0.44);
 
 		SetBool("sss_lighting", true);
@@ -589,8 +593,9 @@ class SSSVisualPresets
 
 		SetBalancedDarkDoom();
 		SetFilmic(false, "TonemapDefault");
-		SetACESConfig(true, 1, 1.8, 1.08, 1.0);
-		SetMariFXLite(true);
+		SetACESConfig(true, 1, 1.6, 1.05, 1.0);
+		SetFloat("at_sky_soften", 0.85);
+		SetMariFXModern();
 		SetPostFXEx(false, 0.0, false, 0.0);
 		SetFilmGrain(false);
 		SetBloomBoost(true, 1.0, 100.0, 0.0);
@@ -622,6 +627,8 @@ class SSSVisualPresets
 	clearscope static void SetBalancedDarkDoom()
 	{
 		SetDarkDoom(3, 3, true);
+		SetInt("ddz_postgain", 0);
+		SetInt("ddz_minlight", 0);
 	}
 
 	clearscope static void SetFilmic(bool on, String lut)

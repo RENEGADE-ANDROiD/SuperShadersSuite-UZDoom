@@ -450,6 +450,7 @@ HardwareShader PostProcess Scene
 	Uniform float crossSaturation
 	Uniform float exposureBias
 	Uniform int ACESMode
+	Uniform float skySoften
 }
 
 HardwareShader PostProcess Scene

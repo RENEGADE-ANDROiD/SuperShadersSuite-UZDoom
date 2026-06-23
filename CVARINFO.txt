@@ -185,8 +185,9 @@ user float at_Saturation = 1.0;
 user float at_CrossSaturation = 1.0;
 user int at_ExposureMode = 0;
 user int at_ShutterSpeedValue = 4;
-user float at_exposure_bias = 1.15;
+user float at_exposure_bias = 1.0;
 user int at_aces_mode = 1;
+user float at_sky_soften = 0.75;
 
 nosave bool  db_softshade_enabled = false;
 nosave float db_softshade_dither  = 0.05;
