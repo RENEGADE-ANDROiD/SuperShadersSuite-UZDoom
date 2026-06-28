@@ -88,10 +88,18 @@ class SSSLightingHandler : EventHandler
 		LightingLoadRecursiveRelight = CVar.FindCVar("sss_relight_recursive").GetBool();
 
 		// Spread map-load work across ticks when safe mode is on.
-		if (mapSafe)
+		bool fastApply = SSSReflectionHelper.IsPresetFastApply();
+		if (mapSafe && fastApply && !heavyMap && Level.Sectors.Size() < 512)
+			RunLightingLoadSync();
+		else if (mapSafe)
 			QueueChunkedLightingLoad();
 		else
 			RunLightingLoadSync();
+	}
+
+	bool IsLightingLoadPending()
+	{
+		return LightingLoadPending;
 	}
 
 	void QueueChunkedLightingLoad()
@@ -125,11 +133,8 @@ class SSSLightingHandler : EventHandler
 		SSSReflectionHelper.ApplyPlaneReflections();
 	}
 
-	override void WorldTick()
+	void AdvanceLightingLoadOnePhase()
 	{
-		if (!LightingLoadPending)
-			return;
-
 		switch (LightingLoadPhase)
 		{
 		case 0:
@@ -177,6 +182,16 @@ class SSSLightingHandler : EventHandler
 			}
 			break;
 		}
+	}
+
+	override void WorldTick()
+	{
+		if (!LightingLoadPending)
+			return;
+
+		int steps = SSSReflectionHelper.IsPresetFastApply() ? 2 : 1;
+		for (int i = 0; i < steps && LightingLoadPending; i++)
+			AdvanceLightingLoadOnePhase();
 	}
 
 	override void NetworkProcess(ConsoleEvent e)

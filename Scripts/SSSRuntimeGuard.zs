@@ -88,7 +88,11 @@ class SSSPostProcessSuppressor : StaticEventHandler
 	// Bleed + contact AO only — flat menu panels false-trigger these.
 	clearscope static bool PostWarmupReady()
 	{
-		return gamestate == GS_LEVEL && Level.MapTime >= 35;
+		if (gamestate != GS_LEVEL)
+			return false;
+		if (SSSReflectionHelper.IsPresetFastApply())
+			return Level.MapTime >= 3;
+		return Level.MapTime >= 35;
 	}
 
 	clearscope static bool MenuBlocksBleedAO()

@@ -93,6 +93,7 @@ nosave bool sss_preset_preview = false;
 nosave bool sss_close_menu_after_apply = false;
 nosave int sss_preset_apply_play = -1;
 nosave int sss_preset_cycle_toast = 0;
+nosave bool sss_preset_fast_apply = false;
 user int sss_preset_apply_pending = 0;
 user int sss_preset_menu_sel = 0;
 user int sss_ddz_track_fp = 0;

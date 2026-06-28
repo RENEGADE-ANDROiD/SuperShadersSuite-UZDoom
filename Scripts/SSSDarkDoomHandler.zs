@@ -357,6 +357,14 @@ class SSSDarkDoom_Handler : EventHandler
 			return;
 		}
 
+		if (SSSReflectionHelper.IsPresetFastApply())
+		{
+			if (Level.Sectors.Size() <= 384)
+				budget = Level.Sectors.Size();
+			else
+				budget = max(budget, 256);
+		}
+
 		int end = min(SectorDarkenCursor + max(1, budget), BaseLightLevels.Size());
 		for (int i = SectorDarkenCursor; i < end; i++)
 			ApplyOneSectorDarkening(i);
@@ -364,6 +372,11 @@ class SSSDarkDoom_Handler : EventHandler
 		SectorDarkenCursor = end;
 		if (SectorDarkenCursor >= BaseLightLevels.Size())
 			SectorDarkenPending = false;
+	}
+
+	bool IsSectorDarkenPending()
+	{
+		return SectorDarkenPending;
 	}
 
 	void ApplySectorDarkening()

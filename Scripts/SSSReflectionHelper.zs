@@ -15,6 +15,19 @@ class SSSReflectionHelper
 		return Level.Sectors.Size() >= 384 || Level.Lines.Size() >= 1500;
 	}
 
+	clearscope static bool IsPresetFastApply()
+	{
+		let c = CVar.FindCVar("sss_preset_fast_apply");
+		return c && c.GetBool();
+	}
+
+	clearscope static void SetPresetFastApply(bool on)
+	{
+		let c = CVar.FindCVar("sss_preset_fast_apply");
+		if (c)
+			c.SetBool(on);
+	}
+
 	clearscope static bool FlatMatchesNameToken(Name flatName, Name token)
 	{
 		if (flatName == token)

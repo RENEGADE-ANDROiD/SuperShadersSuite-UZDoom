@@ -2273,6 +2273,7 @@ class SSSVisualPresetHandler : EventHandler
 
 	transient int HintExpireMapTime;
 	transient String HintPresetName;
+	transient bool PresetApplyBusy;
 
 	clearscope static String GetPresetShortName(int preset)
 	{
@@ -2347,6 +2348,7 @@ class SSSVisualPresetHandler : EventHandler
 
 	void QueueCycleToast(int preset)
 	{
+		SSSReflectionHelper.SetPresetFastApply(true);
 		let toast = CVar.FindCVar("sss_preset_cycle_toast");
 		if (toast)
 			toast.SetInt(preset);
@@ -2467,15 +2469,33 @@ class SSSVisualPresetHandler : EventHandler
 		}
 	}
 
+	void MaybeClearPresetFastApply()
+	{
+		if (!SSSReflectionHelper.IsPresetFastApply())
+			return;
+		if (Level.MapTime < 6)
+			return;
+
+		SSSLightingHandler lighting = SSSLightingHandler.FindHandler();
+		if (lighting && lighting.IsLightingLoadPending())
+			return;
+
+		SSSDarkDoom_Handler ddz = SSSDarkDoom_Handler.FindHandler();
+		if (ddz && ddz.IsSectorDarkenPending())
+			return;
+
+		SSSReflectionHelper.SetPresetFastApply(false);
+	}
+
 	override void WorldTick()
 	{
 		PlayerInfo p = players[consoleplayer];
 		if (!p)
 			return;
 
+		MaybeClearPresetFastApply();
+
 		if (!CVar.GetCVar("sss_visual_preset_auto", p).GetBool())
-			return;
-		if (Level.MapTime & 3)
 			return;
 
 		let pending = CVar.GetCVar("sss_preset_apply_pending", p);
@@ -2559,12 +2579,7 @@ class SSSVisualPresetHandler : EventHandler
 			if (preset <= 0)
 				return;
 
-			if (p)
-			{
-				let pending = CVar.GetCVar("sss_preset_apply_pending", p);
-				if (pending)
-					pending.SetInt(preset);
-			}
+			TryApplyPreset(preset, true, false);
 
 			if (e.Name == "sss_apply_preset_return")
 			{
@@ -2587,6 +2602,8 @@ class SSSVisualPresetHandler : EventHandler
 	{
 		if (preset <= 0)
 			return;
+		if (PresetApplyBusy)
+			return;
 
 		if (preset == 21)
 			preset = 20;
@@ -2602,6 +2619,11 @@ class SSSVisualPresetHandler : EventHandler
 
 		if (!force && applied && preset == applied.GetInt())
 			return;
+
+		PresetApplyBusy = true;
+
+		if (!skipSideEffects)
+			SSSReflectionHelper.SetPresetFastApply(true);
 
 		SyncPresetToPlayContexts(preset);
 
@@ -2624,6 +2646,8 @@ class SSSVisualPresetHandler : EventHandler
 		if (bc && p)
 			bc.SyncPresetBodyCam(p);
 		EventHandler.SendNetworkEvent("sss_sync_bodycam");
+
+		PresetApplyBusy = false;
 	}
 
 	override void RenderOverlay(RenderEvent e)
