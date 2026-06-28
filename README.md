@@ -17,7 +17,7 @@ Forum: https://forum.zdoom.org/viewtopic.php?t=62772
 1. Load `SuperShadersSuiteRT.wad` after your IWAD/map, before or with gameplay mods.
 2. Open **Visual Presets** → pick a tier (default: **Vanilla Plus — Classic Enhanced**).
 3. Leave **Auto-Apply Preset** on — post FX and tone update live when you change presets.
-4. **Reload the map** after picking a preset so sector lighting, relight passes, fluid lights, and reflections fully apply.
+4. **Reload the map** (or cycle presets with PgUp/PgDn) after picking a preset so sector lighting, relight passes, fluid lights, and reflections fully apply.
 
 ---
 
