@@ -21,7 +21,6 @@ SSS_MENU_POST = "Post-Process";
 SSS_MENU_MARIFX = "MariFX";
 SSS_MENU_FISHEYE = "Fisheye";
 SSS_MENU_BODYCAM = "BodyCam Visual";
-SSS_MENU_HITBOX = "Hitbox Healthbar";
 SSS_MENU_VHS = "VHS/CRT";
 SSS_MENU_SOFTSHADE = "SoftShade Options";
 SSS_MENU_OLDVIDEO = "Old Video Shader Options";
@@ -120,18 +119,6 @@ SSS_BODYCAM_TITLE = "BodyCam Visual";
 SSS_BODYCAM_HINT1 = "Digital bodycam shader or analog found-footage.";
 SSS_BODYCAM_HINT2 = "Toggle in-game with bound key (default B).";
 SSS_BODYCAM_SEC_DIGITAL = "Digital Shader Tuning";
-
-SSS_SEC_HITBOX = "Hitbox Healthbar";
-SSS_HITBOX_TITLE = "Hitbox Healthbar";
-SSS_HITBOX_HINT1 = "Crosshair target HP readout (press H to toggle).";
-SSS_HITBOX_HINT2 = "Green to yellow to orange to red to purple as HP drops.";
-SSS_HITBOX_HINT3 = "Waits ~3 sec after map load; aim at a living monster.";
-SSS_HITBOX_SEC_SIZE = "Visual Size (overlay only)";
-SSS_HITBOX_HEIGHT_SCALE = "Height Scale";
-SSS_HITBOX_BIPED_CAP = "Biped Height Cap (x radius)";
-SSS_HITBOX_HEIGHT_HINT = "Caps tall collision hulls to sprite-like height. 0 = off.";
-SSS_HITBOX_SEC_HUD = "HUD Zone Split";
-SSS_HITBOX_SEC_MULT = "HUD Multiplier Estimates";
 
 M_MODSHADER_TITLE = "VHS Shader Settings";
 CV_SHENABLE_OPTION = "Enable Shader";

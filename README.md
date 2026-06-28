@@ -160,8 +160,6 @@ Large PB maps and long mod stacks can spike CPU on map load. Two safety toggles 
 
 If the game stutters on map entry, leave both on. If you want the full visual stack on a big map, turn **Process Safe** off first, then **Large Map Safe** — expect a longer load hitch.
 
-**Hitbox Debug** (PB-style locational damage overlay) is **off by default**. Enable under **Super Shaders Suite RT → Hitbox Debug** only when tuning — it can cost performance when many enemies are active.
-
 ---
 
 ## BodyCam Visual
@@ -202,7 +200,6 @@ Only one filmic path (ACES **or** Filmic LUT) should be active at a time.
 | **Post-Process** | Vignette, lens flares, noise, natural vignette, FOV |
 | **MariFX** | Full GPU grading stack + 8 preset slots |
 | **BodyCam Visual** | Style, overlay, tuning sliders, toggle key |
-| **Hitbox Debug** | PB-style zone wireframe / HUD (off by default) |
 | **Fisheye / VHS-CRT / SoftShade / Old Video** | Specialty stacks |
 
 ---

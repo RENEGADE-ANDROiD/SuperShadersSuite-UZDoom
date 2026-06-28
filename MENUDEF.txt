@@ -245,9 +245,6 @@ OptionMenu "ShaderOptions"
 	Title "$SSS_MENU_ROOT_TITLE"
 	StaticText "$SSS_MENU_HINT", "Gray"
 	StaticText ""
-	StaticText "$SSS_SEC_HITBOX", "Cyan"
-	Submenu "$SSS_MENU_HITBOX", "SSSHitboxOptions"
-	StaticText ""
 	StaticText "$SSS_SEC_PRESETS", "Gold"
 	Option "Active Preset", "sss_visual_preset", "SSSVisualPresets"
 	Option "Auto-Apply Preset", "sss_visual_preset_auto", OnOff
@@ -860,32 +857,6 @@ OptionValue "SSSBodyCamModes"
 {
 	0, "Digital (BWC shader)"
 	1, "Analog (VHS + fisheye)"
-}
-
-OptionMenu "SSSHitboxOptions"
-{
-	Title "$SSS_HITBOX_TITLE"
-	StaticText "$SSS_HITBOX_HINT1", "Gray"
-	StaticText "$SSS_HITBOX_HINT2", "Gold"
-	StaticText "$SSS_HITBOX_HINT3", "Cyan"
-	StaticText " "
-	SafeCommand "Toggle Hitbox Healthbar", "netevent sss_toggle_hitbox"
-	Control "Toggle Key", "sss_toggle_hitbox"
-	Option "Hitbox Healthbar Enabled", "sss_hitbox_debug", OnOff
-	StaticText "Must be On (or press H). Aims at crosshair target only.", "Cyan"
-	StaticText " "
-	Option "3D Wireframe", "sss_hitbox_wire3d", OnOff
-	StaticText "Shows crosshair HP overlay (no world particles).", "DarkGray"
-	Option "Hitbox Gibs", "sss_hitbox_gibs", OnOff
-	StaticText "Off hides destroyable gore / body chunks (recommended).", "DarkGray"
-	Slider "Max Distance", "sss_hitbox_maxdist", 512, 4096, 64, 0
-	Slider "Update Interval", "sss_hitbox_interval", 5, 15, 1, 0
-	Slider "Corner Size", "sss_hitbox_size", 1.0, 4.0, 0.5, 1
-	StaticText " "
-	StaticText "$SSS_HITBOX_SEC_SIZE", "Gold"
-	Slider "$SSS_HITBOX_HEIGHT_SCALE", "sss_hitbox_height_scale", 0.50, 1.10, 0.01, 2
-	Slider "$SSS_HITBOX_BIPED_CAP", "sss_hitbox_biped_cap", 0.0, 4.0, 0.05, 2
-	StaticText "$SSS_HITBOX_HEIGHT_HINT", "Gray"
 }
 
 OptionMenu "SSSBodyCamOptions"

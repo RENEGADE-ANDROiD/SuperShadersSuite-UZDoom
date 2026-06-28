@@ -185,26 +185,6 @@ user float sss_bodycam_rolling = 0.2;
 user bool sss_bodycam_overlay = true;
 user string sss_bodycam_unit = "BWC-01";
 
-user bool sss_hitbox_debug = false;
-nosave bool sss_hitbox_active = false;
-nosave bool sss_hitbox_toggle_pending = false;
-user bool sss_hitbox_hud = false;
-user bool sss_hitbox_wire3d = true;
-user bool sss_hitbox_all = false;
-user bool sss_hitbox_gibs = false;
-user int sss_hitbox_maxdist = 1024;
-user int sss_hitbox_interval = 5;
-user float sss_hitbox_size = 2.0;
-user float sss_hitbox_height_scale = 1.0;
-user float sss_hitbox_biped_cap = 0.0;
-user float sss_hitbox_head_min = 0.82;
-user float sss_hitbox_upper_min = 0.65;
-user float sss_hitbox_lower_min = 0.40;
-user float sss_hitbox_head_mult = 2.00;
-user float sss_hitbox_upper_mult = 1.50;
-user float sss_hitbox_lower_mult = 1.00;
-user float sss_hitbox_legs_mult = 0.75;
-
 user bool 	SH_ShaderEnable = false;
 user bool 	SH_VHSEnable = true;
 user float 	SH_VHSRange = 0.05;

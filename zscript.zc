@@ -17,7 +17,6 @@
 #include "Scripts/SSSVisualPresetHandler.zs"
 #include "Scripts/SSSAtmosphereHandler.zs"
 #include "Scripts/SSSBodyCamHandler.zs"
-#include "Scripts/SSSHitboxHandler.zs"
 #include "Scripts/MariFXHandler.zs"
 
 class TcPostProcessShaderHandler : StaticEventHandler

@@ -21,7 +21,6 @@ GameInfo
 	AddEventHandlers = "SSSMaterialHandler"
 	AddEventHandlers = "SSSShadowHandler"
 	AddEventHandlers = "SSSDoorLightHandler"
-	AddEventHandlers = "SSSHitboxHandler"
 	AddEventHandlers = "SSSMapLoadHandler"
 	AddEventHandlers = "SSSPostProcessSuppressor"
 	AddEventHandlers = "SSSBodyCamHandler"
