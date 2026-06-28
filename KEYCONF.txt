@@ -4,9 +4,18 @@ alias ddz_toggleflashlight "use DarkDoomZ_Flashlight"
 defaultbind "f" ddz_toggleflashlight
 
 addkeysection "Super Shaders Suite" "supershaderssuite"
+addmenukey "Super Shaders Suite Options" sss_open_options
+alias sss_open_options "openmenu ShaderOptions"
+defaultbind "f10" sss_open_options
 addmenukey "Toggle BodyCam Visual" sss_toggle_bodycam
 alias sss_toggle_bodycam "netevent sss_toggle_bodycam"
 defaultbind "b" sss_toggle_bodycam
-addmenukey "Toggle Hitbox Debug" sss_toggle_hitbox
+addmenukey "Toggle Hitbox Healthbar" sss_toggle_hitbox
 alias sss_toggle_hitbox "netevent sss_toggle_hitbox"
 defaultbind "h" sss_toggle_hitbox
+addmenukey "Next Visual Preset" sss_cycle_preset
+alias sss_cycle_preset "netevent sss_cycle_preset"
+defaultbind PgDn sss_cycle_preset
+addmenukey "Previous Visual Preset" sss_cycle_preset_prev
+alias sss_cycle_preset_prev "netevent sss_cycle_preset_prev"
+defaultbind PgUp sss_cycle_preset_prev

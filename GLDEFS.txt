@@ -228,11 +228,12 @@ HardwareShader PostProcess scene
 
 HardwareShader postprocess scene
 {
-	Name "mfx_lumasharp"
+	Name "sss_mfx_lumasharp"
 	Shader "shaders/glsl/mfx_lumasharp.fp" 330
 	Uniform float sharpradius
 	Uniform float sharpclamp
 	Uniform float sharpblend
+	Uniform float sss_pp_flat_soften
 }
 
 HardwareShader postprocess scene
@@ -310,10 +311,11 @@ HardwareShader postprocess scene
 }
 HardwareShader postprocess scene
 {
-	Name "mfx_bss_sharp"
+	Name "sss_mfx_bss_sharp"
 	Shader "shaders/glsl/mfx_bss_sharp.fp" 330
 	Uniform float bsssharpradius
 	Uniform float bsssharpamount
+	Uniform float sss_pp_flat_soften
 }
 HardwareShader postprocess scene
 {
@@ -482,23 +484,61 @@ HardwareShader Postprocess Scene
 
 HardwareShader Postprocess Scene
 {
-	Name "sss_contactao"
-	Shader "shaders/PostProcess/ContactAO.fp" 330
-	Uniform float sss_contactao_strength
-	Uniform float sss_contactao_radius
+	Name "sss_fluidssr"
+	Shader "shaders/PostProcess/FluidSSR.fp" 330
+	Uniform float sss_fluidssr_strength
+	Uniform float sss_fluidssr_distortion
+	Uniform float sss_fluidssr_ripple
+	Uniform float sss_fluidssr_time
+	Uniform float sss_depth_proxy
 }
 
 HardwareShader Postprocess Scene
 {
-	Name "sss_fluidssr"
-	Shader "shaders/PostProcess/FluidSSR.fp" 330
-	Uniform float sss_fluidssr_strength
+	Name "sss_contactao"
+	Shader "shaders/PostProcess/ContactAO.fp" 330
+	Uniform float sss_contactao_strength
+	Uniform float sss_contactao_radius
+	Uniform float sss_pp_flat_soften
+	Uniform float sss_depth_proxy
+}
+
+HardwareShader Postprocess Scene
+{
+	Name "NaturalVignette"
+	Shader "shaders/PostProcess/NaturalVignette.fp" 330
+	Uniform float sss_natural_vig_strength
+	Uniform float sss_natural_vig_falloff
+}
+
+HardwareShader Postprocess Scene
+{
+	Name "sss_atmo_haze"
+	Shader "shaders/PostProcess/AtmosphericHaze.fp" 330
+	Uniform float sss_atmo_haze_strength
+	Uniform float sss_atmo_haze_tint
+}
+
+HardwareShader Postprocess Scene
+{
+	Name "sss_atmo_godrays"
+	Shader "shaders/PostProcess/LightShafts.fp" 330
+	Uniform float sss_atmo_godrays_strength
+}
+
+HardwareShader Postprocess Scene
+{
+	Name "sss_atmo_deband"
+	Shader "shaders/PostProcess/ShadowDeband.fp" 330
+	Uniform float sss_atmo_deband_strength
 }
 
 // Industrial env reflections need matching wall textures in the IWAD chain.
 // PB3-Universals loads before most TC texture packs, so keep disabled for universal use.
 //#include "GLDEFS/materials_industrial.gl"
 #include "GLDEFS/materials_vanilla.gl"
+//#include "GLDEFS/materials_doom1.gl"
+//#include "GLDEFS/materials_fluids.gl"
 #include "GLDEFS/sss_colorizations.gl"
 
 

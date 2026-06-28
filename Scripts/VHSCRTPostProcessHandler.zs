@@ -1,19 +1,37 @@
 class VHSCRTPostProcessHandler : StaticEventHandler 
 {
+	clearscope static bool BodyCamOwnsVhs()
+	{
+		let active = CVar.FindCVar("sss_bodycam_active");
+		if (!active || !active.GetBool())
+			return false;
+		let mode = CVar.FindCVar("sss_bodycam_mode_live");
+		return mode && mode.GetInt() == 1;
+	}
+
 	override void RenderOverlay(RenderEvent e) 
 	{
 		PlayerInfo p = players[consoleplayer];
+		if (!p || BodyCamOwnsVhs())
+			return;
+
 		if (!CVar.GetCVar("SH_ShaderEnable", p).GetBool())
 		{
 			Shader.SetEnabled(p, "VHSCRTShader", false);
 			return;
 		}
 
+		ApplyVhsUniforms(p, e);
+		Shader.SetEnabled(p, "VHSCRTShader", true);
+	}
+
+	ui void ApplyVhsUniforms(PlayerInfo p, RenderEvent e)
+	{
 		Shader.SetUniform1f(p, "VHSCRTShader", "iTime", (gametic + e.FracTic) / 35);
-		
+
 		int VHSEnable 		= int(CVar.GetCVar("SH_VHSEnable", p).GetBool());
 		int CRTEnable 		= int(CVar.GetCVar("SH_CRTEnable", p).GetBool());
-		
+
 		float Range 				= CVar.GetCVar("SH_VHSRange", p).GetFloat();
 		float NoiseQuality 			= CVar.GetCVar("SH_VHSNoiseQuality", p).GetFloat();
 		float NoiseIntensity 		= CVar.GetCVar("SH_VHSNoiseIntensity", p).GetFloat();
@@ -29,11 +47,11 @@ class VHSCRTPostProcessHandler : StaticEventHandler
 		float grainIntensity 		= CVar.GetCVar("SH_GrainIntensity", p).GetFloat();
 		float contrast			 	= CVar.GetCVar("SH_Contrast", p).GetFloat();
 		float saturation 			= CVar.GetCVar("SH_Saturation", p).GetFloat();
-	
+
 		if (warpMultX <= 0) warpMultX = 1;
 		if (warpMultY <= 0) warpMultY = 1;
 		if (contrast < 0.1) contrast = 0.1;
-	
+
 		Shader.SetUniform1f(p, "VHSCRTShader", "VHSEnable", 			VHSEnable);
 		Shader.SetUniform1f(p, "VHSCRTShader", "CRTEnable", 			CRTEnable);
 		Shader.SetUniform1f(p, "VHSCRTShader", "range", 				Range);
@@ -51,6 +69,5 @@ class VHSCRTPostProcessHandler : StaticEventHandler
 		Shader.SetUniform1f(p, "VHSCRTShader", "grainIntensity", 		grainIntensity);
 		Shader.SetUniform1f(p, "VHSCRTShader", "contrast", 				contrast);
 		Shader.SetUniform1f(p, "VHSCRTShader", "saturation", 			saturation);
-		Shader.SetEnabled(p, "VHSCRTShader", true);
 	}
 }

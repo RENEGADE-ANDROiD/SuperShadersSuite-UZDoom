@@ -1,30 +1,9 @@
-// Generic environment shine for stock Doom / Heretic / Hexen wall names.
-// No patterned envmasks - safe for HD replacements that keep IWAD texture names.
+// Doom II-only wall names (not present in registered DOOM.WAD).
+// Enable in GLDEFS.txt when playing Doom II / Final Doom / most TCs.
 // Regenerate: tools/generate-materials.ps1
 
-// Doom - marble
-material texture MARBFAC2
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.3
-	glossiness 11
-}
-material texture MARBFAC3
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.3
-	glossiness 11
-}
+// Doom II - marble
 material texture MARBFAC4
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.3
-	glossiness 11
-}
-material texture MARBFACE
 {
 	shader "SHADERS/envgeneric.fp"
 	texture displacement "MATERIALS/ENV/env3.jpg"
@@ -38,36 +17,8 @@ material texture MARBGRAY
 	specularlevel 0.3
 	glossiness 11
 }
-material texture MARBLE1
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.3
-	glossiness 11
-}
-material texture MARBLE2
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.3
-	glossiness 11
-}
-material texture MARBLE3
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.3
-	glossiness 11
-}
-material texture MARBLOD1
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.3
-	glossiness 11
-}
 
-// Doom - metal
+// Doom II - metal
 material texture BRONZE1
 {
 	shader "SHADERS/envgeneric.fp"
@@ -90,20 +41,6 @@ material texture BRONZE3
 	glossiness 14
 }
 material texture BRONZE4
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.38
-	glossiness 14
-}
-material texture METAL
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.38
-	glossiness 14
-}
-material texture METAL1
 {
 	shader "SHADERS/envgeneric.fp"
 	texture displacement "MATERIALS/ENV/env3.jpg"
@@ -180,20 +117,6 @@ material texture SILVER3
 	specularlevel 0.38
 	glossiness 14
 }
-material texture SUPPORT2
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.38
-	glossiness 14
-}
-material texture SUPPORT3
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.38
-	glossiness 14
-}
 material texture TEKBRON1
 {
 	shader "SHADERS/envgeneric.fp"
@@ -237,7 +160,7 @@ material texture WOODMET4
 	glossiness 14
 }
 
-// Doom - stone / masonry
+// Doom II - stone / masonry
 material texture BIGBRIK1
 {
 	shader "SHADERS/envgeneric.fp"
@@ -371,48 +294,6 @@ material texture BSTONE3
 	specularlevel 0.2
 	glossiness 8
 }
-material texture CEMENT1
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture CEMENT2
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture CEMENT3
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture CEMENT4
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture CEMENT5
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture CEMENT6
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
 material texture CEMENT7
 {
 	shader "SHADERS/envgeneric.fp"
@@ -428,76 +309,6 @@ material texture CEMENT8
 	glossiness 8
 }
 material texture CEMENT9
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture GRAY1
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture GRAY2
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture GRAY4
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture GRAY5
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture GRAY7
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture GSTONE1
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture GSTONE2
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture STONE
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture STONE2
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.2
-	glossiness 8
-}
-material texture STONE3
 {
 	shader "SHADERS/envgeneric.fp"
 	texture displacement "MATERIALS/ENV/env3.jpg"
@@ -533,91 +344,7 @@ material texture STONE7
 	glossiness 8
 }
 
-// Doom - panels / tech trim
-material texture BROWN1
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.22
-	glossiness 9
-}
-material texture BROWN144
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.22
-	glossiness 9
-}
-material texture BROWN96
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.22
-	glossiness 9
-}
-material texture BROWNGRN
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.22
-	glossiness 9
-}
-material texture BROWNHUG
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.22
-	glossiness 9
-}
-material texture BROWNPIP
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.22
-	glossiness 9
-}
-material texture COMPBLUE
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.22
-	glossiness 9
-}
-material texture COMPSPAN
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.22
-	glossiness 9
-}
-material texture COMPSTA1
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.22
-	glossiness 9
-}
-material texture COMPSTA2
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.22
-	glossiness 9
-}
-material texture COMPTALL
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.22
-	glossiness 9
-}
-material texture COMPWERD
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.22
-	glossiness 9
-}
+// Doom II - panels / tech trim
 material texture PANEL1
 {
 	shader "SHADERS/envgeneric.fp"
@@ -724,20 +451,6 @@ material texture TEKLITE
 	glossiness 9
 }
 material texture TEKLITE2
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.22
-	glossiness 9
-}
-material texture TEKWALL1
-{
-	shader "SHADERS/envgeneric.fp"
-	texture displacement "MATERIALS/ENV/env3.jpg"
-	specularlevel 0.22
-	glossiness 9
-}
-material texture TEKWALL4
 {
 	shader "SHADERS/envgeneric.fp"
 	texture displacement "MATERIALS/ENV/env3.jpg"

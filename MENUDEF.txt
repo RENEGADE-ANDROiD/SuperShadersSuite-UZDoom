@@ -1,11 +1,11 @@
 AddOptionMenu "OptionsMenu"
 {
-    Submenu "Super Shaders Suite RT Options",			"ShaderOptions"
+    Submenu "$SSS_MENU_MAIN",			"ShaderOptions"
 }
 
-AddListMenu "MainMenu" after "OptionsMenu"
+AddListMenu "MainMenu" before "OptionsMenu"
 {
-	TextItem "$SSS_MENU_ROOT_TITLE", "t", "ShaderOptions"
+	TextItem "$SSS_MENU_MAIN", "t", "ShaderOptions"
 }
 
 //-------------------------------------------------------------------------------------------
@@ -245,8 +245,26 @@ OptionMenu "ShaderOptions"
 	Title "$SSS_MENU_ROOT_TITLE"
 	StaticText "$SSS_MENU_HINT", "Gray"
 	StaticText ""
+	StaticText "$SSS_SEC_HITBOX", "Cyan"
+	Submenu "$SSS_MENU_HITBOX", "SSSHitboxOptions"
+	StaticText ""
 	StaticText "$SSS_SEC_PRESETS", "Gold"
-	Submenu "$SSS_MENU_VISUAL_PRESETS", "SSSVisualPresetOptions"
+	Option "Active Preset", "sss_visual_preset", "SSSVisualPresets"
+	Option "Auto-Apply Preset", "sss_visual_preset_auto", OnOff
+	StaticText "$SSS_PRESET_AUTO_HINT", "Gray"
+	StaticText "$SSS_PRESET_CYCLE_HINT", "Gray"
+	SafeCommand "Apply Preset Now", "netevent sss_apply_preset_return"
+	StaticText ""
+	StaticText "$SSS_RT_TITLE", "Teal"
+	StaticText "$SSS_RT_HINT", "Gray"
+	Option "AO Strategy", "sss_ao_mode", "SSSAOMode"
+	Option "Contact AO", "sss_contactao", OnOff
+	Slider "Contact AO Strength", "sss_contactao_strength", 0.0, 1.0, 0.02, 2
+	Slider "Contact AO Radius", "sss_contactao_radius", 0.5, 6.0, 0.25, 1
+	Option "Fluid SSR", "sss_fluidssr", OnOff
+	Slider "Fluid SSR Strength", "sss_fluidssr_strength", 0.0, 1.0, 0.02, 2
+	Slider "Wall Light Fill", "sss_wall_bake", 0.0, 1.0, 0.05, 2
+	StaticText "Reload map after wall bake / relight tier changes.", "DarkGray"
 	StaticText ""
 	StaticText "$SSS_SEC_ATMOSPHERE", "Green"
 	Submenu "$SSS_MENU_LIGHTING", "SSSAtmosphereOptions"
@@ -263,10 +281,26 @@ OptionMenu "ShaderOptions"
 	StaticText "$SSS_SEC_SPECIAL", "Orange"
 	Submenu "$SSS_MENU_FISHEYE", "FisheyeOptions"
 	Submenu "$SSS_MENU_BODYCAM", "SSSBodyCamOptions"
-	Submenu "$SSS_MENU_HITBOX", "SSSHitboxOptions"
 	Submenu "$SSS_MENU_VHS", "VHSCRTOptions"
 	SubMenu "$SSS_MENU_SOFTSHADE", "Db_SoftShadeMenu"
 	Submenu "$SSS_MENU_OLDVIDEO", "OldVideoShaderOptions"
+}
+
+OptionValue "SSSAOMode"
+{
+	0, "Off"
+	1, "Engine SSAO Only"
+	2, "Contact AO Only"
+	3, "Hybrid (Recommended)"
+	4, "Custom (Manual CVARs)"
+}
+
+OptionValue "SSSBleedSource"
+{
+	0, "Both Map + Post"
+	1, "Auto (Skip Post if Recursive)"
+	2, "Map Load Only"
+	3, "Post Shader Only"
 }
 
 OptionValue "SSSVisualPresets"
@@ -274,17 +308,75 @@ OptionValue "SSSVisualPresets"
 	0, "Custom (Manual)"
 	1, "Lite — Modern"
 	2, "Balanced — Enhanced"
+	14, "Vanilla Plus — Classic Enhanced"
 	13, "Modern — RT Enhanced"
 	3, "Cinematic"
 	4, "Ultra — RT-Lite"
-	5, "Tactical — Operator"
 	6, "Arena — Competitive"
+	20, "Co-op Ready"
+	5, "Tactical — Operator"
 	7, "Neon Hell — Inferno"
 	8, "Cold Sector — Sci-Fi"
 	9, "Found Footage — Horror"
 	10, "Retro Terminal — CRT"
 	11, "Painterly — Stylized"
 	12, "Photoreal — HDR"
+	15, "Overcast Outdoor"
+	16, "Gothic Indoor"
+	17, "Noir Operator"
+	22, "Golden Hour"
+	23, "Liminal"
+	24, "Stormy Atmosphere"
+	25, "Ultraviolence"
+	26, "Vaporwave — Outrun"
+	27, "Brutal Carnage"
+	28, "Software Nostalgia"
+	29, "VR Comfort"
+	18, "Heretic Haven"
+	19, "Hexen Crypt"
+}
+
+OptionValue "SSSVisualPresetsQuality"
+{
+	0, "Custom (Manual)"
+	1, "Lite — Modern"
+	2, "Balanced — Enhanced"
+	14, "Vanilla Plus — Classic Enhanced"
+	13, "Modern — RT Enhanced"
+	3, "Cinematic"
+	4, "Ultra — RT-Lite"
+	6, "Arena — Competitive"
+	20, "Co-op Ready"
+}
+
+OptionValue "SSSVisualPresetsStyle"
+{
+	0, "Custom (Manual)"
+	5, "Tactical — Operator"
+	7, "Neon Hell — Inferno"
+	8, "Cold Sector — Sci-Fi"
+	9, "Found Footage — Horror"
+	10, "Retro Terminal — CRT"
+	11, "Painterly — Stylized"
+	12, "Photoreal — HDR"
+	15, "Overcast Outdoor"
+	16, "Gothic Indoor"
+	17, "Noir Operator"
+	22, "Golden Hour"
+	23, "Liminal"
+	24, "Stormy Atmosphere"
+	25, "Ultraviolence"
+	26, "Vaporwave — Outrun"
+	27, "Brutal Carnage"
+	28, "Software Nostalgia"
+	29, "VR Comfort"
+}
+
+OptionValue "SSSVisualPresetsIWAD"
+{
+	0, "Custom (Manual)"
+	18, "Heretic Haven"
+	19, "Hexen Crypt"
 }
 
 OptionMenu "SSSVisualPresetOptions"
@@ -294,29 +386,80 @@ OptionMenu "SSSVisualPresetOptions"
 	StaticText "$SSS_PRESET_HINT1", "Gray"
 	StaticText "$SSS_PRESET_HINT2", "Cyan"
 	StaticText ""
-	Option "Preset", "sss_visual_preset", "SSSVisualPresets"
+	Option "Active Preset", "sss_visual_preset", "SSSVisualPresets"
 	Option "Auto-Apply Preset", "sss_visual_preset_auto", OnOff
 	StaticText "$SSS_PRESET_AUTO_HINT", "Gray"
-	SafeCommand "Apply Preset Now", "event sss_apply_visual_preset"
+	StaticText "$SSS_PRESET_CYCLE_HINT", "Gray"
+	SafeCommand "Apply Preset Now", "netevent sss_apply_preset_return"
 	StaticText ""
 	StaticText "$SSS_PRESET_SEC_QUALITY", "Gold"
+	Submenu "$SSS_PRESET_MENU_QUALITY", "SSSPresetQualityMenu"
+	StaticText ""
+	StaticText "$SSS_PRESET_SEC_STYLE", "Orange"
+	Submenu "$SSS_PRESET_MENU_STYLE", "SSSPresetStyleMenu"
+	StaticText ""
+	StaticText "$SSS_PRESET_SEC_IWAD", "Teal"
+	Submenu "$SSS_PRESET_MENU_IWAD", "SSSPresetIWADMenu"
+	StaticText ""
+	Submenu "RT-Lite Effects (Manual)", "SSSRTLiteOptions"
+}
+
+OptionMenu "SSSPresetQualityMenu"
+{
+	Position -15
+	Title "$SSS_PRESET_MENU_QUALITY"
+	StaticText "$SSS_PRESET_QUALITY_HINT", "Gray"
+	StaticText ""
+	Option "Preset", "sss_visual_preset", "SSSVisualPresetsQuality"
+	StaticText ""
 	StaticText "$SSS_PRESET_LITE", "LightBlue"
 	StaticText "$SSS_PRESET_BALANCED", "Green"
+	StaticText "$SSS_PRESET_VANILLA", "Gold"
 	StaticText "$SSS_PRESET_MODERN", "Teal"
 	StaticText "$SSS_PRESET_CINEMATIC", "Purple"
 	StaticText "$SSS_PRESET_ULTRA", "Fire"
-	StaticText ""
-	StaticText "$SSS_PRESET_SEC_STYLE", "Orange"
-	StaticText "$SSS_PRESET_TACTICAL", "Cyan"
 	StaticText "$SSS_PRESET_ARENA", "Yellow"
+	StaticText "$SSS_PRESET_COOP", "Cyan"
+}
+
+OptionMenu "SSSPresetStyleMenu"
+{
+	Position -15
+	Title "$SSS_PRESET_MENU_STYLE"
+	StaticText "$SSS_PRESET_STYLE_HINT", "Gray"
+	StaticText ""
+	Option "Preset", "sss_visual_preset", "SSSVisualPresetsStyle"
+	StaticText ""
+	StaticText "$SSS_PRESET_TACTICAL", "Cyan"
 	StaticText "$SSS_PRESET_NEON", "Fire"
 	StaticText "$SSS_PRESET_COLD", "Ice"
 	StaticText "$SSS_PRESET_FOOTAGE", "DarkRed"
 	StaticText "$SSS_PRESET_RETRO", "Green"
 	StaticText "$SSS_PRESET_PAINTERLY", "Purple"
 	StaticText "$SSS_PRESET_PHOTOREAL", "Teal"
+	StaticText "$SSS_PRESET_OVERCAST", "Gold"
+	StaticText "$SSS_PRESET_GOTHIC", "DarkGray"
+	StaticText "$SSS_PRESET_NOIR", "Gray"
+	StaticText "$SSS_PRESET_GOLDEN", "Orange"
+	StaticText "$SSS_PRESET_LIMINAL", "Purple"
+	StaticText "$SSS_PRESET_STORMY", "Cyan"
+	StaticText "$SSS_PRESET_ULTRAV", "Fire"
+	StaticText "$SSS_PRESET_VAPOR", "LightBlue"
+	StaticText "$SSS_PRESET_BRUTAL", "DarkRed"
+	StaticText "$SSS_PRESET_SOFTNOS", "Green"
+	StaticText "$SSS_PRESET_VR", "Teal"
+}
+
+OptionMenu "SSSPresetIWADMenu"
+{
+	Position -15
+	Title "$SSS_PRESET_MENU_IWAD"
+	StaticText "$SSS_PRESET_IWAD_HINT", "Gray"
 	StaticText ""
-	Submenu "RT-Lite Effects (Manual)", "SSSRTLiteOptions"
+	Option "Preset", "sss_visual_preset", "SSSVisualPresetsIWAD"
+	StaticText ""
+	StaticText "$SSS_PRESET_HERETIC", "Gold"
+	StaticText "$SSS_PRESET_HEXEN", "Purple"
 }
 
 OptionMenu "SSSRTLiteOptions"
@@ -328,20 +471,36 @@ OptionMenu "SSSRTLiteOptions"
 	StaticText "Fluid SSR only runs while standing on a fluid flat.", "DarkGray"
 	StaticText ""
 	StaticText "$SSS_RT_SEC_ENGINE", "Gold"
+	Option "AO Strategy", "sss_ao_mode", "SSSAOMode"
+	Slider "Hybrid Contact Scale", "sss_ao_hybrid_scale", 0.1, 1.0, 0.02, 2
+	StaticText "Hybrid reduces Contact AO when Engine SSAO is on.", "Gray"
+	StaticText "$SSS_RT_ENGINE_SSAO_HINT", "Gold"
+	Option "Preset Requests Engine SSAO", "sss_ao_engine_want", OnOff
+	Slider "Preset Engine Strength", "sss_ao_engine_str_want", 0.0, 1.0, 0.05, 2
+	StaticText "Match the two lines above in Engine SSAO when using Hybrid.", "DarkGray"
 	Option "Enabled", "gl_ssao", OnOff
 	Slider "Strength", "gl_ssao_strength", 0.0, 1.0, 0.05, 2
 	Slider "Radius", "gl_ssao_radius", 40.0, 200.0, 5.0, 0
-	StaticText "Engine CVARs; adjust manually per preset tier.", "Gray"
+	StaticText "Engine CVARs; real depth buffer.", "Gray"
 	StaticText ""
 	StaticText "$SSS_RT_SEC_CONTACT", "Teal"
 	Option "Enabled", "sss_contactao", OnOff
 	Slider "Strength", "sss_contactao_strength", 0.0, 1.0, 0.02, 2
 	Slider "Sample Radius", "sss_contactao_radius", 0.5, 6.0, 0.25, 1
+	Slider "$SSS_PP_FLAT_SOFTEN", "sss_pp_flat_soften", 0.0, 1.0, 0.05, 2
+	StaticText "$SSS_PP_FLAT_SOFTEN_HINT", "Gray"
 	StaticText ""
 	StaticText "$SSS_RT_SEC_FLUID", "Cyan"
 	Option "Enabled", "sss_fluidssr", OnOff
 	Slider "Strength", "sss_fluidssr_strength", 0.0, 1.0, 0.02, 2
-	StaticText "Boosts reflective look on nukage/water/lava.", "Gray"
+	Slider "Distortion", "sss_fluidssr_distortion", 0.0, 1.0, 0.02, 2
+	Slider "Ripple", "sss_fluidssr_ripple", 0.0, 1.0, 0.02, 2
+	StaticText "Distortion + ripple while on fluid flats.", "Gray"
+	StaticText ""
+	StaticText "$SSS_RT_SEC_DEPTH", "Orange"
+	Option "Depth Proxy", "sss_depth_proxy", OnOff
+	Slider "Proxy Strength", "sss_depth_proxy_strength", 0.0, 1.0, 0.05, 2
+	StaticText "Screen-space depth heuristic for AO/SSR.", "Gray"
 	StaticText ""
 	StaticText "$SSS_RT_SEC_WALL", "Green"
 	Slider "Wall Light Fill", "sss_wall_bake", 0.0, 1.0, 0.05, 2
@@ -388,6 +547,29 @@ OptionMenu "SSSPostProcessOptions"
 	StaticText ""
 	StaticText "$SSS_POST_SEC_VIEW", "Cyan"
 	Slider "Field of View", "fov", 30, 180, 1
+	StaticText ""
+	Submenu "$SSS_POST_SEC_ATMO", "SSSAtmosphereFXOptions"
+}
+
+OptionMenu "SSSAtmosphereFXOptions"
+{
+	Position -15
+	Title "$SSS_ATMOFX_TITLE"
+	StaticText "$SSS_ATMOFX_HINT", "Gray"
+	StaticText ""
+	StaticText "$SSS_ATMOFX_SEC_HAZE", "Cyan"
+	Option "Enabled", "sss_atmo_haze", OnOff
+	Slider "Strength", "sss_atmo_haze_strength", 0.0, 0.5, 0.01, 2
+	Slider "Cool Tint", "sss_atmo_haze_tint", 0.0, 1.0, 0.05, 2
+	StaticText ""
+	StaticText "$SSS_ATMOFX_SEC_RAYS", "Gold"
+	Option "Enabled", "sss_atmo_godrays", OnOff
+	Slider "Strength", "sss_atmo_godrays_strength", 0.0, 0.4, 0.01, 2
+	StaticText ""
+	StaticText "$SSS_ATMOFX_SEC_DEBAND", "Purple"
+	Option "Enabled", "sss_atmo_deband", OnOff
+	Slider "Strength", "sss_atmo_deband_strength", 0.0, 0.03, 0.001, 3
+	StaticText "Shadow dither; pairs with Dark Doom.", "Gray"
 }
 
 OptionMenu "SSSColorToneOptions"
@@ -405,6 +587,9 @@ OptionMenu "SSSColorToneOptions"
 	Option "Filmic LUT", "dsc_scene_lut2", "FilmicLUTPresets"
 	StaticText "LUT-based look; separate from MariFX grading.", "Gray"
 	Option "Chromatic Aberration", dpwh_chromaticAberration2, "OnOff"
+	Option "Natural Vignette", dpwh_naturalVignette2, "OnOff"
+	Slider "Natural Vignette Strength", "sss_natural_vig_strength", 0.0, 0.8, 0.02, 2
+	Slider "Natural Vignette Falloff", "sss_natural_vig_falloff", 0.2, 1.2, 0.05, 2
 	Option "Film Grain", dpwh_filmgrain2, "OnOff"
 	StaticText ""
 	StaticText "$SSS_COLOR_SEC_GAMMA", "Green"
@@ -461,6 +646,7 @@ OptionMenu "SSSAtmosphereOptions"
 	StaticText "ReLite-style bias, fluids, reflections, shadows.", "DarkGray"
 	StaticText ""
 	StaticText "$SSS_ATMO_SEC_BLEED", "Purple"
+	Option "Bleed Source", "sss_bleed_source", "SSSBleedSource"
 	Option "Enabled", "sss_colorbleed", OnOff
 	Slider "Bleeding Strength", "sss_bleeding", 0.001, 0.200, 0.001, 3
 	Slider "Bleed Gamma", "sss_bleed_gamma", 0.0, 1.5, 0.05, 2
@@ -482,6 +668,8 @@ OptionMenu "SSSMariFXOptions"
 	Position -15
 	Title "$MFX_TITLE"
 	StaticText "GPU post-process stack; changes apply live.", "Gray"
+	Option "$SSS_MFX_LITE_SINGLE", "sss_mfx_lite_single", OnOff
+	StaticText "Lite tier: luma sharpen only (no BSS blur/sharp).", "Gray"
 	StaticText "Shift/Alt on sliders for fine adjustment.", "Cyan"
 	StaticText ""
 	MFXPresetList "$MFX_PRESETNUM", "mfx_presetslot"
@@ -681,40 +869,23 @@ OptionMenu "SSSHitboxOptions"
 	StaticText "$SSS_HITBOX_HINT2", "Gold"
 	StaticText "$SSS_HITBOX_HINT3", "Cyan"
 	StaticText " "
-	SafeCommand "Toggle Hitbox Debug", "netevent sss_toggle_hitbox"
+	SafeCommand "Toggle Hitbox Healthbar", "netevent sss_toggle_hitbox"
 	Control "Toggle Key", "sss_toggle_hitbox"
+	Option "Hitbox Healthbar Enabled", "sss_hitbox_debug", OnOff
+	StaticText "Must be On (or press H). Aims at crosshair target only.", "Cyan"
 	StaticText " "
-	Option "Show Wireframe", "sss_hitbox_debug", OnOff
-	Option "Target Info HUD", "sss_hitbox_hud", OnOff
-	Option "Draw All Nearby", "sss_hitbox_all", OnOff
-	StaticText "Off = crosshair target only (recommended).", "DarkGray"
+	Option "3D Wireframe", "sss_hitbox_wire3d", OnOff
+	StaticText "Shows crosshair HP overlay (no world particles).", "DarkGray"
 	Option "Hitbox Gibs", "sss_hitbox_gibs", OnOff
 	StaticText "Off hides destroyable gore / body chunks (recommended).", "DarkGray"
-	Option "Cull Back Faces", "sss_hitbox_cullback", OnOff
-	StaticText "On hides sides you cannot see (recommended).", "DarkGray"
-	Option "Cull Blocked Targets", "sss_hitbox_sightcull", OnOff
-	Option "Health Tint (solid phases)", "sss_hitbox_healthcolor", OnOff
-	StaticText "Off uses PB zone colors (red/yellow/magenta/cyan).", "DarkGray"
-	Option "Wrap Visible Sides", "sss_hitbox_wrapvisible", OnOff
-	StaticText "Health mode: grid on camera-facing faces only.", "DarkGray"
-	Option "Fill Side Faces", "sss_hitbox_fillfaces", OnOff
-	StaticText "Zone mode only: dense grid on visible faces.", "DarkGray"
 	Slider "Max Distance", "sss_hitbox_maxdist", 512, 4096, 64, 0
-	Slider "Update Interval", "sss_hitbox_interval", 1, 4, 1, 0
-	Slider "Particle Spacing", "sss_hitbox_spacing", 1.0, 8.0, 0.5, 1
-	Slider "Particle Size", "sss_hitbox_size", 0.4, 4.0, 0.1, 1
+	Slider "Update Interval", "sss_hitbox_interval", 5, 15, 1, 0
+	Slider "Corner Size", "sss_hitbox_size", 1.0, 4.0, 0.5, 1
 	StaticText " "
-	StaticText "$SSS_HITBOX_SEC_HUD", "Yellow"
-	Slider "Head Min", "sss_hitbox_head_min", 0.70, 0.95, 0.01, 2
-	Slider "Upper Torso Min", "sss_hitbox_upper_min", 0.50, 0.80, 0.01, 2
-	Slider "Lower Torso Min", "sss_hitbox_lower_min", 0.20, 0.60, 0.01, 2
-	StaticText "PB default upper split is ~0.65 (POSTORSOHB).", "Gray"
-	StaticText " "
-	StaticText "$SSS_HITBOX_SEC_MULT", "Purple"
-	Slider "Head Mult", "sss_hitbox_head_mult", 0.25, 4.0, 0.05, 2
-	Slider "Upper Torso Mult", "sss_hitbox_upper_mult", 0.25, 4.0, 0.05, 2
-	Slider "Lower Torso Mult", "sss_hitbox_lower_mult", 0.25, 4.0, 0.05, 2
-	Slider "Legs Mult", "sss_hitbox_legs_mult", 0.25, 4.0, 0.05, 2
+	StaticText "$SSS_HITBOX_SEC_SIZE", "Gold"
+	Slider "$SSS_HITBOX_HEIGHT_SCALE", "sss_hitbox_height_scale", 0.50, 1.10, 0.01, 2
+	Slider "$SSS_HITBOX_BIPED_CAP", "sss_hitbox_biped_cap", 0.0, 4.0, 0.05, 2
+	StaticText "$SSS_HITBOX_HEIGHT_HINT", "Gray"
 }
 
 OptionMenu "SSSBodyCamOptions"
@@ -957,7 +1128,7 @@ OptionMenu "SSSLightingOptions"
 	StaticText "Crushes mid-tones; deepens wall shadows.", "Gray"
 	Option "Smooth Wall Lighting", "sss_smooth_walls", OnOff
 	Option "Performance Mode", "sss_performance", OnOff
-	StaticText "Skips sector/wall color + reflections.", "Gray"
+	StaticText "Skips sector/wall color, planar reflections.", "Gray"
 	StaticText "Caps fluid point lights at 8.", "Gray"
 	StaticText ""
 	StaticText "Fluid Lighting (Lite)", "Cyan"

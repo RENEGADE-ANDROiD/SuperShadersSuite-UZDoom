@@ -13,7 +13,9 @@
 #include "Scripts/SSSMaterialHandler.zs"
 #include "Scripts/SSSShadowHandler.zs"
 #include "Scripts/SSSDarkDoomHandler.zs"
+#include "Scripts/SSSRuntimeGuard.zs"
 #include "Scripts/SSSVisualPresetHandler.zs"
+#include "Scripts/SSSAtmosphereHandler.zs"
 #include "Scripts/SSSBodyCamHandler.zs"
 #include "Scripts/SSSHitboxHandler.zs"
 #include "Scripts/MariFXHandler.zs"
@@ -144,21 +146,25 @@ Class ACESTonemapHandler : StaticEventHandler
 	override void RenderOverlay( RenderEvent e )
 	{
 		PlayerInfo p = players[consoleplayer];
-		
-		if(!at_enabled) at_enabled = CVar.FindCVar("at_enabled");
-		if(!at_ApertureFNumber) at_ApertureFNumber = CVar.FindCVar("at_ApertureFNumber");
-		if(!at_ISO) at_ISO = CVar.FindCVar("at_ISO");
-		if(!at_ShutterSpeedValue) at_ShutterSpeedValue = CVar.FindCVar("at_ShutterSpeedValue");
-		if(!at_ExposureMode) at_ExposureMode = CVar.FindCVar("at_ExposureMode");
-		if(!at_CustomShutterSpeed) at_CustomShutterSpeed = CVar.FindCVar("at_LastCustomShutterSpeed");
-		if(!at_CustomISO) at_CustomISO = CVar.FindCVar("at_LastCustomISO");
-		
-		if(!at_Crosstalk) at_Crosstalk = CVar.FindCVar("at_Crosstalk");
-		if(!at_Saturation) at_Saturation = CVar.FindCVar("at_Saturation");
-		if(!at_CrossSaturation) at_CrossSaturation = CVar.FindCVar("at_CrossSaturation");
-		if(!at_exposure_bias) at_exposure_bias = CVar.FindCVar("at_exposure_bias");
-		if(!at_aces_mode) at_aces_mode = CVar.FindCVar("at_aces_mode");
-		if(!at_sky_soften) at_sky_soften = CVar.FindCVar("at_sky_soften");
+		if (!p)
+			return;
+
+		at_enabled = CVar.GetCVar("at_enabled", p);
+		at_ApertureFNumber = CVar.GetCVar("at_ApertureFNumber", p);
+		at_ISO = CVar.GetCVar("at_ISO", p);
+		at_ShutterSpeedValue = CVar.GetCVar("at_ShutterSpeedValue", p);
+		at_ExposureMode = CVar.GetCVar("at_ExposureMode", p);
+		at_CustomShutterSpeed = CVar.GetCVar("at_LastCustomShutterSpeed", p);
+		at_CustomISO = CVar.GetCVar("at_LastCustomISO", p);
+		at_Crosstalk = CVar.GetCVar("at_Crosstalk", p);
+		at_Saturation = CVar.GetCVar("at_Saturation", p);
+		at_CrossSaturation = CVar.GetCVar("at_CrossSaturation", p);
+		at_exposure_bias = CVar.GetCVar("at_exposure_bias", p);
+		at_aces_mode = CVar.GetCVar("at_aces_mode", p);
+		at_sky_soften = CVar.GetCVar("at_sky_soften", p);
+
+		if (!at_enabled || !at_ApertureFNumber || !at_ISO || !at_ShutterSpeedValue)
+			return;
 
 		float shutterSpeed = 0.0;
 		float iso = 0.0;
@@ -349,6 +355,12 @@ class ScreeMHandler : EventHandler
 	{
 		if (p)
 		{
+			if (SSSPostProcessSuppressor.MenuBlocksScreenFX())
+			{
+				SSSPostProcessSuppressor.DisableScreenMShaders(p);
+				return;
+			}
+
 			if (Cvar.GetCVar("gl_screem", p).GetInt() > 0)
 			{
 				if (Cvar.GetCVar("gl_screem_res_mode", p).GetInt() > 0 && Cvar.GetCVar("gl_screem_res_detail", p).GetInt() > 1)
@@ -607,8 +619,14 @@ Class SDPWHScreenEffects : StaticEventHandler
 		else
 			DisableCubicCA();
 
-
-
+		if (Cvar.GetCVar("dpwh_naturalVignette2", players).GetBool())
+		{
+			Shader.SetUniform1f(players, "NaturalVignette", "sss_natural_vig_strength", Cvar.GetCVar("sss_natural_vig_strength", players).GetFloat());
+			Shader.SetUniform1f(players, "NaturalVignette", "sss_natural_vig_falloff", Cvar.GetCVar("sss_natural_vig_falloff", players).GetFloat());
+			EnableNaturalVignette();
+		}
+		else
+			DisableNaturalVignette();
 
 		if (Cvar.GetCVar("dpwh_filmgrain2", players).GetInt() > 0)
 		{

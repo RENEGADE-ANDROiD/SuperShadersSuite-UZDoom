@@ -8,27 +8,45 @@ class SSSMaterialHandler : EventHandler
 {
 	override void WorldLoaded(WorldEvent e)
 	{
+		if (SSSReflectionHelper.SSS_IsHeavyMap() && CVar.FindCVar("sss_large_map_safe").GetBool())
+			return;
+
 		SuppressEnemyReflectionsOnMap();
 	}
 
 	override void WorldThingSpawned(WorldEvent e)
 	{
-		if (e.Thing)
-			TrySuppressActorReflection(e.Thing);
+		Actor mo = e.Thing;
+		if (!mo)
+			return;
+
+		// Map load scans existing corpses; runtime gore spam (combat) does not need mirror flags.
+		if (!mo.bIsMonster || mo.health <= 0)
+			return;
+
+		TrySuppressActorReflection(mo);
 	}
 
 	override void WorldThingDied(WorldEvent e)
 	{
-		if (e.Thing)
-			TrySuppressActorReflection(e.Thing);
+		Actor mo = e.Thing;
+		if (!mo || !mo.bIsMonster)
+			return;
+
+		TrySuppressActorReflection(mo);
 	}
 
 	void SuppressEnemyReflectionsOnMap()
 	{
+		int scanned = 0;
 		ThinkerIterator it = ThinkerIterator.Create("Actor");
 		Actor mo;
 		while (mo = Actor(it.Next()))
+		{
+			if (++scanned > 4096)
+				break;
 			TrySuppressActorReflection(mo);
+		}
 	}
 
 	void TrySuppressActorReflection(Actor mo)

@@ -65,9 +65,9 @@ class sss_shadowthinker : CustomInventory
 
 class SSSShadowHandler : EventHandler
 {
-	// UZDoom 4.14.x: static const must be arrays, not scalar assignments.
-	static const int MaxFloorShadows[] = {32};
-	static const int MaxWallShadows[] = {16};
+	static const int MaxFloorShadows[] = {8};
+	static const int MaxWallShadows[] = {2};
+	static const int MaxScanActors[] = {24};
 
 	override void WorldThingSpawned(WorldEvent e)
 	{
@@ -95,13 +95,15 @@ class SSSShadowHandler : EventHandler
 		if (!CVar.FindCVar("sss_shadows").GetBool())
 			return;
 
-		int interval = max(1, CVar.FindCVar("sss_shadow_interval").GetInt());
+		if (CVar.FindCVar("sss_performance").GetBool())
+			return;
+
+		int interval = max(2, CVar.FindCVar("sss_shadow_interval").GetInt());
 		if (Level.MapTime % interval != 0)
 			return;
 
-		bool perf = CVar.FindCVar("sss_performance").GetBool();
-		bool wallShadows = CVar.FindCVar("sss_wall_shadows").GetBool() && !perf;
-		double maxDist = perf ? 512.0 : 768.0;
+		bool wallShadows = CVar.FindCVar("sss_wall_shadows").GetBool();
+		double maxDist = 640.0;
 		PlayerInfo viewer = players[consoleplayer];
 		if (!viewer || !viewer.mo)
 			return;
@@ -109,9 +111,13 @@ class SSSShadowHandler : EventHandler
 		BlockThingsIterator it = BlockThingsIterator.Create(viewer.mo, maxDist);
 		int floorCount = 0;
 		int wallCount = 0;
+		int scanned = 0;
 
 		while (it.Next())
 		{
+			if (++scanned > MaxScanActors[0])
+				break;
+
 			Actor mo = it.thing;
 			if (!mo || !mo.health)
 				continue;

@@ -62,8 +62,8 @@ void main()
 	color.b = texture(InputTexture, uv - ca * 0.85).b;
 
 	// Lens vignette / cheap housing shadow.
-	float vig = 1.0 - dot((TexCoord - 0.5) * vec2(1.25, 1.05), (TexCoord - 0.5) * vec2(1.25, 1.05)) * 0.55;
-	color *= clamp(vig, 0.55, 1.0);
+	float vig = 1.0 - dot((TexCoord - 0.5) * vec2(1.35, 1.12), (TexCoord - 0.5) * vec2(1.35, 1.12)) * 0.78;
+	color *= clamp(vig, 0.38, 1.0);
 
 	FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
 }

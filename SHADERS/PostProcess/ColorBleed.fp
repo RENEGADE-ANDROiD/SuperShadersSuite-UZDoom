@@ -61,8 +61,10 @@ void main()
 		vec3 mixCol = c.gbr + c.brg;
 		if (sss_bleed_rg > 0.5)
 			mixCol = c.ggr + c.rrg;
+		mixCol = clamp(mixCol, 0.0, 1.0);
 		float bleedScale = 1.0 - clamp((chsv.z - 0.88) / 0.12, 0.0, 1.0);
 		c.rgb += mixCol * mixCol * sss_bleeding * chsv.z * bleedScale;
+		c.rgb = clamp(c.rgb, 0.0, 1.0);
 		res.rgb = c;
 	}
 	else if (chsv.z < 0.30)
@@ -70,7 +72,9 @@ void main()
 		vec3 mixCol = c.gbr + c.brg;
 		if (sss_bleed_rg > 0.5)
 			mixCol = c.ggr + c.rrg;
+		mixCol = clamp(mixCol, 0.0, 1.0);
 		c.rgb -= mixCol * mixCol * mixCol * sss_bleeding * (1.0 - chsv.z);
+		c.rgb = clamp(c.rgb, 0.0, 1.0);
 		res.rgb = c;
 	}
 

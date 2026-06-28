@@ -102,15 +102,22 @@ float Luma(vec3 c)
 }
 
 // Heuristic sky mask (no depth buffer in custom PP shaders). Upper frame + clouds/moon.
+float min3(vec3 v)
+{
+	return min(min(v.x, v.y), v.z);
+}
+
 float ComputeSkyMask(vec2 uv, vec3 lin)
 {
 	float luma = Luma(lin);
-	float upper = smoothstep(0.10, 0.50, uv.y);
+	float upper = smoothstep(0.08, 0.45, uv.y);
 	float bright = smoothstep(0.14, 0.42, luma);
 	float peak = smoothstep(0.22, 0.58, max3(lin));
 	float cloudBody = upper * smoothstep(0.10, 0.32, luma);
 	float brightSky = upper * bright * mix(0.65, 1.0, peak);
-	return clamp(max(cloudBody, brightSky), 0.0, 1.0);
+	float sat = max3(lin) - min3(lin);
+	float warmSky = upper * smoothstep(0.06, 0.28, sat) * smoothstep(0.10, 0.50, luma);
+	return clamp(max(max(cloudBody, brightSky), warmSky), 0.0, 1.0);
 }
 
 vec3 SoftHighlightShoulder(vec3 c)
@@ -130,7 +137,7 @@ vec3 ApplyChromaPreservingTonemap(in vec3 exposed)
 	ratio = pow(ratio, vec3(saturation / crossSat));
 
 	float bleach = pow(clamp(max3(tonemapPeak), 0.0, 1.0), crossTalk * 0.45);
-	bleach = min(bleach, 0.50);
+	bleach = min(bleach, 0.35);
 	ratio = mix(ratio, vec3(1.0), bleach);
 	ratio = pow(ratio, vec3(crossSat));
 
@@ -153,10 +160,22 @@ void main()
 	vec3 lin = SRGBToLinear(color);
 	vec3 exposed = lin * exp2(CalcExposure()) * exposureBias * kPostExposureScale;
 
-	vec3 world = ApplyChromaPreservingTonemap(exposed);
-	vec3 sky = ApplySkyTonemap(exposed);
-	float skyBlend = ComputeSkyMask(TexCoord, lin) * clamp(skySoften, 0.0, 1.0);
-	vec3 tonemapped = mix(world, sky, skyBlend);
+	vec3 tonemapped;
+	// High skySoften presets (Photoreal): skip chroma-ratio tonemap — stable on PB HDR skies.
+	if (skySoften >= 0.88)
+	{
+		tonemapped = ApplyTonemap(exposed);
+		tonemapped = SoftHighlightShoulder(tonemapped);
+	}
+	else
+	{
+		vec3 world = ApplyChromaPreservingTonemap(exposed);
+		vec3 sky = ApplySkyTonemap(exposed);
+		float skyBlend = ComputeSkyMask(TexCoord, lin) * clamp(skySoften, 0.0, 1.0);
+		float upperSky = smoothstep(0.20, 0.50, TexCoord.y);
+		skyBlend = max(skyBlend, upperSky * clamp(skySoften, 0.0, 1.0) * 0.88);
+		tonemapped = mix(world, sky, skyBlend);
+	}
 
 	FragColor = vec4(LinearTosRGB(tonemapped), 1.0);
 }

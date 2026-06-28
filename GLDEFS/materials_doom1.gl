@@ -1,0 +1,35 @@
+// Doom 1-only wall names (not present in registered DOOM2.WAD).
+// Enable in GLDEFS.txt when playing Ultimate Doom / Doom 1 TCs.
+// Regenerate: tools/generate-materials.ps1
+
+// Doom 1 - stone / masonry
+material texture GRAYDANG
+{
+	shader "SHADERS/envgeneric.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	specularlevel 0.2
+	glossiness 8
+}
+
+// Doom 1 - panels / tech trim
+material texture TEKWALL2
+{
+	shader "SHADERS/envgeneric.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	specularlevel 0.22
+	glossiness 9
+}
+material texture TEKWALL3
+{
+	shader "SHADERS/envgeneric.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	specularlevel 0.22
+	glossiness 9
+}
+material texture TEKWALL5
+{
+	shader "SHADERS/envgeneric.fp"
+	texture displacement "MATERIALS/ENV/env3.jpg"
+	specularlevel 0.22
+	glossiness 9
+}

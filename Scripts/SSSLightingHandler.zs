@@ -25,25 +25,96 @@ class SSSLightingHandler : EventHandler
 	Array<int> vertexLineStart;
 	Array<int> lineFlat;
 
+	bool LightingLoadPending;
+	int LightingLoadPhase;
+	bool LightingLoadSmoothWalls;
+	bool LightingLoadRecursiveRelight;
+	bool LightingLoadPerf;
+	bool DeferDarkDoomFinish;
+
+	static SSSLightingHandler FindHandler()
+	{
+		return SSSLightingHandler(EventHandler.Find("SSSLightingHandler"));
+	}
+
+	void CompleteMapLoadDarkDoom()
+	{
+		SSSDarkDoom_Handler ddz = SSSDarkDoom_Handler.FindHandler();
+		if (!ddz)
+			return;
+		ddz.RefreshBaseLightLevelsFromMap();
+		ddz.FinishMapLoadLighting();
+	}
+
 	override void WorldLoaded(WorldEvent e)
 	{
+		LightingLoadPending = false;
+		LightingLoadPhase = 0;
+		DeferDarkDoomFinish = false;
+
 		if (!CVar.FindCVar("sss_lighting").GetBool())
 			return;
 
+		bool heavyMap = SSSReflectionHelper.SSS_IsHeavyMap();
+		bool mediumMap = SSSReflectionHelper.SSS_IsMediumMap();
+		bool mapSafe = CVar.FindCVar("sss_large_map_safe").GetBool();
+
+		if (heavyMap && mapSafe)
+		{
+			// Synchronous map-load lighting can hard-freeze UZDoom on large maps.
+			SSSReflectionHelper.ApplyPlaneReflections();
+			return;
+		}
+
+		if (heavyMap)
+		{
+			CVar.FindCVar("sss_relight_recursive").SetBool(false);
+			CVar.FindCVar("sss_smooth_walls").SetBool(false);
+			CVar.FindCVar("sss_bleed_rg").SetBool(false);
+			let procMax = CVar.FindCVar("sss_relight_proc_max");
+			if (procMax && procMax.GetInt() > 6)
+				procMax.SetInt(6);
+		}
+		else if (mediumMap && mapSafe)
+		{
+			CVar.FindCVar("sss_relight_recursive").SetBool(false);
+			CVar.FindCVar("sss_smooth_walls").SetBool(false);
+			CVar.FindCVar("sss_bleed_rg").SetBool(false);
+		}
+
+		LightingLoadPerf = CVar.FindCVar("sss_performance").GetBool() || heavyMap;
+		LightingLoadSmoothWalls = CVar.FindCVar("sss_smooth_walls").GetBool()
+			&& !LightingLoadPerf;
+		LightingLoadRecursiveRelight = CVar.FindCVar("sss_relight_recursive").GetBool();
+
+		// Spread map-load work across ticks when safe mode is on.
+		if (mapSafe)
+			QueueChunkedLightingLoad();
+		else
+			RunLightingLoadSync();
+	}
+
+	void QueueChunkedLightingLoad()
+	{
+		LightingLoadPhase = 0;
+		LightingLoadPending = true;
+	}
+
+	void RunLightingLoadSync()
+	{
 		if (CVar.FindCVar("sss_bias").GetBool())
 			BiasLighting();
 
-		if (CVar.FindCVar("sss_smooth_walls").GetBool()
-			&& !CVar.FindCVar("sss_performance").GetBool())
+		if (LightingLoadSmoothWalls)
 		{
 			PrepareSectors();
 			BuildVertexLineMap();
 			SmoothWallLights();
 		}
 
-		if (!CVar.FindCVar("sss_performance").GetBool())
+		if (!LightingLoadPerf)
 		{
-			if (!CVar.FindCVar("sss_relight_recursive").GetBool())
+			if (!LightingLoadRecursiveRelight)
 				ApplySectorColorBleed();
 			ApplyWallColorization();
 		}
@@ -52,6 +123,60 @@ class SSSLightingHandler : EventHandler
 		enh.RunApplyAll();
 		ApplyFluidLighting();
 		SSSReflectionHelper.ApplyPlaneReflections();
+	}
+
+	override void WorldTick()
+	{
+		if (!LightingLoadPending)
+			return;
+
+		switch (LightingLoadPhase)
+		{
+		case 0:
+			if (CVar.FindCVar("sss_bias").GetBool())
+				BiasLighting();
+			LightingLoadPhase = 1;
+			break;
+
+		case 1:
+			if (LightingLoadSmoothWalls)
+			{
+				PrepareSectors();
+				BuildVertexLineMap();
+				SmoothWallLights();
+			}
+			LightingLoadPhase = 2;
+			break;
+
+		case 2:
+			if (!LightingLoadPerf)
+			{
+				if (!LightingLoadRecursiveRelight)
+					ApplySectorColorBleed();
+				ApplyWallColorization();
+			}
+			LightingLoadPhase = 3;
+			break;
+
+		case 3:
+			{
+				SSSRelightEnhance enh = new("SSSRelightEnhance");
+				enh.RunApplyAll();
+			}
+			LightingLoadPhase = 4;
+			break;
+
+		case 4:
+			ApplyFluidLighting();
+			SSSReflectionHelper.ApplyPlaneReflections();
+			LightingLoadPending = false;
+			if (DeferDarkDoomFinish)
+			{
+				DeferDarkDoomFinish = false;
+				CompleteMapLoadDarkDoom();
+			}
+			break;
+		}
 	}
 
 	override void NetworkProcess(ConsoleEvent e)

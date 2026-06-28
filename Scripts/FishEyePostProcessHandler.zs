@@ -3,11 +3,7 @@ class FishEyePostProcessHandler : StaticEventHandler
 	ui bool BodyCamOwnsFisheye(PlayerInfo plr)
 	{
 		let active = CVar.FindCVar("sss_bodycam_active");
-		if (!active || !active.GetBool())
-			return false;
-		if (CVar.GetCVar("sss_bodycam_mode", plr).GetInt() != 0)
-			return false;
-		return true;
+		return active && active.GetBool();
 	}
 
 	ui void FishEye(RenderEvent e)

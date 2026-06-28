@@ -3,6 +3,18 @@
 
 class SSSReflectionHelper
 {
+	// Heavy: skip or minimal map-load lighting when sss_large_map_safe is on.
+	clearscope static bool SSS_IsHeavyMap()
+	{
+		return Level.Sectors.Size() >= 768 || Level.Lines.Size() >= 3000;
+	}
+
+	// Medium: trim smooth walls + recursive relight when sss_large_map_safe is on.
+	clearscope static bool SSS_IsMediumMap()
+	{
+		return Level.Sectors.Size() >= 384 || Level.Lines.Size() >= 1500;
+	}
+
 	clearscope static bool FlatMatchesNameToken(Name flatName, Name token)
 	{
 		if (flatName == token)
@@ -154,6 +166,9 @@ class SSSReflectionHelper
 
 	static void ApplyPlaneReflections()
 	{
+		if (CVar.FindCVar("sss_performance").GetBool())
+			return;
+
 		if (CVar.FindCVar("sss_floorreflections").GetBool())
 		{
 			int tag = CVar.FindCVar("sss_floor_tag").GetInt();

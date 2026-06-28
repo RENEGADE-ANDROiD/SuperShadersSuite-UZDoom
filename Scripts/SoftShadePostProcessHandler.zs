@@ -4,6 +4,12 @@ class Db_SoftShadeHandler : StaticEventHandler
     {
         PlayerInfo p = players[consolePlayer];
 
+        if (SSSPostProcessSuppressor.MenuBlocksScreenFX())
+        {
+            Shader.SetEnabled(p, "db_softshade", false);
+            return;
+        }
+
         Shader.SetUniform1f(p, "db_softshade", "resscalefac", 1);
 
         let doScale = CVar.GetCVar('db_softshade_doscale', p);

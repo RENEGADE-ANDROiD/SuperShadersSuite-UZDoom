@@ -5,28 +5,54 @@ Class MariFXHandler : StaticEventHandler
 	override void RenderOverlay(RenderEvent e)
 	{
 		PlayerInfo p = players[consoleplayer];
-		bool lumaOn = mfx_lsharpenable && mfx_lsharpblend > 0.0;
+		if (!p)
+			return;
+
+		if (!SSSPostProcessSuppressor.PostWarmupReady())
+		{
+			Shader.SetEnabled(p, "sss_mfx_lumasharp", false);
+			return;
+		}
+
+		if (!CVar.GetCVar("sss_post_stack", p).GetBool())
+		{
+			SSSPostProcessSuppressor.DisableSSSPostShaders(p);
+			return;
+		}
+
+		bool modernSafe = CVar.GetCVar("sss_visual_preset", p).GetInt() == 13;
+		bool photorealSafe = CVar.GetCVar("sss_visual_preset", p).GetInt() == 12;
+
+		bool lumaOn = !modernSafe && !photorealSafe && mfx_lsharpenable && mfx_lsharpblend > 0.0;
 		bool grainOn = mfx_ne;
 		bool dirtOn = mfx_dirtenable;
-		bool gradeOn = mfx_gradeenable;
+		bool gradeOn = mfx_gradeenable && !photorealSafe;
 		bool lutOn = mfx_lutenable;
 		bool techOn = mfx_techenable;
 		bool cmatOn = mfx_cmatenable;
 		bool hsOn = mfx_hsenable;
-		bool bssBlurOn = mfx_bssblurenable && mfx_bssblurradius > 0.0;
-		bool bssSharpOn = mfx_bsssharpenable && (mfx_bsssharpradius > 0.0 || mfx_bsssharpamount > 0.0);
+		bool bssBlurOn = !modernSafe && !photorealSafe && mfx_bssblurenable && mfx_bssblurradius > 0.0;
+		bool bssSharpOn = !modernSafe && !photorealSafe && mfx_bsssharpenable && (mfx_bsssharpradius > 0.0 || mfx_bsssharpamount > 0.0);
 		bool bssShiftOn = mfx_bssshiftenable && mfx_bssshiftradius > 0.0;
 		bool bblurOn = mfx_bblurenable && mfx_bblurradius > 0.0;
 		bool vigOn = mfx_vigenable;
 		bool retroOn = mfx_retroenable;
 		bool palOn = mfx_palenable;
 
-		Shader.SetEnabled(p, "mfx_lumasharp", lumaOn);
+		double flatSoften = CVar.GetCVar("sss_pp_flat_soften", p).GetFloat();
+
+		Shader.SetEnabled(p, "sss_mfx_lumasharp", lumaOn);
 		if (lumaOn)
 		{
-			Shader.SetUniform1f(p, "mfx_lumasharp", "sharpradius", mfx_lsharpradius);
-			Shader.SetUniform1f(p, "mfx_lumasharp", "sharpclamp", mfx_lsharpclamp);
-			Shader.SetUniform1f(p, "mfx_lumasharp", "sharpblend", mfx_lsharpblend);
+			double sharpBlend = mfx_lsharpblend;
+			if (sharpBlend > 1.25)
+				sharpBlend = 0.65;
+			else
+				sharpBlend = clamp(sharpBlend, 0.0, 1.0);
+			Shader.SetUniform1f(p, "sss_mfx_lumasharp", "sharpradius", mfx_lsharpradius);
+			Shader.SetUniform1f(p, "sss_mfx_lumasharp", "sharpclamp", mfx_lsharpclamp);
+			Shader.SetUniform1f(p, "sss_mfx_lumasharp", "sharpblend", sharpBlend);
+			Shader.SetUniform1f(p, "sss_mfx_lumasharp", "sss_pp_flat_soften", flatSoften);
 		}
 
 		Shader.SetEnabled(p, "mfx_grain", grainOn);
@@ -110,11 +136,12 @@ Class MariFXHandler : StaticEventHandler
 		if (bssBlurOn)
 			Shader.SetUniform1f(p, "mfx_bss_blur", "bssblurradius", mfx_bssblurradius);
 
-		Shader.SetEnabled(p, "mfx_bss_sharp", bssSharpOn);
+		Shader.SetEnabled(p, "sss_mfx_bss_sharp", bssSharpOn);
 		if (bssSharpOn)
 		{
-			Shader.SetUniform1f(p, "mfx_bss_sharp", "bsssharpradius", mfx_bsssharpradius);
-			Shader.SetUniform1f(p, "mfx_bss_sharp", "bsssharpamount", mfx_bsssharpamount);
+			Shader.SetUniform1f(p, "sss_mfx_bss_sharp", "bsssharpradius", mfx_bsssharpradius);
+			Shader.SetUniform1f(p, "sss_mfx_bss_sharp", "bsssharpamount", mfx_bsssharpamount);
+			Shader.SetUniform1f(p, "sss_mfx_bss_sharp", "sss_pp_flat_soften", flatSoften);
 		}
 
 		Shader.SetEnabled(p, "mfx_bss_shift", bssShiftOn);

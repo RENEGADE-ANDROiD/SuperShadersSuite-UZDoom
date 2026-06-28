@@ -8,35 +8,139 @@ class SSSBodyCamHandler : StaticEventHandler
 	double RollSkewX;
 	double RollSkewY;
 
+	clearscope static SSSBodyCamHandler Get()
+	{
+		return SSSBodyCamHandler(StaticEventHandler.Find('SSSBodyCamHandler'));
+	}
+
 	override void WorldLoaded(WorldEvent e)
 	{
 		AnglesInit = false;
-		if (IsActive())
-		{
-			SetSessionStart(Level.MapTime);
-			ReapplyActive(players[consoleplayer]);
-		}
+		PlayerInfo p = players[consoleplayer];
+		if (p && IsActiveNow())
+			SyncPresetBodyCam(p);
 	}
 
 	override void NetworkProcess(ConsoleEvent e)
 	{
 		if (e.Name == "sss_toggle_bodycam")
 			Toggle();
+		else if (e.Name == "sss_sync_bodycam")
+		{
+			PlayerInfo p = players[consoleplayer];
+			if (p)
+				SyncPresetBodyCam(p);
+		}
 	}
 
-	override void WorldTick()
+	override void ConsoleProcess(ConsoleEvent e)
 	{
-		if (!IsActive())
-			return;
+		if (e.Name == "sss_toggle_bodycam")
+			EventHandler.SendNetworkEvent("sss_toggle_bodycam");
+		else if (e.Name == "sss_sync_bodycam")
+			EventHandler.SendNetworkEvent("sss_sync_bodycam");
+	}
 
+	void PlayTick()
+	{
 		PlayerInfo p = players[consoleplayer];
 		if (!p || !p.mo)
 			return;
 
-		if (GetInt(p, "sss_bodycam_mode") != 0)
+		if (!IsActiveNow())
 			return;
 
-		UpdateRollingShutter(p);
+		PushRuntimeFromPlay(p);
+
+		if (GetModeLive() == 1)
+			ApplyAnalogValues(p);
+		else
+			ApplyDigitalValues(p);
+
+		if (GetModeLive() == 0)
+			UpdateRollingShutter(p);
+	}
+
+	void PushRuntimeFromPlay(PlayerInfo p)
+	{
+		let ml = CVar.FindCVar("sss_bodycam_mode_live");
+		if (ml)
+			ml.SetInt(GetInt(p, "sss_bodycam_mode"));
+
+		double fish = GetFloat(p, "fisheye_strength");
+		if (fish < 0.001)
+			fish = GetLiveFloat("sss_bodycam_fish_live", 0.022);
+		let fl = CVar.FindCVar("sss_bodycam_fish_live");
+		if (fl)
+			fl.SetFloat(fish);
+
+		if (GetInt(p, "sss_bodycam_mode") == 1)
+		{
+			let vn = CVar.FindCVar("sss_bodycam_vhs_noise_live");
+			if (vn) vn.SetFloat(GetFloat(p, "SH_VHSNoiseIntensity"));
+			let vo = CVar.FindCVar("sss_bodycam_vhs_offset_live");
+			if (vo) vo.SetFloat(GetFloat(p, "SH_VHSOffsetIntensity"));
+			let vl = CVar.FindCVar("sss_bodycam_vhs_lines_live");
+			if (vl) vl.SetFloat(GetFloat(p, "SH_VHSLineCount"));
+			let vr = CVar.FindCVar("sss_bodycam_vhs_range_live");
+			if (vr) vr.SetFloat(GetFloat(p, "SH_VHSRange"));
+		}
+		else
+		{
+			SetMirrorFloat("sss_bodycam_chroma_live", GetFloat(p, "sss_bodycam_chroma"));
+			SetMirrorFloat("sss_bodycam_noise_live", GetFloat(p, "sss_bodycam_noise"));
+			SetMirrorFloat("sss_bodycam_contrast_live", GetFloat(p, "sss_bodycam_contrast"));
+			SetMirrorFloat("sss_bodycam_saturation_live", GetFloat(p, "sss_bodycam_saturation"));
+			SetMirrorFloat("sss_bodycam_rolling_live", GetFloat(p, "sss_bodycam_rolling"));
+			double barrel = GetFloat(p, "sss_bodycam_barrel");
+			if (barrel < 0.01)
+				barrel = GetFloat(p, "fisheye_strength") / 0.85;
+			let fl = CVar.FindCVar("sss_bodycam_fish_live");
+			if (fl) fl.SetFloat(clamp(barrel * 0.85, 0.012, 0.12));
+			let ol = CVar.FindCVar("sss_bodycam_overlay_live");
+			if (ol) ol.SetBool(GetBool(p, "sss_bodycam_overlay"));
+			let ul = CVar.FindCVar("sss_bodycam_unit_live");
+			if (ul)
+			{
+				String u = CVar.GetCVar("sss_bodycam_unit", p).GetString();
+				if (u.Length() > 0)
+					ul.SetString(u);
+			}
+		}
+	}
+
+	void SetMirrorFloat(String name, double value)
+	{
+		let c = CVar.FindCVar(name);
+		if (c) c.SetFloat(value);
+	}
+
+	void SyncPresetBodyCam(PlayerInfo p)
+	{
+		if (!p)
+			return;
+
+		SetSessionBool("sss_bodycam_has_save", false);
+
+		if (!IsActiveNow())
+		{
+			SetBool(p, "SH_VHSEnable", false);
+			SetBool(p, "SH_ShaderEnable", false);
+			SetBool(p, "fisheye_enabled", false);
+			return;
+		}
+
+		PushRuntimeFromPlay(p);
+		AnglesInit = false;
+		if (GetInt(p, "sss_bodycam_mode") == 1)
+			ApplyAnalogValues(p);
+		else
+			ApplyDigitalValues(p);
+	}
+
+	override void WorldTick()
+	{
+		PlayTick();
 	}
 
 	override void RenderOverlay(RenderEvent e)
@@ -50,40 +154,91 @@ class SSSBodyCamHandler : StaticEventHandler
 		if (!p || !p.mo)
 			return;
 
-		let active = CVar.FindCVar("sss_bodycam_active");
-		if (!active || !active.GetBool())
+		if (!IsActiveNow())
 		{
 			Shader.SetEnabled(p, "sss_bodycam", false);
+			Shader.SetEnabled(p, "fisheyeshader", false);
+			Shader.SetEnabled(p, "VHSCRTShader", false);
 			return;
 		}
 
-		if (CVar.GetCVar("sss_bodycam_mode", p).GetInt() == 1)
+		int mode = GetModeLive();
+		if (mode == 1)
 		{
 			Shader.SetEnabled(p, "sss_bodycam", false);
+			SyncAnalogFisheyeUi(p);
+			SyncAnalogVhsUi(p, e);
 		}
 		else
 		{
 			let rollX = CVar.FindCVar("sss_bodycam_roll_x");
 			let rollY = CVar.FindCVar("sss_bodycam_roll_y");
 			double t = (gametic + e.FracTic) / 35.0;
-			double skewX = rollX ? rollX.GetFloat() : RollSkewX;
-			double skewY = rollY ? rollY.GetFloat() : RollSkewY;
+			double skewX = rollX ? rollX.GetFloat() : 0.0;
+			double skewY = rollY ? rollY.GetFloat() : 0.0;
 
 			Shader.SetUniform1f(p, "sss_bodycam", "iTime", t);
-			Shader.SetUniform1f(p, "sss_bodycam", "chromaStrength", CVar.GetCVar("sss_bodycam_chroma", p).GetFloat());
-			Shader.SetUniform1f(p, "sss_bodycam", "noiseStrength", CVar.GetCVar("sss_bodycam_noise", p).GetFloat());
-			Shader.SetUniform1f(p, "sss_bodycam", "contrast", CVar.GetCVar("sss_bodycam_contrast", p).GetFloat());
-			Shader.SetUniform1f(p, "sss_bodycam", "saturation", CVar.GetCVar("sss_bodycam_saturation", p).GetFloat());
+			Shader.SetUniform1f(p, "sss_bodycam", "chromaStrength", GetLiveFloat("sss_bodycam_chroma_live", 0.005));
+			Shader.SetUniform1f(p, "sss_bodycam", "noiseStrength", GetLiveFloat("sss_bodycam_noise_live", 0.035));
+			Shader.SetUniform1f(p, "sss_bodycam", "contrast", GetLiveFloat("sss_bodycam_contrast_live", 1.0));
+			Shader.SetUniform1f(p, "sss_bodycam", "saturation", GetLiveFloat("sss_bodycam_saturation_live", 0.9));
 			Shader.SetUniform1f(p, "sss_bodycam", "rollSkewX", skewX);
 			Shader.SetUniform1f(p, "sss_bodycam", "rollSkewY", skewY);
-			Shader.SetUniform1f(p, "sss_bodycam", "rollStrength", CVar.GetCVar("sss_bodycam_rolling", p).GetFloat());
+			Shader.SetUniform1f(p, "sss_bodycam", "rollStrength", GetLiveFloat("sss_bodycam_rolling_live", 0.2));
 			Shader.SetEnabled(p, "sss_bodycam", true);
 
 			SyncDigitalFisheyeUi(p);
 		}
 
-		if (CVar.GetCVar("sss_bodycam_overlay", p).GetBool())
+		let overlay = CVar.FindCVar("sss_bodycam_overlay_live");
+		if (overlay && overlay.GetBool())
 			DrawOverlayUi(p);
+
+		SyncBodyCamVignetteUi(p);
+	}
+
+	ui void SyncBodyCamVignetteUi(PlayerInfo p)
+	{
+		double strength = GetLiveFloat("sss_bodycam_vig_live", 0.34);
+		double falloff = GetLiveFloat("sss_bodycam_vig_fall_live", 0.64);
+		if (strength <= 0.001)
+			return;
+
+		Shader.SetUniform1f(p, "NaturalVignette", "sss_natural_vig_strength", strength);
+		Shader.SetUniform1f(p, "NaturalVignette", "sss_natural_vig_falloff", falloff);
+		Shader.SetEnabled(p, "NaturalVignette", true);
+	}
+
+	ui void SyncAnalogFisheyeUi(PlayerInfo p)
+	{
+		double strength = GetLiveFloat("sss_bodycam_fish_live", 0.022);
+		bool chroma = CVar.GetCVar("fisheye_chromatic", p).GetBool();
+		Shader.SetUniform1f(p, "fisheyeshader", "strength", strength);
+		Shader.SetUniform1i(p, "fisheyeshader", "chromo", chroma ? 1 : 0);
+		Shader.SetEnabled(p, "fisheyeshader", true);
+	}
+
+	ui void SyncAnalogVhsUi(PlayerInfo p, RenderEvent e)
+	{
+		Shader.SetUniform1f(p, "VHSCRTShader", "iTime", (gametic + e.FracTic) / 35.0);
+		Shader.SetUniform1f(p, "VHSCRTShader", "VHSEnable", 1.0);
+		Shader.SetUniform1f(p, "VHSCRTShader", "CRTEnable", 0.0);
+		Shader.SetUniform1f(p, "VHSCRTShader", "range", GetLiveFloat("sss_bodycam_vhs_range_live", 0.05));
+		Shader.SetUniform1f(p, "VHSCRTShader", "noiseQuality", 300.0);
+		Shader.SetUniform1f(p, "VHSCRTShader", "noiseIntensity", GetLiveFloat("sss_bodycam_vhs_noise_live", 0.001));
+		Shader.SetUniform1f(p, "VHSCRTShader", "offsetIntensity", GetLiveFloat("sss_bodycam_vhs_offset_live", 0.002));
+		Shader.SetUniform1f(p, "VHSCRTShader", "colorOffsetIntensity", 0.03);
+		Shader.SetUniform1f(p, "VHSCRTShader", "lineCount", GetLiveFloat("sss_bodycam_vhs_lines_live", 250.0));
+		Shader.SetUniform1f(p, "VHSCRTShader", "lineSpeed", 1.2);
+		Shader.SetUniform1f(p, "VHSCRTShader", "lineEnable", 0.22);
+		Shader.SetUniform1f(p, "VHSCRTShader", "CRThardScan", 0.0);
+		Shader.SetUniform1f(p, "VHSCRTShader", "warpEnable", 0.0);
+		Shader.SetUniform1f(p, "VHSCRTShader", "warpMultX", 1.0);
+		Shader.SetUniform1f(p, "VHSCRTShader", "warpMultY", 1.0);
+		Shader.SetUniform1f(p, "VHSCRTShader", "grainIntensity", 0.0);
+		Shader.SetUniform1f(p, "VHSCRTShader", "contrast", 1.0);
+		Shader.SetUniform1f(p, "VHSCRTShader", "saturation", 1.0);
+		Shader.SetEnabled(p, "VHSCRTShader", true);
 	}
 
 	ui void DrawOverlayUi(PlayerInfo p)
@@ -96,9 +251,10 @@ class SSSBodyCamHandler : StaticEventHandler
 		int mins = (secs % 3600) / 60;
 		int sec = secs % 60;
 
-		String unit = CVar.GetCVar("sss_bodycam_unit", p).GetString();
-		if (unit.Length() == 0)
-			unit = "BWC-01";
+		String unit = "BWC-01";
+		let unitLive = CVar.FindCVar("sss_bodycam_unit_live");
+		if (unitLive && unitLive.GetString().Length() > 0)
+			unit = unitLive.GetString();
 
 		String timeStr = String.Format("%02d:%02d:%02d", hrs, mins, sec);
 		String line1 = "REC  " .. unit;
@@ -119,16 +275,35 @@ class SSSBodyCamHandler : StaticEventHandler
 		if (!p)
 			return;
 
-		if (!IsActive())
+		if (!IsActiveNow())
 			Enable(p);
 		else
 			Disable(p);
 	}
 
-	bool IsActive()
+	clearscope static bool IsActiveNow()
 	{
 		let c = CVar.FindCVar("sss_bodycam_active");
 		return c && c.GetBool();
+	}
+
+	clearscope static int GetModeLive()
+	{
+		let c = CVar.FindCVar("sss_bodycam_mode_live");
+		return c ? c.GetInt() : 0;
+	}
+
+	clearscope static double GetLiveFloat(String name, double fallback)
+	{
+		let c = CVar.FindCVar(name);
+		return c ? c.GetFloat() : fallback;
+	}
+
+	void SetActive(bool on)
+	{
+		let c = CVar.FindCVar("sss_bodycam_active");
+		if (c)
+			c.SetBool(on);
 	}
 
 	bool HasSave()
@@ -142,6 +317,7 @@ class SSSBodyCamHandler : StaticEventHandler
 		if (!HasSave())
 			SaveCurrent(p);
 
+		PushRuntimeFromPlay(p);
 		SetSessionStart(Level.MapTime);
 		SetRollSkew(0, 0);
 		AnglesInit = false;
@@ -151,7 +327,14 @@ class SSSBodyCamHandler : StaticEventHandler
 		else
 			ApplyDigitalValues(p);
 
-		SetSessionBool("sss_bodycam_active", true);
+		let vig = CVar.FindCVar("sss_bodycam_vig_live");
+		if (vig && vig.GetFloat() < 0.001)
+			vig.SetFloat(0.34);
+		let vigF = CVar.FindCVar("sss_bodycam_vig_fall_live");
+		if (vigF && vigF.GetFloat() < 0.55)
+			vigF.SetFloat(0.64);
+
+		SetActive(true);
 	}
 
 	void Disable(PlayerInfo p)
@@ -161,29 +344,22 @@ class SSSBodyCamHandler : StaticEventHandler
 		else
 			ResetShaderDefaults(p);
 
-		SetSessionBool("sss_bodycam_active", false);
+		SetActive(false);
+		let ml = CVar.FindCVar("sss_bodycam_mode_live");
+		if (ml) ml.SetInt(0);
 		SetSessionBool("sss_bodycam_has_save", false);
-	}
-
-	void ReapplyActive(PlayerInfo p)
-	{
-		if (!p)
-			return;
-
-		if (GetInt(p, "sss_bodycam_mode") == 1)
-			ApplyAnalogValues(p);
-		else
-			ApplyDigitalValues(p);
 	}
 
 	ui void SyncDigitalFisheyeUi(PlayerInfo p)
 	{
-		double barrel = CVar.GetCVar("sss_bodycam_barrel", p).GetFloat();
-		double fishStr = clamp(barrel * 0.85, 0.012, 0.12);
-		bool chroma = CVar.GetCVar("sss_bodycam_chroma", p).GetFloat() > 0.001;
+		double fishStr = clamp(GetLiveFloat("sss_bodycam_fish_live", 0.068), 0.012, 0.12);
+		let barrel = CVar.GetCVar("sss_bodycam_barrel", p);
+		if (barrel && barrel.GetFloat() >= 0.01)
+			fishStr = clamp(barrel.GetFloat() * 0.85, 0.012, 0.12);
+		bool chroma = GetLiveFloat("sss_bodycam_chroma_live", 0.005) > 0.001;
 
 		Shader.SetUniform1f(p, "fisheyeshader", "strength", fishStr);
-		Shader.SetUniform1i(p, "fisheyeshader", "chromo", chroma ? 1 : 0);
+		Shader.SetUniform1f(p, "fisheyeshader", "chromo", chroma ? 1 : 0);
 		Shader.SetEnabled(p, "fisheyeshader", true);
 	}
 
@@ -191,6 +367,7 @@ class SSSBodyCamHandler : StaticEventHandler
 	{
 		SetBool(p, "SH_ShaderEnable", false);
 		SetBool(p, "SH_VHSEnable", false);
+		SetBool(p, "fisheye_enabled", true);
 		RollSkewX = 0;
 		RollSkewY = 0;
 	}
@@ -199,14 +376,11 @@ class SSSBodyCamHandler : StaticEventHandler
 	{
 		SetBool(p, "SH_ShaderEnable", true);
 		SetBool(p, "SH_VHSEnable", true);
-		SetFloat(p, "SH_VHSLineCount", 371.875);
-		SetFloat(p, "SH_VHSNoiseIntensity", 0.00103125);
-		SetFloat(p, "SH_VHSNoiseQuality", 500.0);
-		SetFloat(p, "SH_VHSOffsetIntensity", 0.0221875);
-		SetFloat(p, "SH_VHSRange", 0.05);
 		SetBool(p, "fisheye_chromatic", true);
 		SetBool(p, "fisheye_enabled", true);
-		SetFloat(p, "fisheye_strength", 0.035);
+		double fishStr = GetFloat(p, "fisheye_strength");
+		if (fishStr < 0.001)
+			SetFloat(p, "fisheye_strength", 0.015);
 	}
 
 	void UpdateRollingShutter(PlayerInfo p)
