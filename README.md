@@ -2,6 +2,8 @@
 
 A universal post-processing and material enhancement addon for Doom/Doom 2/Heretic/Hexen on **GZDoom / UZDoom**. It bundles ray-trace-*lite* screen effects, ReLite-inspired world lighting, integrated **Dark Doom**, MariFX grading, ACES tonemap, atmospheric haze, **BodyCam Visual**, and **28 one-click Visual Presets** that configure the whole stack at once.
 
+https://www.moddb.com/mods/dds-texturespbr-plus
+
 <img width="578" height="456" alt="Screenshot 2026-06-21 021757" src="https://github.com/user-attachments/assets/6153699b-2331-4cee-ba3a-d919c10cd3dd" />
 
 **Requires UZDoom/GZDoom 4.10+** with the **hardware renderer** (OpenGL or Vulkan). Software renderer is not supported.
