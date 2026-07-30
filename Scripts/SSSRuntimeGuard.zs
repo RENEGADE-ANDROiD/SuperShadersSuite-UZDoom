@@ -151,7 +151,6 @@ class SSSPostProcessSuppressor : StaticEventHandler
 
 	clearscope static void DisableSSSPostShaders(PlayerInfo p)
 	{
-		bool bodycam = BodyCamActive();
 		Shader.SetEnabled(p, "sss_mfx_lumasharp", false);
 		Shader.SetEnabled(p, "mfx_grading", false);
 		Shader.SetEnabled(p, "mfx_technicolor", false);
@@ -167,12 +166,9 @@ class SSSPostProcessSuppressor : StaticEventHandler
 		Shader.SetEnabled(p, "mfx_vignette", false);
 		Shader.SetEnabled(p, "mfx_retrofx", false);
 		Shader.SetEnabled(p, "mfx_palette", false);
-		if (!bodycam)
-		{
-			Shader.SetEnabled(p, "sss_bodycam", false);
-			Shader.SetEnabled(p, "fisheyeshader", false);
-			Shader.SetEnabled(p, "VHSCRTShader", false);
-		}
+		Shader.SetEnabled(p, "sss_bodycam", false);
+		Shader.SetEnabled(p, "fisheyeshader", false);
+		Shader.SetEnabled(p, "VHSCRTShader", false);
 		Shader.SetEnabled(p, "sss_colorbleed", false);
 		Shader.SetEnabled(p, "sss_fluidssr", false);
 		Shader.SetEnabled(p, "sss_contactao", false);
@@ -182,11 +178,6 @@ class SSSPostProcessSuppressor : StaticEventHandler
 		Shader.SetEnabled(p, "AcesTonemap", false);
 		Shader.SetEnabled(p, "oldvideoshader", false);
 		Shader.SetEnabled(p, "db_softshade", false);
-		if (!bodycam)
-		{
-			Shader.SetEnabled(p, "fisheyeshader", false);
-			Shader.SetEnabled(p, "VHSCRTShader", false);
-		}
 		Shader.SetEnabled(p, "NaturalVignette", false);
 		Shader.SetEnabled(p, "lensflareshader", false);
 		Shader.SetEnabled(p, "vignetteshader", false);
@@ -195,5 +186,7 @@ class SSSPostProcessSuppressor : StaticEventHandler
 		Shader.SetEnabled(p, "WorldGammaPreBloom", false);
 		Shader.SetEnabled(p, "BloomBoostPre", false);
 		Shader.SetEnabled(p, "BloomBoostPost", false);
+		Shader.SetEnabled(p, "sss_psxlight", false);
+		DisableScreenMShaders(p);
 	}
 }

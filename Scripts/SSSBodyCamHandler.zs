@@ -154,6 +154,14 @@ class SSSBodyCamHandler : StaticEventHandler
 		if (!p || !p.mo)
 			return;
 
+		if (!CVar.GetCVar("sss_post_stack", p).GetBool())
+		{
+			Shader.SetEnabled(p, "sss_bodycam", false);
+			Shader.SetEnabled(p, "fisheyeshader", false);
+			Shader.SetEnabled(p, "VHSCRTShader", false);
+			return;
+		}
+
 		if (!IsActiveNow())
 		{
 			Shader.SetEnabled(p, "sss_bodycam", false);

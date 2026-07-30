@@ -11,6 +11,7 @@ class SSSRelightEnhance
 	double IndoorLightAvg;
 	double SkyLightAvg;
 	Color SkySampleColor;
+	static const int GldefObjectCap[] = { 96 };
 
 	play void RunApplyAll()
 	{
@@ -25,6 +26,8 @@ class SSSRelightEnhance
 		bool window = CVar.FindCVar("sss_relight_window").GetBool() && !perf;
 		bool texture = CVar.FindCVar("sss_relight_texture").GetBool() && !perf;
 		bool gldef = CVar.FindCVar("sss_relight_gldef").GetBool() && !perf;
+		if (gldef && ShouldSkipGldefLights())
+			gldef = false;
 
 		if (!flats && !recursive && !dimBleed && !window && !texture && !gldef)
 			return;
@@ -604,23 +607,51 @@ class SSSRelightEnhance
 		return count;
 	}
 
+	private play bool ShouldSkipGldefLights()
+	{
+		if (CVar.FindCVar("sss_performance").GetBool())
+			return true;
+
+		bool mapSafe = CVar.FindCVar("sss_large_map_safe").GetBool();
+		if (mapSafe && (SSSReflectionHelper.SSS_IsHeavyMap() || SSSReflectionHelper.SSS_IsMediumMap()))
+			return true;
+
+		// Many GLDEFS lumps (PBR / mega-packs) make full ingest freeze UZDoom.
+		int lumpCount = 0;
+		int lump = -1;
+		int start = 0;
+		while ((lump = Wads.FindLump("GLDEFS", start, Wads.ANYNAMESPACE)) >= 0)
+		{
+			lumpCount++;
+			if (lumpCount > 8)
+				return true;
+			start = lump + 1;
+		}
+		return false;
+	}
+
 	private play void BuildGldefLightCache()
 	{
 		int lump = -1;
 		int start = 0;
 		while ((lump = Wads.FindLump("GLDEFS", start, Wads.ANYNAMESPACE)) >= 0)
 		{
-			ParseGldefLump(Wads.ReadLump(lump));
+			if (GldefClasses.Size() >= GldefObjectCap[0])
+				break;
+			ParseGldefLump(Wads.ReadLump(lump), GldefObjectCap[0]);
 			start = lump + 1;
 		}
 	}
 
-	private play void ParseGldefLump(String text)
+	private play void ParseGldefLump(String text, int objectCap)
 	{
 		Array<String> lines;
 		text.Split(lines, "\n");
 		for (int i = 0; i + 1 < lines.Size(); i++)
 		{
+			if (GldefClasses.Size() >= objectCap)
+				return;
+
 			String line = lines[i].MakeLower();
 			line.StripLeft("\t ");
 			if (line.IndexOf("object ") != 0)

@@ -71,7 +71,7 @@ user int sss_shadow_interval = 4;
 user bool sss_shadow_players = true;
 user bool sss_shadow_monsters = false;
 
-server int ddz_mode = 3;
+server int ddz_mode = 2;
 server int ddz_preset = 3;
 server int ddz_pregain = 0;
 server int ddz_postgain = 0;
@@ -88,6 +88,9 @@ user bool sss_darkdoom_flashlight = true;
 user int sss_visual_preset = 14;
 user bool sss_visual_preset_auto = true;
 user int sss_preset_applied = 14;
+user nosave string sss_custom_preset1 = "";
+user nosave string sss_custom_preset2 = "";
+user nosave string sss_custom_preset3 = "";
 nosave bool sss_menu_open = false;
 nosave bool sss_preset_preview = false;
 nosave bool sss_close_menu_after_apply = false;
@@ -125,6 +128,10 @@ user bool sss_atmo_deband = false;
 user float sss_atmo_deband_strength = 0.008;
 user float sss_natural_vig_strength = 0.28;
 user float sss_natural_vig_falloff = 0.55;
+
+user bool sss_psxlight = false;
+user int sss_psxlight_mode = 0;
+user bool sss_psx_banding = false;
 
 user bool tc_pp_lensflares = false;
 user float tc_pp_lensflares_threshold = 0.75;

@@ -467,6 +467,14 @@ HardwareShader PostProcess Scene
 
 HardwareShader PostProcess scene
 {
+	Name "sss_psxlight"
+	Shader "SHADERS/PostProcess/PSXLight.fp" 330
+	Uniform int mode
+	Uniform int banding
+}
+
+HardwareShader PostProcess scene
+{
 	Name "oldvideoshader"
 	Shader "shaders/PostProcess/OldVideo.fp" 330
 	Uniform float timer

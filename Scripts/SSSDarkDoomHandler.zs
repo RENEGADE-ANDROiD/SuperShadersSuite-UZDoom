@@ -33,9 +33,14 @@ class SSSDarkDoom_Handler : EventHandler
 
 		if (preset <= 0)
 		{
+			// ResetToDefault always writes to the net stream — only on transition.
+			if (LastReliteApplied == 0)
+				return;
 			ResetReliteDefaults();
+			LastReliteApplied = 0;
 			return;
 		}
+		LastReliteApplied = preset;
 
 		int p = clamp(preset, 1, 8);
 
@@ -118,22 +123,27 @@ class SSSDarkDoom_Handler : EventHandler
 		ResetReliteCVar("sss_shadows");
 	}
 
+	// Skip identical values — user CVar writes go through the bounded per-tic
+	// net command stream even when unchanged and can overflow it.
 	private void SetReliteFloat(String name, double value)
 	{
 		let c = CVar.FindCVar(name);
-		if (c) c.SetFloat(value);
+		if (c && abs(c.GetFloat() - value) > 0.0001)
+			c.SetFloat(value);
 	}
 
 	private void SetReliteInt(String name, int value)
 	{
 		let c = CVar.FindCVar(name);
-		if (c) c.SetInt(value);
+		if (c && c.GetInt() != value)
+			c.SetInt(value);
 	}
 
 	private void SetReliteBool(String name, bool value)
 	{
 		let c = CVar.FindCVar(name);
-		if (c) c.SetBool(value);
+		if (c && c.GetBool() != value)
+			c.SetBool(value);
 	}
 
 	private void ResetReliteCVar(String name)
@@ -142,7 +152,9 @@ class SSSDarkDoom_Handler : EventHandler
 		if (c) c.ResetToDefault();
 	}
 
-	Array<int> BaseLightLevels;
+	transient Array<int> BaseLightLevels;
+	transient int LastReliteApplied;
+	transient ui int UiLastSentFp;
 	int Mode, Preset, PreGain, PostGain, FogDensity, MinLight;
 	int OldMode, OldPreset, OldPreGain, OldPostGain, OldFogDensity, OldMinLight;
 	double SkyMode, OldSkyMode;
@@ -150,16 +162,22 @@ class SSSDarkDoom_Handler : EventHandler
 	int LastAppliedFp;
 	int BaseAdjustment, FinalAdjustment;
 	bool IsSky;
-	bool SectorDarkenPending;
-	int SectorDarkenCursor;
+	transient bool BaselinesReady;
+	transient bool SectorDarkenPending;
+	transient int SectorDarkenCursor;
 	static const int SectorDarkenChunk[] = {64};
+	static const int SyncApplySectorCap[] = {512};
 
 	override void WorldLoaded(WorldEvent e)
 	{
 		LastAppliedFp = -1;
+		LastReliteApplied = -999;
 		SectorDarkenPending = false;
 		SectorDarkenCursor = 0;
 		BaseLightLevels.Clear();
+		BaselinesReady = false;
+		// Force first apply after FinishMapLoadLighting (do not Sync Old* yet).
+		OldMode = -1;
 
 		if (!CVar.FindCVar("ddz_lighting").GetBool())
 		{
@@ -167,9 +185,6 @@ class SSSDarkDoom_Handler : EventHandler
 			Lighting effect;
 			while (effect = Lighting(it.Next())) { effect.Destroy(); }
 		}
-
-		// Baselines + sector pass run in SSSMapLoadHandler after enhanced lighting.
-		SyncDarkDoomCvarState();
 
 		if (e.IsReopen)
 		{
@@ -199,6 +214,16 @@ class SSSDarkDoom_Handler : EventHandler
 		BaseLightLevels.Clear();
 		for (int i = 0; i < Level.Sectors.Size(); i++)
 			BaseLightLevels.Push(Level.Sectors[i].LightLevel);
+		BaselinesReady = (Level.Sectors.Size() > 0
+			&& BaseLightLevels.Size() == Level.Sectors.Size());
+	}
+
+	// Baselines are captured once after SSS lighting — never re-snapshot darkened sectors.
+	bool EnsureBaseLightLevels()
+	{
+		return BaselinesReady
+			&& Level.Sectors.Size() > 0
+			&& BaseLightLevels.Size() == Level.Sectors.Size();
 	}
 
 	// Called last on map load — baselines reflect SSS lighting passes, not raw IWAD levels.
@@ -207,8 +232,8 @@ class SSSDarkDoom_Handler : EventHandler
 		if (!CVar.FindCVar("ddz_lighting").GetBool())
 			return;
 
-		SyncDarkDoomCvarState();
-		QueueSectorDarkening(true);
+		OldMode = -1;
+		ChangeLighting(true);
 	}
 
 	override void PlayerSpawned(PlayerEvent e)
@@ -221,6 +246,22 @@ class SSSDarkDoom_Handler : EventHandler
 		player.mo.GiveInventory(FlashlightClass, 1);
 	}
 
+	// Menu edits must apply while paused, but an unconditional per-tick netevent
+	// flood overflows the bounded net command stream. Send only while a menu is
+	// open AND the ddz cvars actually changed, at most once per distinct change.
+	override void UiTick()
+	{
+		if (!Menu.GetCurrentMenu())
+			return;
+
+		int fp = DarkDoomCvarFingerprint();
+		if (fp == LastAppliedFp || fp == UiLastSentFp)
+			return;
+
+		UiLastSentFp = fp;
+		EventHandler.SendNetworkEvent("SSSUpdateDarkDoom");
+	}
+
 	override void WorldTick()
 	{
 		if (SectorDarkenPending)
@@ -229,7 +270,6 @@ class SSSDarkDoom_Handler : EventHandler
 			return;
 		}
 
-		// Play-context only — UiTick CVAR writes can desync UI vs play and flood netevents.
 		if (Level.MapTime & 3)
 			return;
 
@@ -245,28 +285,19 @@ class SSSDarkDoom_Handler : EventHandler
 		if (e.Name == "SSSUpdateDarkDoom")
 			ChangeLighting(false);
 		if (e.Name == "SSSReapplyDarkDoomSectors")
-			QueueSectorDarkening();
+		{
+			if (Level.Sectors.Size() > SyncApplySectorCap[0])
+				QueueSectorDarkening(true);
+			else
+				ApplyAllSectorDarkening();
+		}
 		if (e.Name == "sss_apply_reflections")
 			SSSReflectionHelper.ApplyPlaneReflections();
 	}
 
+	// Server ddz_* via FindCVar (upstream bare-cvar style) — avoids UI/play GetCVar desync.
 	void ReadDarkDoomCvars(PlayerInfo p = null)
 	{
-		if (!p)
-			p = players[consoleplayer];
-
-		if (p)
-		{
-			Mode = CVar.GetCVar("ddz_mode", p).GetInt();
-			Preset = CVar.GetCVar("ddz_preset", p).GetInt();
-			PreGain = CVar.GetCVar("ddz_pregain", p).GetInt();
-			PostGain = CVar.GetCVar("ddz_postgain", p).GetInt();
-			SkyMode = CVar.GetCVar("ddz_skymode", p).GetFloat();
-			FogDensity = CVar.GetCVar("ddz_fog", p).GetInt();
-			MinLight = CVar.GetCVar("ddz_minlight", p).GetInt();
-			return;
-		}
-
 		Mode = CVar.FindCVar("ddz_mode").GetInt();
 		Preset = CVar.FindCVar("ddz_preset").GetInt();
 		PreGain = CVar.FindCVar("ddz_pregain").GetInt();
@@ -333,25 +364,42 @@ class SSSDarkDoom_Handler : EventHandler
 		Level.Sectors[i].SetFogDensity(int(FinalFogDensity));
 	}
 
-	void QueueSectorDarkening(bool restart = false)
+	// Synchronous full-map rewrite (DarkDoomZ ChangeLighting body).
+	bool ApplyAllSectorDarkening()
 	{
-		if (BaseLightLevels.Size() != Level.Sectors.Size())
-			return;
+		if (!EnsureBaseLightLevels())
+			return false;
+
+		ReadDarkDoomCvars();
+		BaseAdjustment = 32 * Preset;
+		SectorDarkenPending = false;
+		SectorDarkenCursor = 0;
+
+		for (int i = 0; i < BaseLightLevels.Size(); i++)
+			ApplyOneSectorDarkening(i);
+		return true;
+	}
+
+	bool QueueSectorDarkening(bool restart = false)
+	{
+		if (!EnsureBaseLightLevels())
+			return false;
 
 		if (SectorDarkenPending && !restart)
-			return;
+			return true;
 
 		ReadDarkDoomCvars();
 		BaseAdjustment = 32 * Preset;
 		SectorDarkenCursor = 0;
 		SectorDarkenPending = true;
+		return true;
 	}
 
 	void ApplySectorDarkeningChunk(int budget)
 	{
 		if (!SectorDarkenPending)
 			return;
-		if (BaseLightLevels.Size() != Level.Sectors.Size())
+		if (!EnsureBaseLightLevels())
 		{
 			SectorDarkenPending = false;
 			return;
@@ -381,7 +429,10 @@ class SSSDarkDoom_Handler : EventHandler
 
 	void ApplySectorDarkening()
 	{
-		QueueSectorDarkening();
+		if (Level.Sectors.Size() > SyncApplySectorCap[0])
+			QueueSectorDarkening();
+		else
+			ApplyAllSectorDarkening();
 	}
 
 	void ChangeLighting(bool forceRelite)
@@ -391,10 +442,9 @@ class SSSDarkDoom_Handler : EventHandler
 
 	void ChangeLightingPlay(PlayerInfo p, bool forceRelite)
 	{
-		ReadDarkDoomCvars(p);
-		bool reliteSync = p
-			? CVar.GetCVar("sss_darkdoom_relite_sync", p).GetBool()
-			: CVar.FindCVar("sss_darkdoom_relite_sync").GetBool();
+		ReadDarkDoomCvars();
+		bool reliteSync = CVar.FindCVar("sss_darkdoom_relite_sync").GetBool();
+		bool lightingOn = CVar.FindCVar("ddz_lighting").GetBool();
 
 		bool changed = forceRelite || (
 			OldMode != Mode ||
@@ -406,23 +456,35 @@ class SSSDarkDoom_Handler : EventHandler
 			OldMinLight != MinLight ||
 			OldReliteSync != reliteSync);
 
-		if (changed)
+		if (!changed)
 		{
-			bool visualPresetOwnsRelite = reliteSync && p
-				&& CVar.GetCVar("sss_visual_preset_auto", p).GetBool()
-				&& CVar.GetCVar("sss_visual_preset", p).GetInt() > 0;
+			LastAppliedFp = DarkDoomCvarFingerprint();
+			return;
+		}
 
-			if (!visualPresetOwnsRelite)
-			{
-				if (Mode >= 10)
-					ApplyReliteClassicMode(Mode);
-				else if (Mode == 0 || Preset == 0)
-					ApplyRelitePreset(0);
-				else
-					ApplyRelitePreset(Preset);
-			}
+		bool visualPresetOwnsRelite = reliteSync && p
+			&& CVar.GetCVar("sss_visual_preset_auto", p).GetBool()
+			&& CVar.GetCVar("sss_visual_preset", p).GetInt() > 0;
 
-			QueueSectorDarkening(true);
+		if (!visualPresetOwnsRelite)
+		{
+			if (Mode >= 10)
+				ApplyReliteClassicMode(Mode);
+			else if (Mode == 0 || Preset == 0)
+				ApplyRelitePreset(0);
+			else
+				ApplyRelitePreset(Preset);
+		}
+
+		bool appliedOk = true;
+		if (lightingOn)
+		{
+			if (Level.Sectors.Size() > SyncApplySectorCap[0])
+				appliedOk = QueueSectorDarkening(true);
+			else
+				appliedOk = ApplyAllSectorDarkening();
+			if (!appliedOk)
+				return;
 		}
 
 		OldMode = Mode;
@@ -434,27 +496,20 @@ class SSSDarkDoom_Handler : EventHandler
 		OldMinLight = MinLight;
 		OldReliteSync = reliteSync;
 
-		if (changed)
-			SSSReflectionHelper.ApplyPlaneReflections();
-
-		LastAppliedFp = DarkDoomCvarFingerprint(p);
+		SSSReflectionHelper.ApplyPlaneReflections();
+		LastAppliedFp = DarkDoomCvarFingerprint();
 	}
 
 	clearscope static int DarkDoomCvarFingerprint(PlayerInfo p = null)
 	{
-		if (!p)
-			p = players[consoleplayer];
-		if (!p)
-			return 0;
-
-		int fp = CVar.GetCVar("ddz_mode", p).GetInt();
-		fp = fp * 31 + CVar.GetCVar("ddz_preset", p).GetInt();
-		fp = fp * 31 + CVar.GetCVar("ddz_pregain", p).GetInt();
-		fp = fp * 31 + CVar.GetCVar("ddz_postgain", p).GetInt();
-		fp = fp * 31 + int(CVar.GetCVar("ddz_skymode", p).GetFloat() * 1000.0);
-		fp = fp * 31 + CVar.GetCVar("ddz_fog", p).GetInt();
-		fp = fp * 31 + CVar.GetCVar("ddz_minlight", p).GetInt();
-		fp = fp * 31 + (CVar.GetCVar("sss_darkdoom_relite_sync", p).GetBool() ? 1 : 0);
+		int fp = CVar.FindCVar("ddz_mode").GetInt();
+		fp = fp * 31 + CVar.FindCVar("ddz_preset").GetInt();
+		fp = fp * 31 + CVar.FindCVar("ddz_pregain").GetInt();
+		fp = fp * 31 + CVar.FindCVar("ddz_postgain").GetInt();
+		fp = fp * 31 + int(CVar.FindCVar("ddz_skymode").GetFloat() * 1000.0);
+		fp = fp * 31 + CVar.FindCVar("ddz_fog").GetInt();
+		fp = fp * 31 + CVar.FindCVar("ddz_minlight").GetInt();
+		fp = fp * 31 + (CVar.FindCVar("sss_darkdoom_relite_sync").GetBool() ? 1 : 0);
 		return fp;
 	}
 }
@@ -681,7 +736,7 @@ class SSSDarkDoomOptionMenu : OptionMenu
 	}
 }
 
-// Runs last on map load so Dark Doom sector levels win over enhanced-lighting passes.
+// Runs last on map load so DarkDoomZ sector levels win over enhanced-lighting passes.
 class SSSMapLoadHandler : EventHandler
 {
 	override void WorldLoaded(WorldEvent e)

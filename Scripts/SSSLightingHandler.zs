@@ -20,17 +20,17 @@ class SSSLightingHandler : EventHandler
 	const LEFT = 0;
 	const RIGHT = 1;
 
-	Array<Sector> biasVisited;
-	Array<SSSSectorRec> sectorRecords;
-	Array<int> vertexLineStart;
-	Array<int> lineFlat;
+	transient Array<Sector> biasVisited;
+	transient Array<SSSSectorRec> sectorRecords;
+	transient Array<int> vertexLineStart;
+	transient Array<int> lineFlat;
 
-	bool LightingLoadPending;
-	int LightingLoadPhase;
-	bool LightingLoadSmoothWalls;
-	bool LightingLoadRecursiveRelight;
-	bool LightingLoadPerf;
-	bool DeferDarkDoomFinish;
+	transient bool LightingLoadPending;
+	transient int LightingLoadPhase;
+	transient bool LightingLoadSmoothWalls;
+	transient bool LightingLoadRecursiveRelight;
+	transient bool LightingLoadPerf;
+	transient bool DeferDarkDoomFinish;
 
 	static SSSLightingHandler FindHandler()
 	{
@@ -88,10 +88,15 @@ class SSSLightingHandler : EventHandler
 		LightingLoadRecursiveRelight = CVar.FindCVar("sss_relight_recursive").GetBool();
 
 		// Spread map-load work across ticks when safe mode is on.
+		// GLDEF / texture lights are too heavy for the small-map sync fast-path.
+		bool heavyRelight = CVar.FindCVar("sss_relight_gldef").GetBool()
+			|| CVar.FindCVar("sss_relight_texture").GetBool();
 		bool fastApply = SSSReflectionHelper.IsPresetFastApply();
-		if (mapSafe && fastApply && !heavyMap && Level.Sectors.Size() < 512)
+		if (mapSafe && fastApply && !heavyMap && !heavyRelight && Level.Sectors.Size() < 512)
 			RunLightingLoadSync();
 		else if (mapSafe)
+			QueueChunkedLightingLoad();
+		else if (heavyRelight)
 			QueueChunkedLightingLoad();
 		else
 			RunLightingLoadSync();
@@ -540,7 +545,17 @@ class SSSLightingHandler : EventHandler
 		if (frontSec == sec)
 		{
 			Side wall = lin.Sidedef[Line.Front];
+			if (!wall)
+				return -1, 666;
 			return wall.index(), wall.Light;
+		}
+
+		if (!frontSec)
+		{
+			Side backWall = lin.Sidedef[Line.Back];
+			if (backWall)
+				return backWall.index(), backWall.Light;
+			return -1, 666;
 		}
 
 		foreach (slin : frontSec.Lines)
@@ -554,6 +569,8 @@ class SSSLightingHandler : EventHandler
 			if (bsec == sec)
 			{
 				Side wall = lin.Sidedef[Line.Front];
+				if (!wall)
+					return -1, 666;
 				return wall.index(), wall.Light;
 			}
 		}

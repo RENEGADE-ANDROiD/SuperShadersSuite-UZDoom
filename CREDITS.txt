@@ -116,6 +116,11 @@ Legal terms and license texts: see LICENSE in this PK3.
     Ordered dither / palette-style reduction.
     SHADERS/PostProcess/SoftShade.fp, SoftShadePostProcessHandler.zs
 
+  PSX Light (console gamma + 5:5:5 banding)
+    Adapted from PSX DOOM CE by Molecicco (psxlight.fp only — material
+    psx.fp lighting stack is not included).
+    SHADERS/PostProcess/PSXLight.fp, Scripts/SSSPSXHandler.zs
+
   Old video / aged-film defects
     SHADERS/PostProcess/OldVideo.fp, OldVideoShaderHandler in zscript.zc
 

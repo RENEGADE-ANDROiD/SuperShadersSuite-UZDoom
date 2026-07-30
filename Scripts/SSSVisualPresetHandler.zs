@@ -20,6 +20,12 @@ class SSSVisualPresets
 
 	clearscope static void Apply(int preset)
 	{
+		if (preset >= 30 && preset <= 32)
+		{
+			SSSCustomPresetUtility.LoadSlot(preset - 29);
+			return;
+		}
+
 		if (preset <= 0)
 			return;
 
@@ -57,7 +63,7 @@ class SSSVisualPresets
 		case 25: ApplyUltraviolence(); break;
 		case 26: ApplyVaporwave(); break;
 		case 27: ApplyBrutalCarnage(); break;
-		case 28: ApplySoftwareNostalgia(); break;
+		case 28: ApplyPSXClassic(); break;
 		case 29: ApplyVRComfort(); break;
 		}
 
@@ -1354,9 +1360,9 @@ class SSSVisualPresets
 		SetFloat("sss_pp_flat_soften", 0.82);
 	}
 
-	clearscope static void ApplySoftwareNostalgia()
+	clearscope static void ApplyPSXClassic()
 	{
-		// Classic software-renderer nostalgia — SoftShade dither, warm PLAYPAL, no CRT stack.
+		// PlayStation-era console look — SoftShade dither, chunky Screen-M, 5:5:5 banding.
 		SetRTLite(false, 0.0, 2.0, false, 0.0);
 		SetWallBake(0.0);
 
@@ -1386,9 +1392,12 @@ class SSSVisualPresets
 		SetInt("ddz_postgain", 14);
 		SetFilmic(false, "TonemapDefault");
 		SetACES(false);
-		SetScreenMRetro();
-		SetSoftShade(true, 0.058);
-		SetMariFXSoftwareNostalgia();
+		SetScreenMPSX();
+		SetSoftShade(true, 0.07);
+		SetMariFXPSX();
+		SetBool("sss_psxlight", true);
+		SetInt("sss_psxlight_mode", 1);
+		SetBool("sss_psx_banding", true);
 		SetPostFXEx(false, 0.0, false, 0.0);
 		SetFilmGrain(false);
 		SetBloomBoost(false, 1.0, 100.0, 0.0);
@@ -1745,6 +1754,29 @@ class SSSVisualPresets
 		SetFloat("gl_screem_kelvin", 320.0);
 	}
 
+	// PlayStation-era — chunky pixels, mild pal crush, minimal CRT phosphor.
+	clearscope static void SetScreenMPSX()
+	{
+		SetBool("gl_screem", true);
+		SetFloat("gl_screem_oldpallut", 38.0);
+		SetFloat("gl_screem_ybias", 1.0);
+		SetInt("gl_screem_wide", 0);
+		SetInt("gl_screem_res_mode", 0);
+		SetInt("gl_screem_res_detail", 3);
+		SetBool("gl_screem_tonecontrols", true);
+		SetFloat("gl_screem_gamma", 1.02);
+		SetFloat("gl_screem_brightness", 2.0);
+		SetFloat("gl_screem_contrast", 104.0);
+		SetFloat("gl_screem_saturation", 88.0);
+		SetBool("gl_screem_phosphor", true);
+		SetFloat("gl_screem_phosphor_amount", 8.0);
+		SetFloat("gl_screem_phosphor_residue", 4.0);
+		SetInt("gl_screem_grillmode", 0);
+		SetFloat("gl_screem_grilldepth", 0.0);
+		SetInt("gl_screem_tempmode", 2);
+		SetFloat("gl_screem_kelvin", 280.0);
+	}
+
 	// Alien: Isolation — MOTHER-style green phosphor CRT, scanlines, cool industrial grade.
 	clearscope static void SetScreenMAlienTerminal()
 	{
@@ -1783,6 +1815,9 @@ class SSSVisualPresets
 		SetDepthProxy(false, 0.0);
 		SetFloat("sss_pp_flat_soften", 0.65);
 		SetFloat("sss_atmo_haze_tint", 0.50);
+		SetBool("sss_psxlight", false);
+		SetInt("sss_psxlight_mode", 0);
+		SetBool("sss_psx_banding", false);
 		SetBool("mfx_cmatenable", false);
 		SetBool("mfx_hsenable", false);
 		SetBool("mfx_lutenable", false);
@@ -1890,17 +1925,17 @@ class SSSVisualPresets
 		SetFloat("mfx_ns", 0.0);
 	}
 
-	clearscope static void SetMariFXSoftwareNostalgia()
+	clearscope static void SetMariFXPSX()
 	{
 		SetMariFXLite(true);
-		SetFloat("mfx_lsharpblend", 0.26);
-		SetFloat("mfx_lsharpradius", 0.65);
+		SetFloat("mfx_lsharpblend", 0.22);
+		SetFloat("mfx_lsharpradius", 0.55);
 		SetBool("mfx_gradeenable", true);
-		SetFloat("mfx_gradecolfact", 0.05);
-		SetFloat("mfx_gradesatmul", 0.96);
-		SetFloat("mfx_gradecol_r", 0.06);
-		SetFloat("mfx_gradecol_g", 0.04);
-		SetFloat("mfx_gradecol_b", -0.03);
+		SetFloat("mfx_gradecolfact", 0.04);
+		SetFloat("mfx_gradesatmul", 0.88);
+		SetFloat("mfx_gradecol_r", -0.02);
+		SetFloat("mfx_gradecol_g", 0.0);
+		SetFloat("mfx_gradecol_b", 0.04);
 		SetBool("mfx_vigenable", false);
 		SetBool("mfx_ne", false);
 		SetBool("mfx_cmatenable", false);
@@ -2088,46 +2123,56 @@ class SSSVisualPresets
 		SetBool("mfx_ne", false);
 	}
 
+	// All setters skip identical values: user/server CVar writes are routed
+	// through the bounded per-tic net command stream even when unchanged, and
+	// mass redundant writes can overflow it ("write past end of stream").
 	private clearscope static void SetFloat(String name, double value)
 	{
 		let c = GetCVarForApply(name);
-		if (c) c.SetFloat(value);
+		if (c && abs(c.GetFloat() - value) > 0.0001)
+			c.SetFloat(value);
 	}
 
 	private clearscope static void SetMirrorFloat(String name, double value)
 	{
 		let c = CVar.FindCVar(name);
-		if (c) c.SetFloat(value);
+		if (c && abs(c.GetFloat() - value) > 0.0001)
+			c.SetFloat(value);
 	}
 
 	private clearscope static void SetMirrorBool(String name, bool value)
 	{
 		let c = CVar.FindCVar(name);
-		if (c) c.SetBool(value);
+		if (c && c.GetBool() != value)
+			c.SetBool(value);
 	}
 
 	private clearscope static void SetMirrorString(String name, String value)
 	{
 		let c = CVar.FindCVar(name);
-		if (c) c.SetString(value);
+		if (c && c.GetString() != value)
+			c.SetString(value);
 	}
 
 	private clearscope static void SetInt(String name, int value)
 	{
 		let c = GetCVarForApply(name);
-		if (c) c.SetInt(value);
+		if (c && c.GetInt() != value)
+			c.SetInt(value);
 	}
 
 	private clearscope static void SetBool(String name, bool value)
 	{
 		let c = GetCVarForApply(name);
-		if (c) c.SetBool(value);
+		if (c && c.GetBool() != value)
+			c.SetBool(value);
 	}
 
 	private clearscope static void SetString(String name, String value)
 	{
 		let c = GetCVarForApply(name);
-		if (c) c.SetString(value);
+		if (c && c.GetString() != value)
+			c.SetString(value);
 		if (name == "sss_bodycam_unit")
 			SetMirrorString("sss_bodycam_unit_live", value);
 	}
@@ -2268,7 +2313,8 @@ class SSSVisualPresetHandler : EventHandler
 	static const int PresetCycleOrder[] =
 	{
 		1, 2, 14, 13, 3, 4, 6, 20, 5, 7, 8, 9, 10, 11, 12,
-		15, 16, 17, 22, 23, 24, 25, 26, 27, 28, 29, 18, 19
+		15, 16, 17, 22, 23, 24, 25, 26, 27, 28, 29, 18, 19,
+		30, 31, 32
 	};
 
 	transient int HintExpireMapTime;
@@ -2306,10 +2352,13 @@ class SSSVisualPresetHandler : EventHandler
 		case 25: return "Ultraviolence";
 		case 26: return "Vaporwave — Outrun";
 		case 27: return "Brutal Carnage";
-		case 28: return "Software Nostalgia";
+		case 28: return "PSX Classic";
 		case 29: return "VR Comfort";
 		case 18: return "Heretic Haven";
 		case 19: return "Hexen Crypt";
+		case 30: return "Custom 1";
+		case 31: return "Custom 2";
+		case 32: return "Custom 3";
 		default: return "Custom (Manual)";
 		}
 	}
@@ -2402,22 +2451,22 @@ class SSSVisualPresetHandler : EventHandler
 			return;
 
 		let playPreset = CVar.GetCVar("sss_visual_preset", p);
-		if (playPreset)
+		if (playPreset && playPreset.GetInt() != preset)
 			playPreset.SetInt(preset);
 
 		let playApplied = CVar.GetCVar("sss_preset_applied", p);
-		if (playApplied)
+		if (playApplied && playApplied.GetInt() != preset)
 			playApplied.SetInt(preset);
 	}
 
 	clearscope static void SyncPresetMarkers(int preset)
 	{
 		let uiPreset = CVar.FindCVar("sss_visual_preset");
-		if (uiPreset)
+		if (uiPreset && uiPreset.GetInt() != preset)
 			uiPreset.SetInt(preset);
 
 		let uiApplied = CVar.FindCVar("sss_preset_applied");
-		if (uiApplied)
+		if (uiApplied && uiApplied.GetInt() != preset)
 			uiApplied.SetInt(preset);
 
 		SyncPresetToPlayContexts(preset);
@@ -2430,7 +2479,7 @@ class SSSVisualPresetHandler : EventHandler
 		ShowQueuedCycleToast();
 
 		let track = CVar.FindCVar("sss_ddz_track_fp");
-		if (track)
+		if (track && track.GetInt() != -1)
 			track.SetInt(-1);
 
 		SanitizeUnsafeStackCvars();
@@ -2522,19 +2571,32 @@ class SSSVisualPresetHandler : EventHandler
 			blend.SetFloat(0.65);
 
 		let shift = SSSVisualPresets.GetCVarForApply("mfx_bssshiftenable");
-		if (shift)
+		if (shift && shift.GetBool())
 			shift.SetBool(false);
 
 		let fluids = SSSVisualPresets.GetCVarForApply("sss_fluid_materials");
-		if (fluids)
+		if (fluids && fluids.GetBool())
 			fluids.SetBool(false);
 
 		PlayerInfo p = players[consoleplayer];
 		if (p && CVar.GetCVar("gl_ssao", p).GetInt() > 0)
 		{
 			let contact = CVar.GetCVar("sss_contactao", p);
-			if (contact)
+			if (contact && contact.GetBool())
 				contact.SetBool(false);
+		}
+
+		// Ultra/Photoreal arm GLDEF + wall shadows; skip on heavy/medium maps when safe mode is on.
+		let mapSafe = SSSVisualPresets.GetCVarForApply("sss_large_map_safe");
+		if (mapSafe && mapSafe.GetBool()
+			&& (SSSReflectionHelper.SSS_IsHeavyMap() || SSSReflectionHelper.SSS_IsMediumMap()))
+		{
+			let gldef = SSSVisualPresets.GetCVarForApply("sss_relight_gldef");
+			if (gldef && gldef.GetBool())
+				gldef.SetBool(false);
+			let wallShadows = SSSVisualPresets.GetCVarForApply("sss_wall_shadows");
+			if (wallShadows && wallShadows.GetBool())
+				wallShadows.SetBool(false);
 		}
 	}
 
@@ -2567,6 +2629,22 @@ class SSSVisualPresetHandler : EventHandler
 			return;
 		}
 
+		if (e.Name == "sss_save_custom_1")
+		{
+			SSSCustomPresetUtility.SaveSlot(1);
+			return;
+		}
+		if (e.Name == "sss_save_custom_2")
+		{
+			SSSCustomPresetUtility.SaveSlot(2);
+			return;
+		}
+		if (e.Name == "sss_save_custom_3")
+		{
+			SSSCustomPresetUtility.SaveSlot(3);
+			return;
+		}
+
 		if (e.Name == "sss_apply_visual_preset" || e.Name == "sss_apply_preset_return")
 		{
 			int preset = e.Args[0];
@@ -2595,7 +2673,7 @@ class SSSVisualPresetHandler : EventHandler
 		SSSReflectionHelper.ApplyPlaneReflections();
 		SSSDarkDoom_Handler ddz = SSSDarkDoom_Handler.FindHandler();
 		if (ddz)
-			ddz.ChangeLighting(false);
+			ddz.ChangeLighting(true);
 	}
 
 	void TryApplyPreset(int preset, bool force, bool skipSideEffects = false)

@@ -1,6 +1,6 @@
 # SuperShadersSuiteRT
 
-A universal post-processing and material enhancement addon for Doom/Doom 2/Heretic/Hexen on **GZDoom / UZDoom**. It bundles ray-trace-*lite* screen effects, ReLite-inspired world lighting, integrated **Dark Doom**, MariFX grading, ACES tonemap, atmospheric haze, **BodyCam Visual**, and **28 one-click Visual Presets** that configure the whole stack at once.
+A universal post-processing and material enhancement addon for Doom/Doom 2/Heretic/Hexen on **GZDoom / UZDoom**. It bundles ray-trace-*lite* screen effects, ReLite-inspired world lighting, integrated **Dark Doom**, MariFX grading, ACES tonemap, atmospheric haze, **BodyCam Visual**, and **28 one-click Visual Presets** (plus **3 Custom save slots**) that configure the whole stack at once.
 
 https://www.moddb.com/mods/dds-texturespbr-plus
 
@@ -27,7 +27,9 @@ Forum: https://forum.zdoom.org/viewtopic.php?t=62772
 
 One menu applies lighting, RT-lite, Dark Doom darkness, tone mapping, MariFX, and post-process FX together.
 
-Presets are grouped in the menu as **Quality**, **Style**, and **IWAD** submenus. Pick **Custom (Manual)** to tune everything yourself without auto-overwrites.
+Presets are grouped in the menu as **Quality**, **Style**, and **IWAD** submenus. Pick **Custom (Manual)** to tune everything yourself without auto-overwrites. Use **Save Current → Custom 1/2/3**, then select those slots in **Active Preset** to reload your saved stack.
+
+**All Shader FX** (`sss_post_stack`) turns the full post stack off while leaving map-load lighting / RT-Relight alone.
 
 ### Dark Doom per preset
 
@@ -78,7 +80,7 @@ Override anytime under **Lighting & Atmosphere → Dark Doom**.
 | **Ultraviolence** | Everything stacked — screenshot mode |
 | **Vaporwave — Outrun** | Pastel technicolor, Plaza LUT |
 | **Brutal Carnage** | Heavy blood glow, RG bleed (PB-friendly) |
-| **Software Nostalgia** | SoftShade ordered dither + warm vanilla palette (no CRT / no RT-lite) |
+| **PSX Classic** | SoftShade dither, chunky Screen-M pixels, 5:5:5 banding + console gamma (no CRT / no RT-lite) |
 | **VR Comfort** | Stable ACES, no CA / fisheye / heavy vignette |
 
 ### IWAD presets
@@ -195,14 +197,15 @@ Only one filmic path (ACES **or** Filmic LUT) should be active at a time.
 
 | Submenu | Contents |
 |---------|----------|
-| **Visual Presets** | Quality / Style / IWAD tiers, Auto-Apply, Apply Now |
+| **Visual Presets** | Quality / Style / IWAD tiers, Custom 1–3 save slots, Auto-Apply, Apply Now |
+| **All Shader FX** | Master post-FX kill switch (`sss_post_stack`) |
 | **Lighting & Atmosphere** | Dark Doom, enhanced lighting, color bleed, atmospheric FX, materials |
 | **RT-Lite Effects (Manual)** | AO strategy, contact AO, fluid SSR, relight tiers |
 | **Color & Tone** | ACES, filmic LUT, World Gamma, Screen-M, bloom |
 | **Post-Process** | Vignette, lens flares, noise, natural vignette, FOV |
 | **MariFX** | Full GPU grading stack + 8 preset slots |
 | **BodyCam Visual** | Style, overlay, tuning sliders, toggle key |
-| **Fisheye / VHS-CRT / SoftShade / Old Video** | Specialty stacks |
+| **Fisheye / VHS-CRT / SoftShade / PSX Light / Old Video** | Specialty stacks |
 
 ---
 
@@ -211,6 +214,7 @@ Only one filmic path (ACES **or** Filmic LUT) should be active at a time.
 - **MariFX** — Sharpen, blur, technicolor, LUT, grain, vignette, color matrix, preset save/load
 - **Screen-M (gl_screem)** — CRT phosphor, grill, palette makeover
 - **SoftShade** — Ordered dither / palette crush
+- **PSX Light** — Optional 5:5:5 banding + console gamma (adapted from PSX DOOM CE post only; not the material lighting stack)
 - **World Gamma + Bloom Boost** — Pre/post bloom grading
 - **Filmic LUTs** — Cemetery, Plaza, Snow, Salvation, Tide, Arena, …
 - **Sprite shadows** — Lite floor stencils under players/monsters (tiered per preset)

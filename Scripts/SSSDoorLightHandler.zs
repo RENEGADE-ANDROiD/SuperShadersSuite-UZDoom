@@ -17,9 +17,9 @@ class SSSDoorLightHandler : EventHandler
 {
 	mixin SSSGeo;
 
-	Array<SSSDoorTrack> Tracks;
-	bool Built;
-	bool LastEnabled;
+	transient Array<SSSDoorTrack> Tracks;
+	transient bool Built;
+	transient bool LastEnabled;
 
 	static const int LiftSpecials[] = {1, 2, 3, 4, 21, 22, 23, 24, 65, 66, 67, 68, 76, 77, 197, 198, 199, 200};
 
