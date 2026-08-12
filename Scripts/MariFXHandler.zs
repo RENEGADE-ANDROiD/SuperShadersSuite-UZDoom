@@ -10,13 +10,13 @@ Class MariFXHandler : StaticEventHandler
 
 		if (!SSSPostProcessSuppressor.PostWarmupReady())
 		{
-			Shader.SetEnabled(p, "sss_mfx_lumasharp", false);
+			DisableMariFXStack(p);
 			return;
 		}
 
 		if (!CVar.GetCVar("sss_post_stack", p).GetBool())
 		{
-			SSSPostProcessSuppressor.DisableSSSPostShaders(p);
+			DisableMariFXStack(p);
 			return;
 		}
 
@@ -203,6 +203,28 @@ Class MariFXHandler : StaticEventHandler
 			Shader.SetUniform1i(p, "mfx_palette", "palnum", mfx_palnum);
 			Shader.SetUniform1f(p, "mfx_palette", "paldither", mfx_paldither);
 		}
+	}
+
+	clearscope static void DisableMariFXStack(PlayerInfo p)
+	{
+		if (!p)
+			return;
+
+		Shader.SetEnabled(p, "sss_mfx_lumasharp", false);
+		Shader.SetEnabled(p, "mfx_grading", false);
+		Shader.SetEnabled(p, "mfx_technicolor", false);
+		Shader.SetEnabled(p, "mfx_lutgrading", false);
+		Shader.SetEnabled(p, "mfx_colormatrix", false);
+		Shader.SetEnabled(p, "mfx_huesaturation", false);
+		Shader.SetEnabled(p, "mfx_bss_blur", false);
+		Shader.SetEnabled(p, "sss_mfx_bss_sharp", false);
+		Shader.SetEnabled(p, "mfx_bss_shift", false);
+		Shader.SetEnabled(p, "mfx_borderblur", false);
+		Shader.SetEnabled(p, "mfx_grain", false);
+		Shader.SetEnabled(p, "mfx_dirt", false);
+		Shader.SetEnabled(p, "mfx_vignette", false);
+		Shader.SetEnabled(p, "mfx_retrofx", false);
+		Shader.SetEnabled(p, "mfx_palette", false);
 	}
 
 	override void ConsoleProcess(ConsoleEvent e)

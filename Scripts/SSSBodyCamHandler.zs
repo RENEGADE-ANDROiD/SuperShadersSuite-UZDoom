@@ -157,16 +157,14 @@ class SSSBodyCamHandler : StaticEventHandler
 		if (!CVar.GetCVar("sss_post_stack", p).GetBool())
 		{
 			Shader.SetEnabled(p, "sss_bodycam", false);
-			Shader.SetEnabled(p, "fisheyeshader", false);
-			Shader.SetEnabled(p, "VHSCRTShader", false);
+			ReleaseBodyCamVignetteUi(p);
 			return;
 		}
 
 		if (!IsActiveNow())
 		{
 			Shader.SetEnabled(p, "sss_bodycam", false);
-			Shader.SetEnabled(p, "fisheyeshader", false);
-			Shader.SetEnabled(p, "VHSCRTShader", false);
+			ReleaseBodyCamVignetteUi(p);
 			return;
 		}
 
@@ -210,11 +208,21 @@ class SSSBodyCamHandler : StaticEventHandler
 		double strength = GetLiveFloat("sss_bodycam_vig_live", 0.34);
 		double falloff = GetLiveFloat("sss_bodycam_vig_fall_live", 0.64);
 		if (strength <= 0.001)
+		{
+			ReleaseBodyCamVignetteUi(p);
 			return;
+		}
 
 		Shader.SetUniform1f(p, "NaturalVignette", "sss_natural_vig_strength", strength);
 		Shader.SetUniform1f(p, "NaturalVignette", "sss_natural_vig_falloff", falloff);
 		Shader.SetEnabled(p, "NaturalVignette", true);
+	}
+
+	ui void ReleaseBodyCamVignetteUi(PlayerInfo p)
+	{
+		let normalVignette = CVar.GetCVar("dpwh_naturalVignette2", p);
+		if (!normalVignette || !normalVignette.GetBool())
+			Shader.SetEnabled(p, "NaturalVignette", false);
 	}
 
 	ui void SyncAnalogFisheyeUi(PlayerInfo p)
@@ -229,8 +237,8 @@ class SSSBodyCamHandler : StaticEventHandler
 	ui void SyncAnalogVhsUi(PlayerInfo p, RenderEvent e)
 	{
 		Shader.SetUniform1f(p, "VHSCRTShader", "iTime", (gametic + e.FracTic) / 35.0);
-		Shader.SetUniform1f(p, "VHSCRTShader", "VHSEnable", 1.0);
-		Shader.SetUniform1f(p, "VHSCRTShader", "CRTEnable", 0.0);
+		Shader.SetUniform1i(p, "VHSCRTShader", "VHSEnable", 1);
+		Shader.SetUniform1i(p, "VHSCRTShader", "CRTEnable", 0);
 		Shader.SetUniform1f(p, "VHSCRTShader", "range", GetLiveFloat("sss_bodycam_vhs_range_live", 0.05));
 		Shader.SetUniform1f(p, "VHSCRTShader", "noiseQuality", 300.0);
 		Shader.SetUniform1f(p, "VHSCRTShader", "noiseIntensity", GetLiveFloat("sss_bodycam_vhs_noise_live", 0.001));
@@ -238,11 +246,11 @@ class SSSBodyCamHandler : StaticEventHandler
 		Shader.SetUniform1f(p, "VHSCRTShader", "colorOffsetIntensity", 0.03);
 		Shader.SetUniform1f(p, "VHSCRTShader", "lineCount", GetLiveFloat("sss_bodycam_vhs_lines_live", 250.0));
 		Shader.SetUniform1f(p, "VHSCRTShader", "lineSpeed", 1.2);
-		Shader.SetUniform1f(p, "VHSCRTShader", "lineEnable", 0.22);
-		Shader.SetUniform1f(p, "VHSCRTShader", "CRThardScan", 0.0);
-		Shader.SetUniform1f(p, "VHSCRTShader", "warpEnable", 0.0);
-		Shader.SetUniform1f(p, "VHSCRTShader", "warpMultX", 1.0);
-		Shader.SetUniform1f(p, "VHSCRTShader", "warpMultY", 1.0);
+		Shader.SetUniform1i(p, "VHSCRTShader", "lineEnable", 1);
+		Shader.SetUniform1i(p, "VHSCRTShader", "CRThardScan", 0);
+		Shader.SetUniform1i(p, "VHSCRTShader", "warpEnable", 0);
+		Shader.SetUniform1i(p, "VHSCRTShader", "warpMultX", 1);
+		Shader.SetUniform1i(p, "VHSCRTShader", "warpMultY", 1);
 		Shader.SetUniform1f(p, "VHSCRTShader", "grainIntensity", 0.0);
 		Shader.SetUniform1f(p, "VHSCRTShader", "contrast", 1.0);
 		Shader.SetUniform1f(p, "VHSCRTShader", "saturation", 1.0);
@@ -292,7 +300,19 @@ class SSSBodyCamHandler : StaticEventHandler
 	clearscope static bool IsActiveNow()
 	{
 		let c = CVar.FindCVar("sss_bodycam_active");
-		return c && c.GetBool();
+		if (c && c.GetBool())
+			return true;
+		if (consoleplayer >= 0 && consoleplayer < MAXPLAYERS)
+		{
+			PlayerInfo p = players[consoleplayer];
+			if (p)
+			{
+				let playCvar = CVar.GetCVar("sss_bodycam_active", p);
+				if (playCvar && playCvar.GetBool())
+					return true;
+			}
+		}
+		return false;
 	}
 
 	clearscope static int GetModeLive()
@@ -312,6 +332,46 @@ class SSSBodyCamHandler : StaticEventHandler
 		let c = CVar.FindCVar("sss_bodycam_active");
 		if (c)
 			c.SetBool(on);
+		PlayerInfo p = players[consoleplayer];
+		if (p)
+		{
+			let playCvar = CVar.GetCVar("sss_bodycam_active", p);
+			if (playCvar && playCvar != c)
+				playCvar.SetBool(on);
+		}
+	}
+
+	void ForcePostStackOn(PlayerInfo p)
+	{
+		let uiCvar = CVar.FindCVar("sss_post_stack");
+		if (uiCvar)
+			uiCvar.SetBool(true);
+		if (p)
+		{
+			let playCvar = CVar.GetCVar("sss_post_stack", p);
+			if (playCvar && playCvar != uiCvar)
+				playCvar.SetBool(true);
+		}
+	}
+
+	// After preset apply: mirror play→FindCVar active and keep post stack on if BodyCam is wanted.
+	void EnsureBodyCamRuntime(PlayerInfo p)
+	{
+		if (!p)
+			return;
+
+		bool want = false;
+		let playCvar = CVar.GetCVar("sss_bodycam_active", p);
+		if (playCvar && playCvar.GetBool())
+			want = true;
+		let uiCvar = CVar.FindCVar("sss_bodycam_active");
+		if (uiCvar && uiCvar.GetBool())
+			want = true;
+		if (!want)
+			return;
+
+		ForcePostStackOn(p);
+		SetActive(true);
 	}
 
 	bool HasSave()
@@ -324,6 +384,8 @@ class SSSBodyCamHandler : StaticEventHandler
 	{
 		if (!HasSave())
 			SaveCurrent(p);
+
+		ForcePostStackOn(p);
 
 		PushRuntimeFromPlay(p);
 		SetSessionStart(Level.MapTime);
@@ -367,7 +429,7 @@ class SSSBodyCamHandler : StaticEventHandler
 		bool chroma = GetLiveFloat("sss_bodycam_chroma_live", 0.005) > 0.001;
 
 		Shader.SetUniform1f(p, "fisheyeshader", "strength", fishStr);
-		Shader.SetUniform1f(p, "fisheyeshader", "chromo", chroma ? 1 : 0);
+		Shader.SetUniform1i(p, "fisheyeshader", "chromo", chroma ? 1 : 0);
 		Shader.SetEnabled(p, "fisheyeshader", true);
 	}
 

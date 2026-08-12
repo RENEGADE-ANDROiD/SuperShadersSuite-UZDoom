@@ -10,13 +10,13 @@ https://www.moddb.com/mods/dds-texturespbr-plus
 
 Forum: https://forum.zdoom.org/viewtopic.php?t=62772
 
-**Menu:** Main Menu → **Super Shaders Suite RT Options** (or Options → same name)
+**Menu:** Main Menu → **Super Shaders Suite** (or Options → same name). Use the root **Active Preset** selector for a quick pick, or **Visual Presets** for the grouped Quality / Style / IWAD browser.
 
 ---
 
 ## Quick start
 
-1. Load `SuperShadersSuiteRT.wad` after your IWAD/map, before or with gameplay mods.
+1. Load `000_SuperShadersSuiteRT.wad` after your IWAD/map, before or with gameplay mods.
 2. Open **Visual Presets** → pick a tier (default: **Vanilla Plus — Classic Enhanced**).
 3. Leave **Auto-Apply Preset** on — post FX and tone update live when you change presets.
 4. **Reload the map** (or cycle presets with PgUp/PgDn) after picking a preset so sector lighting, relight passes, fluid lights, and reflections fully apply.
@@ -56,7 +56,7 @@ Override anytime under **Lighting & Atmosphere → Dark Doom**.
 | **Balanced — Enhanced** | Hybrid AO + post color bleed, filmic grade, player shadows, Dismal dark |
 | **Modern — RT Enhanced** | ACES Narkowicz, contact AO, map-load bleed only, light haze |
 | **Cinematic** | Film LUT, grain, lens FX, atmosphere, Oppressive dark |
-| **Ultra — RT-Lite** | Max RT-lite (ceiling reflections, monster shadows), Inky dark + lift |
+| **Ultra — RT-Lite** | ACES Narkowicz + max RT-lite (floor reflections, contact AO/SSR), Inky dark + calmer grade |
 | **Arena — Competitive** | Performance mode, no bleed/shadows/RT-lite, max readability, dark off |
 | **Co-op Ready** | Multiplayer-friendly; player shadows only, Murky dark |
 
@@ -155,14 +155,14 @@ DarkDoomZ by Sterling "Caligari87" Parker (zlib license).
 
 ## Performance & stability
 
-Large PB maps and long mod stacks can spike CPU on map load. Two safety toggles (on by default):
+Large PB maps and long mod stacks can spike CPU on map load. Two **transient** safety toggles live under **Performance / Stability** (on by default). They only affect the current map's runtime budget and **do not** overwrite **All Shader FX** or saved presets.
 
 | Option | What it does |
 |--------|--------------|
-| **Large Map Safe** | On heavy maps (768+ sectors): skips sync lighting on load, disables smooth walls / recursive relight on medium maps, chunks remaining work across ticks |
-| **Process Safe** | Disables the full post stack (`sss_post_stack`) and caps expensive runtime features |
+| **Large Map Safe** | Heavy maps (768+ sectors) always use chunked lighting instead of a single sync pass. Medium maps trim smooth walls / recursive relight. |
+| **Process Safe** | On heavy maps, trims map-derived work (relight, procedural lights, door spill). Does **not** turn off `sss_post_stack`. |
 
-If the game stutters on map entry, leave both on. If you want the full visual stack on a big map, turn **Process Safe** off first, then **Large Map Safe** — expect a longer load hitch.
+If the game stutters on map entry, leave both on. If you want the full lighting stack on a big map, turn **Process Safe** off first, then **Large Map Safe** — expect a longer (still chunked) load.
 
 ---
 
@@ -197,8 +197,9 @@ Only one filmic path (ACES **or** Filmic LUT) should be active at a time.
 
 | Submenu | Contents |
 |---------|----------|
-| **Visual Presets** | Quality / Style / IWAD tiers, Custom 1–3 save slots, Auto-Apply, Apply Now |
+| **Visual Presets** | Grouped Quality / Style / IWAD browser, Custom 1–3 save slots, Auto-Apply, Apply Now |
 | **All Shader FX** | Master post-FX kill switch (`sss_post_stack`) |
+| **Performance / Stability** | Large Map Safe and Process Safe (transient map-load budget) |
 | **Lighting & Atmosphere** | Dark Doom, enhanced lighting, color bleed, atmospheric FX, materials |
 | **RT-Lite Effects (Manual)** | AO strategy, contact AO, fluid SSR, relight tiers |
 | **Color & Tone** | ACES, filmic LUT, World Gamma, Screen-M, bloom |
@@ -240,7 +241,7 @@ Motion blur is intentionally not included — use your mod's mblur or a dedicate
 
 1. IWAD  
 2. Map WAD  
-3. **SuperShadersSuiteRT.wad**  
+3. **000_SuperShadersSuiteRT.wad**
 4. Gameplay / TC mods (order depends on intent)
 
 Load **before** TCs that replace fluid flat names if you rely on default fluid lists. Load **before** gameplay mods that assume vanilla sector brightness if you use Dark Doom presets.
@@ -257,4 +258,10 @@ From the repo root (PowerShell):
 .\build-addon.ps1
 ```
 
-Outputs `SuperShadersSuiteRT.wad` and updates configured Steam bundle zips. See `tools/build-addon.ps1` for paths.
+Writes `000_SuperShadersSuiteRT.wad` next to the repo root. Steam/bundle zip updates are opt-in:
+
+```powershell
+.\build-addon.ps1 -UpdateBundles
+```
+
+See `tools/build-addon.ps1` for `$BundleRoot` if your install path differs. Material regeneration (`tools/generate-materials.ps1`) keeps the tracked `GLDEFS/materials_*.gl` files when Doom IWADs are not available.

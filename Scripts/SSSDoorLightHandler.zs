@@ -47,7 +47,9 @@ class SSSDoorLightHandler : EventHandler
 		if (!Built || Tracks.Size() == 0)
 			return;
 
-		if (!CVar.FindCVar("sss_relight_doors").GetBool() || CVar.FindCVar("sss_performance").GetBool())
+		if (!CVar.FindCVar("sss_relight_doors").GetBool()
+			|| CVar.FindCVar("sss_performance").GetBool()
+			|| SSSReflectionHelper.MapTier() >= 2)
 		{
 			if (HasActiveLights())
 				ClearAllLights();
@@ -65,7 +67,8 @@ class SSSDoorLightHandler : EventHandler
 	{
 		bool enabled = CVar.FindCVar("sss_relight_doors").GetBool()
 			&& CVar.FindCVar("sss_lighting").GetBool()
-			&& !CVar.FindCVar("sss_performance").GetBool();
+			&& !CVar.FindCVar("sss_performance").GetBool()
+			&& SSSReflectionHelper.MapTier() < 2;
 
 		if (!force && enabled == LastEnabled && Built)
 			return;
@@ -73,13 +76,12 @@ class SSSDoorLightHandler : EventHandler
 		LastEnabled = enabled;
 		ClearAllLights();
 		Tracks.Clear();
-		Built = false;
 
-		if (!enabled)
-			return;
+		if (enabled)
+			BuildTracks();
 
-		BuildTracks();
-		Built = Tracks.Size() > 0;
+		// Empty registry still counts as built so WorldTick does not rescan every tic.
+		Built = true;
 	}
 
 	void BuildTracks()

@@ -27,6 +27,8 @@ class SSSLightingHandler : EventHandler
 
 	transient bool LightingLoadPending;
 	transient int LightingLoadPhase;
+	transient bool LightingLoadBias;
+	transient bool LightingLoadFluid;
 	transient bool LightingLoadSmoothWalls;
 	transient bool LightingLoadRecursiveRelight;
 	transient bool LightingLoadPerf;
@@ -56,47 +58,28 @@ class SSSLightingHandler : EventHandler
 			return;
 
 		bool heavyMap = SSSReflectionHelper.SSS_IsHeavyMap();
-		bool mediumMap = SSSReflectionHelper.SSS_IsMediumMap();
 		bool mapSafe = CVar.FindCVar("sss_large_map_safe").GetBool();
+		int mapTier = SSSReflectionHelper.MapTier();
 
-		if (heavyMap && mapSafe)
-		{
-			// Synchronous map-load lighting can hard-freeze UZDoom on large maps.
-			SSSReflectionHelper.ApplyPlaneReflections();
-			return;
-		}
-
-		if (heavyMap)
-		{
-			CVar.FindCVar("sss_relight_recursive").SetBool(false);
-			CVar.FindCVar("sss_smooth_walls").SetBool(false);
-			CVar.FindCVar("sss_bleed_rg").SetBool(false);
-			let procMax = CVar.FindCVar("sss_relight_proc_max");
-			if (procMax && procMax.GetInt() > 6)
-				procMax.SetInt(6);
-		}
-		else if (mediumMap && mapSafe)
-		{
-			CVar.FindCVar("sss_relight_recursive").SetBool(false);
-			CVar.FindCVar("sss_smooth_walls").SetBool(false);
-			CVar.FindCVar("sss_bleed_rg").SetBool(false);
-		}
-
-		LightingLoadPerf = CVar.FindCVar("sss_performance").GetBool() || heavyMap;
+		LightingLoadPerf = CVar.FindCVar("sss_performance").GetBool() || mapTier >= 2;
+		LightingLoadBias = CVar.FindCVar("sss_bias").GetBool() && mapTier < 2;
+		LightingLoadFluid = mapTier < 2;
 		LightingLoadSmoothWalls = CVar.FindCVar("sss_smooth_walls").GetBool()
-			&& !LightingLoadPerf;
-		LightingLoadRecursiveRelight = CVar.FindCVar("sss_relight_recursive").GetBool();
+			&& !LightingLoadPerf && mapTier == 0;
+		LightingLoadRecursiveRelight = CVar.FindCVar("sss_relight_recursive").GetBool()
+			&& mapTier == 0;
 
-		// Spread map-load work across ticks when safe mode is on.
-		// GLDEF / texture lights are too heavy for the small-map sync fast-path.
+		// Heavy maps still chunk when safety is off; skip the heaviest sync-style passes.
+		if (heavyMap && mapTier == 0)
+		{
+			LightingLoadSmoothWalls = false;
+			LightingLoadRecursiveRelight = false;
+		}
+
+		// Never run the full lighting stack in one tick on heavy maps.
 		bool heavyRelight = CVar.FindCVar("sss_relight_gldef").GetBool()
 			|| CVar.FindCVar("sss_relight_texture").GetBool();
-		bool fastApply = SSSReflectionHelper.IsPresetFastApply();
-		if (mapSafe && fastApply && !heavyMap && !heavyRelight && Level.Sectors.Size() < 512)
-			RunLightingLoadSync();
-		else if (mapSafe)
-			QueueChunkedLightingLoad();
-		else if (heavyRelight)
+		if (heavyMap || mapSafe || heavyRelight)
 			QueueChunkedLightingLoad();
 		else
 			RunLightingLoadSync();
@@ -115,7 +98,7 @@ class SSSLightingHandler : EventHandler
 
 	void RunLightingLoadSync()
 	{
-		if (CVar.FindCVar("sss_bias").GetBool())
+		if (LightingLoadBias)
 			BiasLighting();
 
 		if (LightingLoadSmoothWalls)
@@ -134,7 +117,8 @@ class SSSLightingHandler : EventHandler
 
 		SSSRelightEnhance enh = new("SSSRelightEnhance");
 		enh.RunApplyAll();
-		ApplyFluidLighting();
+		if (LightingLoadFluid)
+			ApplyFluidLighting();
 		SSSReflectionHelper.ApplyPlaneReflections();
 	}
 
@@ -143,7 +127,7 @@ class SSSLightingHandler : EventHandler
 		switch (LightingLoadPhase)
 		{
 		case 0:
-			if (CVar.FindCVar("sss_bias").GetBool())
+			if (LightingLoadBias)
 				BiasLighting();
 			LightingLoadPhase = 1;
 			break;
@@ -171,13 +155,22 @@ class SSSLightingHandler : EventHandler
 		case 3:
 			{
 				SSSRelightEnhance enh = new("SSSRelightEnhance");
-				enh.RunApplyAll();
+				enh.RunApplySectorPasses();
 			}
 			LightingLoadPhase = 4;
 			break;
 
 		case 4:
-			ApplyFluidLighting();
+			{
+				SSSRelightEnhance enh = new("SSSRelightEnhance");
+				enh.RunApplyProcLights();
+			}
+			LightingLoadPhase = 5;
+			break;
+
+		case 5:
+			if (LightingLoadFluid)
+				ApplyFluidLighting();
 			SSSReflectionHelper.ApplyPlaneReflections();
 			LightingLoadPending = false;
 			if (DeferDarkDoomFinish)
@@ -667,6 +660,23 @@ class SSSLightingHandler : EventHandler
 		return -1;
 	}
 
+	int FluidColorIndex(Name flatName)
+	{
+		int exact = FindFluidFlatIndex(flatName);
+		if (exact >= 0)
+			return exact;
+
+		String n = String.Format("%s", flatName);
+		if (n.IndexOf("LAVA") >= 0 || n.IndexOf("FIRE") >= 0)
+			return 9;
+		if (n.IndexOf("BLOOD") >= 0)
+			return 13;
+		if (n.IndexOf("SLIME") >= 0 || n.IndexOf("SLUD") >= 0
+			|| n.IndexOf("NUKAGE") >= 0 || n.IndexOf("MUCUS") >= 0)
+			return 0;
+		return 5;
+	}
+
 	vector2 SectorCenter(Sector sec)
 	{
 		return SSSRelightEnhance.SectorLightSpot(sec);
@@ -710,9 +720,9 @@ class SSSLightingHandler : EventHandler
 		foreach (sec : Level.Sectors)
 		{
 			Name floorName = texture.GetName(sec.GetTexture(Sector.Floor));
-			int fidx = FindFluidFlatIndex(floorName);
-			if (fidx < 0)
+			if (!SSSReflectionHelper.FlatMatchesAllowlist(Sector.Floor, floorName))
 				continue;
+			int fidx = FluidColorIndex(floorName);
 
 			double area = SectorBBoxArea(sec);
 			if (area < minGlowArea)

@@ -98,11 +98,17 @@ class SSSShadowHandler : EventHandler
 		if (CVar.FindCVar("sss_performance").GetBool())
 			return;
 
+		int mapTier = SSSReflectionHelper.MapTier();
+		if (mapTier >= 2)
+			return;
+
 		int interval = max(2, CVar.FindCVar("sss_shadow_interval").GetInt());
 		if (Level.MapTime % interval != 0)
 			return;
 
-		bool wallShadows = CVar.FindCVar("sss_wall_shadows").GetBool();
+		bool wallShadows = CVar.FindCVar("sss_wall_shadows").GetBool() && mapTier == 0;
+		bool allowPlayers = CVar.FindCVar("sss_shadow_players").GetBool();
+		bool allowMonsters = CVar.FindCVar("sss_shadow_monsters").GetBool();
 		double maxDist = 640.0;
 		PlayerInfo viewer = players[consoleplayer];
 		if (!viewer || !viewer.mo)
@@ -120,6 +126,13 @@ class SSSShadowHandler : EventHandler
 
 			Actor mo = it.thing;
 			if (!mo || !mo.health)
+				continue;
+			if (mo.player)
+			{
+				if (!allowPlayers)
+					continue;
+			}
+			else if (!allowMonsters)
 				continue;
 			if (!mo.FindInventory("sss_shadowthinker"))
 				continue;

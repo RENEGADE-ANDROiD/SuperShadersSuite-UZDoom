@@ -15,7 +15,8 @@ class VHSCRTPostProcessHandler : StaticEventHandler
 		if (!p || BodyCamOwnsVhs())
 			return;
 
-		if (!CVar.GetCVar("SH_ShaderEnable", p).GetBool())
+		if (!CVar.GetCVar("sss_post_stack", p).GetBool()
+			|| !CVar.GetCVar("SH_ShaderEnable", p).GetBool())
 		{
 			Shader.SetEnabled(p, "VHSCRTShader", false);
 			return;
@@ -52,8 +53,8 @@ class VHSCRTPostProcessHandler : StaticEventHandler
 		if (warpMultY <= 0) warpMultY = 1;
 		if (contrast < 0.1) contrast = 0.1;
 
-		Shader.SetUniform1f(p, "VHSCRTShader", "VHSEnable", 			VHSEnable);
-		Shader.SetUniform1f(p, "VHSCRTShader", "CRTEnable", 			CRTEnable);
+		Shader.SetUniform1i(p, "VHSCRTShader", "VHSEnable", 			VHSEnable);
+		Shader.SetUniform1i(p, "VHSCRTShader", "CRTEnable", 			CRTEnable);
 		Shader.SetUniform1f(p, "VHSCRTShader", "range", 				Range);
 		Shader.SetUniform1f(p, "VHSCRTShader", "noiseQuality", 			NoiseQuality);
 		Shader.SetUniform1f(p, "VHSCRTShader", "noiseIntensity", 		NoiseIntensity);
@@ -61,13 +62,53 @@ class VHSCRTPostProcessHandler : StaticEventHandler
 		Shader.SetUniform1f(p, "VHSCRTShader", "colorOffsetIntensity", 	ColorOffsetIntensity);
 		Shader.SetUniform1f(p, "VHSCRTShader", "lineCount", 			LineCount);
 		Shader.SetUniform1f(p, "VHSCRTShader", "lineSpeed", 			LineSpeed);
-		Shader.SetUniform1f(p, "VHSCRTShader", "lineEnable", 			LineEnable);
-		Shader.SetUniform1f(p, "VHSCRTShader", "CRThardScan", 			CRThardScan);
-		Shader.SetUniform1f(p, "VHSCRTShader", "warpEnable", 			warpEnable);
-		Shader.SetUniform1f(p, "VHSCRTShader", "warpMultX", 			warpMultX);
-		Shader.SetUniform1f(p, "VHSCRTShader", "warpMultY", 			warpMultY);
+		Shader.SetUniform1i(p, "VHSCRTShader", "lineEnable", 			LineEnable);
+		Shader.SetUniform1i(p, "VHSCRTShader", "CRThardScan", 			CRThardScan);
+		Shader.SetUniform1i(p, "VHSCRTShader", "warpEnable", 			warpEnable);
+		Shader.SetUniform1i(p, "VHSCRTShader", "warpMultX", 			warpMultX);
+		Shader.SetUniform1i(p, "VHSCRTShader", "warpMultY", 			warpMultY);
 		Shader.SetUniform1f(p, "VHSCRTShader", "grainIntensity", 		grainIntensity);
 		Shader.SetUniform1f(p, "VHSCRTShader", "contrast", 				contrast);
 		Shader.SetUniform1f(p, "VHSCRTShader", "saturation", 			saturation);
+	}
+
+	override void ConsoleProcess(ConsoleEvent e)
+	{
+		if (!(e.Name ~== "sha_reset_to_default"))
+			return;
+
+		ResetCVar("SH_ShaderEnable");
+		ResetCVar("SH_VHSEnable");
+		ResetCVar("SH_VHSRange");
+		ResetCVar("SH_VHSNoiseQuality");
+		ResetCVar("SH_VHSNoiseIntensity");
+		ResetCVar("SH_VHSOffsetIntensity");
+		ResetCVar("SH_VHSColorOffsetIntensity");
+		ResetCVar("SH_VHSLineCount");
+		ResetCVar("SH_VHSLineSpeed");
+		ResetCVar("SH_VHSLineEnable");
+		ResetCVar("SH_CRTEnable");
+		ResetCVar("SH_CRTHardScan");
+		ResetCVar("SH_WarpEnable");
+		ResetCVar("SH_WarpMultX");
+		ResetCVar("SH_WarpMultY");
+		ResetCVar("SH_GrainIntensity");
+		ResetCVar("SH_Contrast");
+		ResetCVar("SH_Saturation");
+	}
+
+	clearscope static void ResetCVar(String name)
+	{
+		let uiCvar = CVar.FindCVar(name);
+		if (uiCvar)
+			uiCvar.ResetToDefault();
+
+		PlayerInfo p = players[consoleplayer];
+		if (p)
+		{
+			let playCvar = CVar.GetCVar(name, p);
+			if (playCvar && playCvar != uiCvar)
+				playCvar.ResetToDefault();
+		}
 	}
 }

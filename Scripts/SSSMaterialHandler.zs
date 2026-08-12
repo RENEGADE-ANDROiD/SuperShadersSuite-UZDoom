@@ -8,7 +8,7 @@ class SSSMaterialHandler : EventHandler
 {
 	override void WorldLoaded(WorldEvent e)
 	{
-		if (SSSReflectionHelper.SSS_IsHeavyMap() && CVar.FindCVar("sss_large_map_safe").GetBool())
+		if (SSSReflectionHelper.MapTier() >= 2)
 			return;
 
 		SuppressEnemyReflectionsOnMap();

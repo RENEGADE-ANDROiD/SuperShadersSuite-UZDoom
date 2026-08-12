@@ -26,6 +26,8 @@ class TcPostProcessShaderHandler : StaticEventHandler
 	override void RenderOverlay(RenderEvent e)
 	{
 		PlayerInfo p = players[consoleplayer];
+		if (!p)
+			return;
 
 		if (Cvar.GetCVar("tc_pp_lensflares", p).GetInt() > 0)
 			EnableLensFlares();
@@ -56,7 +58,7 @@ class TcPostProcessShaderHandler : StaticEventHandler
 
 		double amount = CVar.GetCVar("tc_pp_lensflares_amount", p).GetFloat();
 		int samples = CVar.GetCVar("tc_pp_lensflares_samples", p).GetInt();
-		samples = max(4, min(samples, 12));
+		samples = max(4, min(samples, 8));
 		if (amount <= 0.0 || samples <= 0)
 		{
 			DisableLensFlares();
@@ -67,7 +69,7 @@ class TcPostProcessShaderHandler : StaticEventHandler
 		double distance = CVar.GetCVar("tc_pp_lensflares_distance", p).GetFloat();
 		Shader.SetUniform1f(p, "lensflareshader", "threshold", threshold);
 		Shader.SetUniform1f(p, "lensflareshader", "distance", distance);
-		Shader.SetUniform1f(p, "lensflareshader", "samples", samples);
+		Shader.SetUniform1i(p, "lensflareshader", "samples", samples);
 		Shader.SetUniform1f(p, "lensflareshader", "amount", amount);
 		Shader.SetEnabled(p, "lensflareshader", true);
 	}
@@ -75,6 +77,8 @@ class TcPostProcessShaderHandler : StaticEventHandler
 	ui void DisableLensFlares(void)
 	{
 		PlayerInfo p = players[consoleplayer];
+		if (!p)
+			return;
 		Shader.SetEnabled(p, "lensflareshader", false);
 	}
 	
@@ -86,6 +90,8 @@ class TcPostProcessShaderHandler : StaticEventHandler
 	ui void EnableVignette(void)
 	{
 		PlayerInfo p = players[consoleplayer];
+		if (!p)
+			return;
 		double i = CVar.GetCVar("tc_pp_vignette_intensity", p).GetFloat();
 		double f = CVar.GetCVar("tc_pp_vignette_falloff", p).GetFloat();
 		Shader.SetUniform1f(p, "vignetteshader", "intensity", i);
@@ -96,6 +102,8 @@ class TcPostProcessShaderHandler : StaticEventHandler
 	ui void DisableVignette(void)
 	{
 		PlayerInfo p = players[consoleplayer];
+		if (!p)
+			return;
 		Shader.SetEnabled(p, "vignetteshader", false);
 	}
 	
@@ -106,6 +114,8 @@ class TcPostProcessShaderHandler : StaticEventHandler
 	ui void EnableNoise(void)
 	{
 		PlayerInfo p = players[consoleplayer];
+		if (!p)
+			return;
 		double i = CVar.GetCVar("tc_pp_noise_amount", p).GetFloat();
 		Shader.SetUniform1f(p, "noiseshader", "amount", i);
 		Shader.SetEnabled(p, "noiseshader", true);
@@ -114,6 +124,8 @@ class TcPostProcessShaderHandler : StaticEventHandler
 	ui void DisableNoise(void)
 	{
 		PlayerInfo p = players[consoleplayer];
+		if (!p)
+			return;
 		Shader.SetEnabled(p, "noiseshader", false);
 	}
 }
@@ -164,25 +176,43 @@ Class ACESTonemapHandler : StaticEventHandler
 		at_aces_mode = CVar.GetCVar("at_aces_mode", p);
 		at_sky_soften = CVar.GetCVar("at_sky_soften", p);
 
-		if (!at_enabled || !at_ApertureFNumber || !at_ISO || !at_ShutterSpeedValue)
+		if (!at_enabled || !at_enabled.GetBool()
+			|| !at_ApertureFNumber || !at_ISO || !at_ShutterSpeedValue
+			|| !at_CustomShutterSpeed || !at_CustomISO)
+		{
+			Shader.SetEnabled(p, "AcesTonemap", false);
 			return;
+		}
 
 		float shutterSpeed = 0.0;
 		float iso = 0.0;
 		
-		if(at_ShutterSpeedValue.GetFloat() == 14) {
-			shutterSpeed = 1.0 / at_CustomShutterSpeed.GetFloat();
+		int shutterIndex = at_ShutterSpeedValue.GetInt();
+		if(shutterIndex == 14) {
+			shutterSpeed = 1.0 / max(0.001, at_CustomShutterSpeed.GetFloat());
 		} else {
-			shutterSpeed = ShutterSpeeds[at_ShutterSpeedValue.GetInt()];
+			shutterIndex = clamp(shutterIndex, 0, 13);
+			shutterSpeed = ShutterSpeeds[shutterIndex];
 		}
 		
-		if(at_ISO.GetInt() == 18) {
-			iso = at_CustomISO.GetFloat();
+		int isoIndex = at_ISO.GetInt();
+		if(isoIndex == 18) {
+			iso = max(1.0, at_CustomISO.GetFloat());
 		} else {
-			iso = ISOValues[at_ISO.GetInt()];
+			isoIndex = clamp(isoIndex, 0, 17);
+			iso = ISOValues[isoIndex];
 		}
 		
-		Shader.SetEnabled(p,"AcesTonemap", at_enabled.GetBool() );
+		Shader.SetEnabled(p, "AcesTonemap", true);
+		Shader.SetEnabled(p, "FilmicTonemap", false);
+		Shader.SetEnabled(p, "TonemapDefault", false);
+		Shader.SetEnabled(p, "TonemapArena", false);
+		Shader.SetEnabled(p, "TonemapSalvation", false);
+		Shader.SetEnabled(p, "TonemapPlaza", false);
+		Shader.SetEnabled(p, "TonemapCemetery", false);
+		Shader.SetEnabled(p, "TonemapTitlemap", false);
+		Shader.SetEnabled(p, "TonemapTide", false);
+		Shader.SetEnabled(p, "TonemapSnow", false);
 		Shader.SetUniform1f(p,"AcesTonemap", "ApertureFNumber" ,at_ApertureFNumber.GetFloat() );
 		Shader.SetUniform1f(p,"AcesTonemap", "ISO" , iso );
 		
@@ -239,6 +269,8 @@ class OldVideoShaderHandler : StaticEventHandler
 	override void RenderOverlay(RenderEvent e)
 	{
 		PlayerInfo p = players[consoleplayer];
+		if (!p)
+			return;
 		if (Cvar.GetCVar("cl_oldvideoshader", p).GetInt() > 0)
 		{
 			Shader.SetUniform1f(p, "oldvideoshader", "timer", gametic + e.FracTic);
@@ -253,12 +285,16 @@ class OldVideoShaderHandler : StaticEventHandler
 	ui void EnableOldVideo(void)
 	{
 		PlayerInfo p = players[consoleplayer];
+		if (!p)
+			return;
 		Shader.SetEnabled(p, "oldvideoshader", true);
 	}
 
 	ui void DisableOldVideo(void)
 	{
 		PlayerInfo p = players[consoleplayer];
+		if (!p)
+			return;
 		Shader.SetEnabled(p, "oldvideoshader", false);
 	}
 }
@@ -289,7 +325,7 @@ class WorldGammaHandler : EventHandler
 			return;
 		}
 
-		double invGamma = 1.0 / Cvar.GetCVar("gl_worldgamma", p).GetFloat();
+		double invGamma = 1.0 / max(0.001, Cvar.GetCVar("gl_worldgamma", p).GetFloat());
 		double contrast = Cvar.GetCVar("gl_worldgamma_contrast", p).GetFloat() * 0.01;
 		double brightness = Cvar.GetCVar("gl_worldgamma_brightness", p).GetFloat() * 0.01;
 
@@ -328,6 +364,17 @@ class ScreeMHandler : EventHandler
 	
 	override void RenderOverlay(RenderEvent e)
 	{
+		if (!p || !Cvar.GetCVar("sss_post_stack", p).GetBool()
+			|| Cvar.GetCVar("gl_screem", p).GetInt() <= 0)
+		{
+			if (p)
+			{
+				Shader.SetEnabled(p, "WidescreemZ", false);
+				Shader.SetEnabled(p, "Widescreem", false);
+			}
+			return;
+		}
+
 		if (Cvar.GetCVar("gl_screem_wide", p).GetInt() > 0)
 		{
 			if (Cvar.GetCVar("gl_screem_wide", p).GetInt() == 2)
@@ -356,7 +403,8 @@ class ScreeMHandler : EventHandler
 	{
 		if (p)
 		{
-			if (SSSPostProcessSuppressor.MenuBlocksScreenFX())
+			if (!Cvar.GetCVar("sss_post_stack", p).GetBool()
+				|| SSSPostProcessSuppressor.MenuBlocksScreenFX())
 			{
 				SSSPostProcessSuppressor.DisableScreenMShaders(p);
 				return;
@@ -366,15 +414,16 @@ class ScreeMHandler : EventHandler
 			{
 				if (Cvar.GetCVar("gl_screem_res_mode", p).GetInt() > 0 && Cvar.GetCVar("gl_screem_res_detail", p).GetInt() > 1)
 				{
+					double detail = max(1.0, Cvar.GetCVar("gl_screem_res_detail", p).GetFloat());
 					if (Cvar.GetCVar("gl_screem_res_mode", p).GetInt() == 2)
 					{
-						Shader.SetUniform1f(p, "res", "xlevel", 1.0 / Cvar.GetCVar("gl_screem_res_detail", p).GetInt() * 1.2);
+						Shader.SetUniform1f(p, "res", "xlevel", 1.0 / detail * 1.2);
 					}
 					else
 					{
-						Shader.SetUniform1f(p, "res", "xlevel", 1.0 / Cvar.GetCVar("gl_screem_res_detail", p).GetInt());
+						Shader.SetUniform1f(p, "res", "xlevel", 1.0 / detail);
 					}
-					Shader.SetUniform1f(p, "res", "ylevel", 1.0 / Cvar.GetCVar("gl_screem_res_detail", p).GetInt());
+					Shader.SetUniform1f(p, "res", "ylevel", 1.0 / detail);
 					Shader.SetEnabled(p, "res", true);
 				}
 				else { Shader.SetEnabled(p, "res", false); }
@@ -496,7 +545,7 @@ class ScreeMHandler : EventHandler
 				
 				if (Cvar.GetCVar("gl_screem_tonecontrols", p).GetInt() > 0)
 				{
-					Shader.SetUniform1f(p, "Gamma", "gamma", 1.0 / Cvar.GetCVar("gl_screem_gamma", p).GetFloat());
+					Shader.SetUniform1f(p, "Gamma", "gamma", 1.0 / max(0.001, Cvar.GetCVar("gl_screem_gamma", p).GetFloat()));
 					Shader.SetUniform1f(p, "Gamma", "brightness", Cvar.GetCVar("gl_screem_brightness", p).GetFloat() * 0.01);
 					Shader.SetUniform1f(p, "Gamma", "contrast", Cvar.GetCVar("gl_screem_contrast", p).GetFloat() * 0.01);
 					Shader.SetUniform1f(p, "Gamma", "saturation", Cvar.GetCVar("gl_screem_saturation", p).GetFloat() * 0.01);
@@ -507,8 +556,8 @@ class ScreeMHandler : EventHandler
 			}
 			else
 			{
-				//Shader.SetEnabled(p, "WidescreemZ", false);
-				//Shader.SetEnabled(p, "WidescreemW", false);
+				Shader.SetEnabled(p, "WidescreemZ", false);
+				Shader.SetEnabled(p, "Widescreem", false);
 				Shader.SetEnabled(p, "Fos4", false);
 				Shader.SetEnabled(p, "res", false);
 				Shader.SetEnabled(p, "OldPals", false);
@@ -554,9 +603,9 @@ class BBHandler : EventHandler
 			return;
 		}
 
-		double gamma = Cvar.GetCVar("gl_bloomboost_gamma", p).GetFloat();
+		double gamma = max(0.001, Cvar.GetCVar("gl_bloomboost_gamma", p).GetFloat());
 		double contrastPct = Cvar.GetCVar("gl_bloomboost_contrast", p).GetFloat();
-		double contrast = contrastPct * 0.01;
+		double contrast = max(0.001, contrastPct * 0.01);
 		double brightness = Cvar.GetCVar("gl_bloomboost_brightness", p).GetFloat() * 0.01;
 
 		Shader.SetUniform1f(p, "BloomBoostPre", "gamma", 1.0 / gamma);
@@ -584,6 +633,8 @@ Class SDPWHScreenEffects : StaticEventHandler
 	override void RenderOverlay(RenderEvent e)
 	{
 		PlayerInfo players = players[consoleplayer];
+		if (!players)
+			return;
 
 
 /*
@@ -602,7 +653,13 @@ Class SDPWHScreenEffects : StaticEventHandler
 
 
 
-		if (Cvar.GetCVar("dpwh_filmictonemap2", players).GetInt() > 0){
+		if (Cvar.GetCVar("at_enabled", players).GetBool())
+		{
+			DisableLUTshaders();
+		}
+		else if (Cvar.GetCVar("dpwh_filmictonemap2", players).GetInt() > 0)
+		{
+			Shader.SetEnabled(players, "AcesTonemap", false);
 			DisableLUTshaders();
 			String lutName = Cvar.GetCVar("dsc_scene_lut2", players).GetString();
 			if (level.mapName == "TITLEMAP")
@@ -611,7 +668,9 @@ Class SDPWHScreenEffects : StaticEventHandler
 				Shader.SetEnabled(players, lutName, true);
 			else
 				Shader.SetEnabled(players, "TonemapDefault", true);
-		} else {
+		}
+		else
+		{
 			DisableLUTshaders();
 		}
 
@@ -626,7 +685,7 @@ Class SDPWHScreenEffects : StaticEventHandler
 			Shader.SetUniform1f(players, "NaturalVignette", "sss_natural_vig_falloff", Cvar.GetCVar("sss_natural_vig_falloff", players).GetFloat());
 			EnableNaturalVignette();
 		}
-		else
+		else if (!SSSPostProcessSuppressor.BodyCamActive())
 			DisableNaturalVignette();
 
 		if (Cvar.GetCVar("dpwh_filmgrain2", players).GetInt() > 0)
@@ -645,6 +704,8 @@ Class SDPWHScreenEffects : StaticEventHandler
 	ui void DisableLUTshaders(void)
 	{
 		PlayerInfo players = players[consoleplayer];
+		if (!players)
+			return;
 		Shader.SetEnabled(players, "TonemapDefault", false);
 		Shader.SetEnabled(players, "TonemapArena", false);
 		Shader.SetEnabled(players, "TonemapSalvation", false);
@@ -658,6 +719,8 @@ Class SDPWHScreenEffects : StaticEventHandler
 	ui void EnableFilmGrain(RenderEvent e)
 	{
 		PlayerInfo players = players[consoleplayer];
+		if (!players)
+			return;
 		Shader.SetUniform1f(players, "FilmGrain", "timer", gametic + e.FracTic);
 		Shader.SetEnabled(players, "FilmGrain", true);
 	}
@@ -665,6 +728,8 @@ Class SDPWHScreenEffects : StaticEventHandler
 	ui void DisableFilmGrain(void)
 	{
 		PlayerInfo players = players[consoleplayer];
+		if (!players)
+			return;
 		Shader.SetEnabled(players, "FilmGrain", false);
 	}
 
@@ -673,24 +738,32 @@ Class SDPWHScreenEffects : StaticEventHandler
 	ui void EnableNaturalVignette(void)
 	{
 		PlayerInfo players = players[consoleplayer];
+		if (!players)
+			return;
 		Shader.SetEnabled(players, "NaturalVignette", true);
 	}
 
 	ui void DisableNaturalVignette(void)
 	{
 		PlayerInfo players = players[consoleplayer];
+		if (!players)
+			return;
 		Shader.SetEnabled(players, "NaturalVignette", false);
 	}
 
 	ui void EnableCubicCA(void)
 	{
 		PlayerInfo players = players[consoleplayer];
+		if (!players)
+			return;
 		Shader.SetEnabled(players, "CubicCA", true);
 	}
 
 	ui void DisableCubicCA(void)
 	{
 		PlayerInfo players = players[consoleplayer];
+		if (!players)
+			return;
 		Shader.SetEnabled(players, "CubicCA", false);
 	}
 /*

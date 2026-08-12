@@ -1,4 +1,5 @@
-// Tags fluid/allowlisted flats and applies planar reflection in one pass.
+// LevelPostProcessor is the only runtime API allowed to add sector tags.
+// Tag every allowlisted plane up front so later preset changes can enable it.
 class SSSReflectionPostProcessor : LevelPostProcessor
 {
 	protected void Apply(Name checksum, String mapname)
@@ -10,12 +11,6 @@ class SSSReflectionPostProcessor : LevelPostProcessor
 
 	protected void TagReflectionSectors(int dir)
 	{
-		bool enabled = dir == Sector.Ceiling ?
-			CVar.FindCVar("sss_ceilreflections").GetBool() :
-			CVar.FindCVar("sss_floorreflections").GetBool();
-		if (!enabled)
-			return;
-
 		int tag = dir == Sector.Ceiling ?
 			CVar.FindCVar("sss_ceil_tag").GetInt() :
 			CVar.FindCVar("sss_floor_tag").GetInt();

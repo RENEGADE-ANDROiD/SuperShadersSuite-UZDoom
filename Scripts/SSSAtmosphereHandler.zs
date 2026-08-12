@@ -8,7 +8,9 @@ class SSSAtmosphereHandler : StaticEventHandler
 		if (!p)
 			return;
 
-		if (SSSPostProcessSuppressor.MenuBlocksScreenFX())
+		if (!CVar.GetCVar("sss_post_stack", p).GetBool()
+			|| !SSSPostProcessSuppressor.PostWarmupReady()
+			|| SSSPostProcessSuppressor.MenuBlocksScreenFX())
 		{
 			Shader.SetEnabled(p, "sss_atmo_haze", false);
 			Shader.SetEnabled(p, "sss_atmo_godrays", false);
@@ -18,7 +20,7 @@ class SSSAtmosphereHandler : StaticEventHandler
 
 		bool hazeOn = CVar.GetCVar("sss_atmo_haze", p).GetBool();
 		double hazeStr = CVar.GetCVar("sss_atmo_haze_strength", p).GetFloat();
-		if (hazeOn && hazeStr > 0.0)
+		if (hazeOn && hazeStr > 0.001)
 		{
 			Shader.SetUniform1f(p, "sss_atmo_haze", "sss_atmo_haze_strength", hazeStr);
 			Shader.SetUniform1f(p, "sss_atmo_haze", "sss_atmo_haze_tint", CVar.GetCVar("sss_atmo_haze_tint", p).GetFloat());
@@ -29,7 +31,7 @@ class SSSAtmosphereHandler : StaticEventHandler
 
 		bool raysOn = CVar.GetCVar("sss_atmo_godrays", p).GetBool();
 		double raysStr = CVar.GetCVar("sss_atmo_godrays_strength", p).GetFloat();
-		if (raysOn && raysStr > 0.0)
+		if (raysOn && raysStr > 0.001)
 		{
 			Shader.SetUniform1f(p, "sss_atmo_godrays", "sss_atmo_godrays_strength", raysStr);
 			Shader.SetEnabled(p, "sss_atmo_godrays", true);
@@ -39,7 +41,7 @@ class SSSAtmosphereHandler : StaticEventHandler
 
 		bool debandOn = CVar.GetCVar("sss_atmo_deband", p).GetBool();
 		double debandStr = CVar.GetCVar("sss_atmo_deband_strength", p).GetFloat();
-		if (debandOn && debandStr > 0.0)
+		if (debandOn && debandStr > 0.001)
 		{
 			Shader.SetUniform1f(p, "sss_atmo_deband", "sss_atmo_deband_strength", debandStr);
 			Shader.SetEnabled(p, "sss_atmo_deband", true);

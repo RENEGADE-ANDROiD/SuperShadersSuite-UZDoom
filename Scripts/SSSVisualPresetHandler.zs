@@ -18,16 +18,13 @@ class SSSVisualPresets
 		return CVar.FindCVar(name);
 	}
 
-	clearscope static void Apply(int preset)
+	clearscope static bool Apply(int preset)
 	{
 		if (preset >= 30 && preset <= 32)
-		{
-			SSSCustomPresetUtility.LoadSlot(preset - 29);
-			return;
-		}
+			return SSSCustomPresetUtility.LoadSlot(preset - 29, true);
 
-		if (preset <= 0)
-			return;
+		if (preset <= 0 || preset > 29)
+			return false;
 
 		SetSpecialtyOff();
 
@@ -68,6 +65,7 @@ class SSSVisualPresets
 		}
 
 		ApplyRelightPresetTier(p);
+		return true;
 	}
 
 	clearscope static void ApplyRelightPresetTier(int preset)
@@ -87,7 +85,8 @@ class SSSVisualPresets
 			SetBleedGrade(0.92, 1.08, false);
 			break;
 		case 4:
-			SetRelightEnhance(true, true, 3, true, true, true, true, true, true, true, true, 16);
+			// Texture/GLDEF lights and wall shadows dropped for mid-fight FPS; keep doors + recursive flats.
+			SetRelightEnhance(true, true, 3, true, true, true, false, false, true, false, true, 12);
 			SetBleedGrade(1.0, 1.0, false);
 			break;
 		case 5:
@@ -234,7 +233,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 14);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", false);
 		SetShadows(false, false, false, 4);
 		SetBool("sss_colorbleed", false);
 		SetFloat("sss_bleeding", 0.0);
@@ -275,7 +273,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 26);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 4);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.072);
@@ -317,7 +314,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 36);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 3);
 		SetBool("sss_colorbleed", false);
 		SetFloat("sss_bleeding", 0.0);
@@ -369,7 +365,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 34);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetBool("sss_shadows", true);
 		SetBool("sss_shadow_players", true);
 		SetBool("sss_shadow_monsters", false);
@@ -394,7 +389,7 @@ class SSSVisualPresets
 	{
 		SetFilmGrain(false);
 
-		SetRTLite(true, 0.48, 3.2, true, 0.58);
+		SetRTLite(true, 0.38, 2.7, true, 0.58);
 		SetWallBake(0.50);
 
 		SetBool("sss_lighting", true);
@@ -409,32 +404,32 @@ class SSSVisualPresets
 		SetBool("sss_color_spr", true);
 		SetFloat("sss_flat_glow", 1.0);
 		SetFloat("sss_wall_glow", 0.64);
-		SetFloat("sss_flat_lights", 0.86);
-		SetInt("sss_flat_light_max", 20);
+		SetFloat("sss_flat_lights", 0.78);
+		SetInt("sss_flat_light_max", 14);
 		SetBool("sss_floorreflections", true);
-		SetInt("sss_floorstrength", 36);
-		SetBool("sss_ceilreflections", true);
-		SetInt("sss_ceilstrength", 12);
-		SetBool("sss_material_reflect", true);
+		SetInt("sss_floorstrength", 30);
+		SetBool("sss_ceilreflections", false);
+		SetInt("sss_ceilstrength", 0);
 		SetBool("sss_shadows", true);
 		SetBool("sss_shadow_players", true);
-		SetBool("sss_shadow_monsters", true);
-		SetInt("sss_shadow_interval", 2);
+		SetBool("sss_shadow_monsters", false);
+		SetInt("sss_shadow_interval", 3);
 		SetBool("sss_colorbleed", true);
-		SetFloat("sss_bleeding", 0.095);
+		SetFloat("sss_bleeding", 0.070);
 
 		SetDarkDoomProfile(3, 3, true, 28, 14);
-		SetFilmic(true, "TonemapTide");
-		SetACES(false);
+		SetFilmic(false, "TonemapDefault");
+		SetACESConfig(true, 1, 0.05, 1.04, 0.96);
+		SetFloat("at_sky_soften", 0.90);
 		SetMariFXUltra();
 		SetFloat("mfx_vigmul", 0.26);
 		SetBloomBoost(true, 1.0, 100.0, 0.06);
-		SetPostFX(true, 0.14, 12);
+		SetPostFX(true, 0.12, 6);
 		SetAOMode(3, true, 0.38);
 		SetBleedSource(2);
 		SetFluidEnhanced(0.42, 0.30);
-		SetDepthProxy(true, 0.58);
-		SetAtmosphere(false, 0.0, true, 0.06, true, 0.007);
+		SetDepthProxy(true, 0.45);
+		SetAtmosphere(false, 0.0, false, 0.0, true, 0.007);
 		SetBodyCamAnalog(false, false);
 	}
 
@@ -462,7 +457,6 @@ class SSSVisualPresets
 		SetInt("sss_floorstrength", 38);
 		SetBool("sss_ceilreflections", true);
 		SetInt("sss_ceilstrength", 14);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 3);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.040);
@@ -507,7 +501,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", false);
 		SetInt("sss_floorstrength", 0);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", false);
 		SetShadows(false, false, false, 4);
 		SetBool("sss_colorbleed", false);
 		SetFloat("sss_bleeding", 0.0);
@@ -549,7 +542,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 32);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 3);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.105);
@@ -590,7 +582,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 22);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 4);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.038);
@@ -632,7 +623,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 20);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 4);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.058);
@@ -680,7 +670,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", false);
 		SetInt("sss_floorstrength", 0);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", false);
 		SetShadows(true, true, false, 4);
 		SetBool("sss_colorbleed", false);
 		SetFloat("sss_bleeding", 0.0);
@@ -728,7 +717,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 24);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(false, false, false, 4);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.075);
@@ -770,7 +758,6 @@ class SSSVisualPresets
 		SetInt("sss_floorstrength", 38);
 		SetBool("sss_ceilreflections", true);
 		SetInt("sss_ceilstrength", 14);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 3);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.040);
@@ -813,7 +800,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 12);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", false);
 		SetShadows(false, false, false, 4);
 		SetBool("sss_colorbleed", false);
 		SetFloat("sss_bleeding", 0.0);
@@ -858,7 +844,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 28);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 4);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.055);
@@ -899,7 +884,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 20);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 4);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.048);
@@ -943,7 +927,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 24);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 4);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.062);
@@ -985,7 +968,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 30);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 4);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.068);
@@ -1030,7 +1012,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 18);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 4);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.044);
@@ -1075,7 +1056,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 24);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 4);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.052);
@@ -1117,7 +1097,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 28);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 4);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.065);
@@ -1159,7 +1138,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 18);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(false, false, false, 4);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.046);
@@ -1205,7 +1183,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 18);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 4);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.045);
@@ -1250,14 +1227,12 @@ class SSSVisualPresets
 		SetInt("sss_floorstrength", 36);
 		SetBool("sss_ceilreflections", true);
 		SetInt("sss_ceilstrength", 14);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, true, 2);
 		SetBool("sss_colorbleed", true);
-		SetFloat("sss_bleeding", 0.110);
 
 		SetBalancedDarkDoom();
 		SetInt("ddz_postgain", 10);
-		SetFilmic(true, "TonemapSalvation");
+		SetFilmic(false, "TonemapDefault");
 		SetACESConfig(true, 1, 0.02, 1.06, 1.0);
 		SetFloat("at_sky_soften", 0.93);
 		SetMariFXNeon();
@@ -1297,7 +1272,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 30);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 3);
 		SetBool("sss_colorbleed", true);
 		SetFloat("sss_bleeding", 0.085);
@@ -1337,10 +1311,8 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 30);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 3);
 		SetBool("sss_colorbleed", true);
-		SetFloat("sss_bleeding", 0.115);
 
 		SetBalancedDarkDoom();
 		SetFilmic(true, "TonemapSalvation");
@@ -1383,7 +1355,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", false);
 		SetInt("sss_floorstrength", 0);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", false);
 		SetShadows(false, false, false, 4);
 		SetBool("sss_colorbleed", false);
 		SetFloat("sss_bleeding", 0.0);
@@ -1433,7 +1404,6 @@ class SSSVisualPresets
 		SetBool("sss_floorreflections", true);
 		SetInt("sss_floorstrength", 18);
 		SetBool("sss_ceilreflections", false);
-		SetBool("sss_material_reflect", true);
 		SetShadows(true, true, false, 4);
 		SetBool("sss_colorbleed", false);
 		SetFloat("sss_bleeding", 0.0);
@@ -1490,10 +1460,16 @@ class SSSVisualPresets
 	clearscope static void SetBodyCamLook(bool on, int mode = 0, double chroma = 0.005, double noise = 0.035,
 		double contrast = 1.00, double saturation = 0.90, double rolling = 0.20, bool overlay = false)
 	{
-		SetBool("sss_bodycam_active", on);
+		// BodyCam overlay + suppressor both require the post stack master switch.
+		if (on)
+			SetBool("sss_post_stack", true);
+
+		// nosave source of truth for IsActiveNow / FishEye ownership — write FindCVar first.
 		let active = CVar.FindCVar("sss_bodycam_active");
 		if (active)
 			active.SetBool(on);
+		SetBool("sss_bodycam_active", on);
+
 		let modeLive = CVar.FindCVar("sss_bodycam_mode_live");
 		if (modeLive)
 			modeLive.SetInt(on ? mode : 0);
@@ -1673,7 +1649,8 @@ class SSSVisualPresets
 	clearscope static void SetMariFXUltra()
 	{
 		SetMariFXCinematic();
-		SetFloat("mfx_gradecolfact", 0.10);
+		SetFloat("mfx_gradecolfact", 0.06);
+		SetFloat("mfx_gradesatmul", 0.98);
 		SetFloat("mfx_vigmul", 0.38);
 		SetBool("mfx_ne", false);
 	}
@@ -1802,7 +1779,11 @@ class SSSVisualPresets
 
 	clearscope static void SetSpecialtyOff()
 	{
+		SetPostBaseline();
+		SetFilmic(false, "TonemapDefault");
+		SetACES(false);
 		SetBool("gl_screem", false);
+		SetInt("gl_screem_wide", 0);
 		SetSoftShade(false, 0.05);
 		SetBool("dpwh_chromaticAberration2", false);
 		SetBool("dpwh_naturalVignette2", false);
@@ -1832,6 +1813,18 @@ class SSSVisualPresets
 		SetFloat("mfx_cmat_br", 0.0);
 		SetFloat("mfx_cmat_bg", 0.0);
 		SetFloat("mfx_cmat_bb", 1.0);
+	}
+
+	clearscope static void SetPostBaseline()
+	{
+		SetBool("sss_mfx_lite_single", true);
+		SetBloomBoost(false, 1.0, 100.0, 0.0);
+		SetPostFXEx(false, 0.0, false, 0.0);
+		SetFilmGrain(false);
+		SetNaturalVignette(false, 0.28, 0.55);
+		SetBool("sss_ceilreflections", false);
+		SetInt("sss_ceilstrength", 0);
+		SetFloat("at_sky_soften", 0.75);
 	}
 
 	clearscope static void SetMariFXTactical()
@@ -2123,56 +2116,123 @@ class SSSVisualPresets
 		SetBool("mfx_ne", false);
 	}
 
-	// All setters skip identical values: user/server CVar writes are routed
-	// through the bounded per-tic net command stream even when unchanged, and
-	// mass redundant writes can overflow it ("write past end of stream").
-	private clearscope static void SetFloat(String name, double value)
+	// Dual-write play + UI so shaders (play) and menus (UI) stay aligned.
+	// Skip identical values to avoid overflowing the per-tic net CVar stream.
+	// nosave stacks (mfx_*) are single-write via FindCVar — MariFX reads globals.
+	clearscope static void WriteFloat(CVar c, double value)
 	{
-		let c = GetCVarForApply(name);
 		if (c && abs(c.GetFloat() - value) > 0.0001)
 			c.SetFloat(value);
 	}
 
-	private clearscope static void SetMirrorFloat(String name, double value)
+	clearscope static void WriteInt(CVar c, int value)
 	{
-		let c = CVar.FindCVar(name);
-		if (c && abs(c.GetFloat() - value) > 0.0001)
-			c.SetFloat(value);
-	}
-
-	private clearscope static void SetMirrorBool(String name, bool value)
-	{
-		let c = CVar.FindCVar(name);
-		if (c && c.GetBool() != value)
-			c.SetBool(value);
-	}
-
-	private clearscope static void SetMirrorString(String name, String value)
-	{
-		let c = CVar.FindCVar(name);
-		if (c && c.GetString() != value)
-			c.SetString(value);
-	}
-
-	private clearscope static void SetInt(String name, int value)
-	{
-		let c = GetCVarForApply(name);
 		if (c && c.GetInt() != value)
 			c.SetInt(value);
 	}
 
-	private clearscope static void SetBool(String name, bool value)
+	clearscope static void WriteBool(CVar c, bool value)
 	{
-		let c = GetCVarForApply(name);
 		if (c && c.GetBool() != value)
 			c.SetBool(value);
 	}
 
-	private clearscope static void SetString(String name, String value)
+	clearscope static void WriteString(CVar c, String value)
 	{
-		let c = GetCVarForApply(name);
 		if (c && c.GetString() != value)
 			c.SetString(value);
+	}
+
+	// Shared nosave / non-player CVars — dual-write only wastes stream budget.
+	clearscope static bool IsGlobalStackCVar(String name)
+	{
+		return name.Length() >= 4 && name.Left(4) == "mfx_";
+	}
+
+	// Typed dual-write from custom blob strings (skip-if-unchanged).
+	clearscope static void ApplyCVarString(String name, String value)
+	{
+		if (IsGlobalStackCVar(name))
+		{
+			WriteString(CVar.FindCVar(name), value);
+			return;
+		}
+		let playCvar = GetCVarForApply(name);
+		WriteString(playCvar, value);
+		let uiCvar = CVar.FindCVar(name);
+		if (uiCvar && uiCvar != playCvar)
+			WriteString(uiCvar, value);
+	}
+
+	private clearscope static void SetFloat(String name, double value)
+	{
+		if (IsGlobalStackCVar(name))
+		{
+			WriteFloat(CVar.FindCVar(name), value);
+			return;
+		}
+		let playCvar = GetCVarForApply(name);
+		WriteFloat(playCvar, value);
+		let uiCvar = CVar.FindCVar(name);
+		if (uiCvar && uiCvar != playCvar)
+			WriteFloat(uiCvar, value);
+	}
+
+	private clearscope static void SetMirrorFloat(String name, double value)
+	{
+		WriteFloat(CVar.FindCVar(name), value);
+	}
+
+	private clearscope static void SetMirrorBool(String name, bool value)
+	{
+		WriteBool(CVar.FindCVar(name), value);
+	}
+
+	private clearscope static void SetMirrorString(String name, String value)
+	{
+		WriteString(CVar.FindCVar(name), value);
+	}
+
+	private clearscope static void SetInt(String name, int value)
+	{
+		if (IsGlobalStackCVar(name))
+		{
+			WriteInt(CVar.FindCVar(name), value);
+			return;
+		}
+		let playCvar = GetCVarForApply(name);
+		WriteInt(playCvar, value);
+		let uiCvar = CVar.FindCVar(name);
+		if (uiCvar && uiCvar != playCvar)
+			WriteInt(uiCvar, value);
+	}
+
+	private clearscope static void SetBool(String name, bool value)
+	{
+		if (IsGlobalStackCVar(name))
+		{
+			WriteBool(CVar.FindCVar(name), value);
+			return;
+		}
+		let playCvar = GetCVarForApply(name);
+		WriteBool(playCvar, value);
+		let uiCvar = CVar.FindCVar(name);
+		if (uiCvar && uiCvar != playCvar)
+			WriteBool(uiCvar, value);
+	}
+
+	private clearscope static void SetString(String name, String value)
+	{
+		if (IsGlobalStackCVar(name))
+			WriteString(CVar.FindCVar(name), value);
+		else
+		{
+			let playCvar = GetCVarForApply(name);
+			WriteString(playCvar, value);
+			let uiCvar = CVar.FindCVar(name);
+			if (uiCvar && uiCvar != playCvar)
+				WriteString(uiCvar, value);
+		}
 		if (name == "sss_bodycam_unit")
 			SetMirrorString("sss_bodycam_unit_live", value);
 	}
@@ -2238,7 +2298,8 @@ class SSSRTLiteHandler : StaticEventHandler
 
 		if (!CVar.GetCVar("sss_post_stack", p).GetBool())
 		{
-			SSSPostProcessSuppressor.DisableSSSPostShaders(p);
+			Shader.SetEnabled(p, "sss_contactao", false);
+			Shader.SetEnabled(p, "sss_fluidssr", false);
 			return;
 		}
 
@@ -2261,10 +2322,16 @@ class SSSRTLiteHandler : StaticEventHandler
 		bool contactCvar = CVar.GetCVar("sss_contactao", p).GetBool();
 		double contactStr = CVar.GetCVar("sss_contactao_strength", p).GetFloat();
 		double contactRad = CVar.GetCVar("sss_contactao_radius", p).GetFloat();
-		double flatSoften = CVar.GetCVar("sss_pp_flat_soften", p).GetFloat();
-		if (contactStr > 0.28)
-			flatSoften = max(flatSoften, 0.70 + (contactStr - 0.28) * 1.25);
 		bool engineSSAO = CVar.GetCVar("gl_ssao", p).GetInt() > 0;
+		double effectiveContactStr = contactStr;
+		if (aoMode == 3 && engineSSAO)
+		{
+			double hybridScale = clamp(CVar.GetCVar("sss_ao_hybrid_scale", p).GetFloat(), 0.0, 1.0);
+			effectiveContactStr *= hybridScale;
+		}
+		double flatSoften = CVar.GetCVar("sss_pp_flat_soften", p).GetFloat();
+		if (effectiveContactStr > 0.28)
+			flatSoften = max(flatSoften, 0.70 + (effectiveContactStr - 0.28) * 1.25);
 
 		bool enableContact = false;
 		if (visualPreset != 13)
@@ -2273,14 +2340,14 @@ class SSSRTLiteHandler : StaticEventHandler
 				enableContact = contactCvar && contactStr > 0.0;
 			else if (aoMode == 3)
 			{
-				// Hybrid: when engine SSAO is on, do not stack custom contact AO (GPU blowout / white screen).
-				enableContact = contactCvar && contactStr > 0.0 && !engineSSAO;
+				// Hybrid keeps near-contact detail while engine SSAO handles broad occlusion.
+				enableContact = contactCvar && effectiveContactStr > 0.0;
 			}
 		}
 
 		if (enableContact)
 		{
-			Shader.SetUniform1f(p, "sss_contactao", "sss_contactao_strength", contactStr);
+			Shader.SetUniform1f(p, "sss_contactao", "sss_contactao_strength", effectiveContactStr);
 			Shader.SetUniform1f(p, "sss_contactao", "sss_contactao_radius", contactRad);
 			Shader.SetUniform1f(p, "sss_contactao", "sss_pp_flat_soften", flatSoften);
 			Shader.SetUniform1f(p, "sss_contactao", "sss_depth_proxy", depthProxy);
@@ -2320,6 +2387,7 @@ class SSSVisualPresetHandler : EventHandler
 	transient int HintExpireMapTime;
 	transient String HintPresetName;
 	transient bool PresetApplyBusy;
+	transient int WorldApplyCooldown;
 
 	clearscope static String GetPresetShortName(int preset)
 	{
@@ -2373,13 +2441,25 @@ class SSSVisualPresetHandler : EventHandler
 		return CyclePresetIdByStep(current, -1);
 	}
 
+	// Empty Custom 1–3 slots are not cycle targets (Apply fails and snaps markers back).
+	clearscope static bool CycleSlotSelectable(int presetId)
+	{
+		if (presetId >= 30 && presetId <= 32)
+			return SSSCustomPresetUtility.SlotHasData(presetId - 29);
+		return presetId > 0;
+	}
+
 	int CyclePresetIdByStep(int current, int step)
 	{
 		if (current == 21)
 			current = 20;
 
+		int n = PresetCycleOrder.Size();
+		if (n <= 0)
+			return current;
+
 		int idx = -1;
-		for (int i = 0; i < PresetCycleOrder.Size(); i++)
+		for (int i = 0; i < n; i++)
 		{
 			if (PresetCycleOrder[i] == current)
 			{
@@ -2389,10 +2469,16 @@ class SSSVisualPresetHandler : EventHandler
 		}
 
 		if (idx < 0)
-			return step < 0 ? PresetCycleOrder[PresetCycleOrder.Size() - 1] : PresetCycleOrder[0];
+			idx = step < 0 ? 0 : n - 1;
 
-		int nextIdx = (idx + step + PresetCycleOrder.Size()) % PresetCycleOrder.Size();
-		return PresetCycleOrder[nextIdx];
+		for (int k = 1; k <= n; k++)
+		{
+			int nextIdx = (idx + step * k + n * 16) % n;
+			int id = PresetCycleOrder[nextIdx];
+			if (CycleSlotSelectable(id))
+				return id;
+		}
+		return current;
 	}
 
 	void QueueCycleToast(int preset)
@@ -2432,16 +2518,30 @@ class SSSVisualPresetHandler : EventHandler
 			? CyclePreviousPresetId(current)
 			: CycleNextPresetId(current);
 
-		let uiPreset = CVar.FindCVar("sss_visual_preset");
-		if (uiPreset)
-			uiPreset.SetInt(next);
+		int maxAttempts = PresetCycleOrder.Size();
+		for (int attempt = 0; attempt < maxAttempts; attempt++)
+		{
+			let uiPreset = CVar.FindCVar("sss_visual_preset");
+			if (uiPreset)
+				uiPreset.SetInt(next);
 
-		TryApplyPreset(next, true, true);
-		QueueCycleToast(next);
-		let closeMenu = CVar.FindCVar("sss_close_menu_after_apply");
-		if (closeMenu)
-			closeMenu.SetBool(true);
-		Level.ChangeLevel(Level.MapName, 0, CHANGELEVEL_NOINTERMISSION);
+			if (TryApplyPreset(next, true, true))
+			{
+				QueueCycleToast(next);
+				let closeMenu = CVar.FindCVar("sss_close_menu_after_apply");
+				if (closeMenu)
+					closeMenu.SetBool(true);
+				Level.ChangeLevel(Level.MapName, 0, CHANGELEVEL_NOINTERMISSION);
+				return;
+			}
+
+			// Corrupt/empty custom or other apply failure — keep stepping.
+			next = direction < 0
+				? CyclePreviousPresetId(next)
+				: CycleNextPresetId(next);
+			if (next == current)
+				return;
+		}
 	}
 
 	clearscope static void SyncPresetToPlayContexts(int preset)
@@ -2476,13 +2576,19 @@ class SSSVisualPresetHandler : EventHandler
 	{
 		HintExpireMapTime = 0;
 		HintPresetName = "";
+		let uiQueued = CVar.FindCVar("sss_preset_ui_apply_queued");
+		if (uiQueued)
+			uiQueued.SetInt(-1);
 		ShowQueuedCycleToast();
 
-		let track = CVar.FindCVar("sss_ddz_track_fp");
-		if (track && track.GetInt() != -1)
-			track.SetInt(-1);
-
 		SanitizeUnsafeStackCvars();
+
+		int preset = CVar.FindCVar("sss_visual_preset").GetInt();
+		if (preset == 21)
+		{
+			preset = 20;
+			CVar.FindCVar("sss_visual_preset").SetInt(preset);
+		}
 
 		if (!CVar.FindCVar("sss_visual_preset_auto").GetBool())
 		{
@@ -2490,7 +2596,37 @@ class SSSVisualPresetHandler : EventHandler
 			return;
 		}
 
-		int preset = CVar.FindCVar("sss_visual_preset").GetInt();
+		bool validPreset = (preset > 0 && preset <= 29) || (preset >= 30 && preset <= 32);
+		let sessionSynced = CVar.FindCVar("sss_session_preset_synced");
+		bool skipFx = gamestate != GS_LEVEL;
+
+		let stateVersion = CVar.FindCVar("sss_preset_state_version");
+		if (stateVersion && stateVersion.GetInt() < 3)
+		{
+			bool migrated = true;
+			if (validPreset)
+				migrated = TryApplyPreset(preset, true, skipFx);
+			if (!migrated)
+				return;
+			stateVersion.SetInt(3);
+			if (sessionSynced)
+				sessionSynced.SetBool(true);
+			SanitizeUnsafeStackCvars();
+			return;
+		}
+
+		// Cold start: nosave MariFX/post reset on relaunch — re-apply once even if markers match.
+		if (sessionSynced && !sessionSynced.GetBool())
+		{
+			if (validPreset)
+			{
+				TryApplyPreset(preset, true, skipFx);
+				SanitizeUnsafeStackCvars();
+			}
+			sessionSynced.SetBool(true);
+			return;
+		}
+
 		let applied = CVar.FindCVar("sss_preset_applied");
 		if (applied && preset == applied.GetInt())
 		{
@@ -2498,9 +2634,12 @@ class SSSVisualPresetHandler : EventHandler
 			return;
 		}
 
-		TryApplyPreset(preset, true, true);
-		SanitizeUnsafeStackCvars();
-		SyncPresetAppliedMarker();
+		if (TryApplyPreset(preset, true, skipFx))
+		{
+			if (sessionSynced)
+				sessionSynced.SetBool(true);
+			SanitizeUnsafeStackCvars();
+		}
 	}
 
 	override void UiTick()
@@ -2516,6 +2655,56 @@ class SSSVisualPresetHandler : EventHandler
 				menu = Menu.GetCurrentMenu();
 			}
 		}
+
+		// WorldTick does not run while paused/menus are open — apply from UI here.
+		MaybeRequestUiPresetApply();
+	}
+
+	ui void MaybeRequestUiPresetApply()
+	{
+		let autoApply = CVar.FindCVar("sss_visual_preset_auto");
+		if (!autoApply || !autoApply.GetBool())
+			return;
+
+		let uiPreset = CVar.FindCVar("sss_visual_preset");
+		let uiApplied = CVar.FindCVar("sss_preset_applied");
+		let uiQueued = CVar.FindCVar("sss_preset_ui_apply_queued");
+		let uiRetry = CVar.FindCVar("sss_preset_ui_retry");
+		if (!uiPreset || !uiApplied)
+			return;
+
+		int preset = uiPreset.GetInt();
+		if (preset == 21)
+			preset = 20;
+		if (preset == uiApplied.GetInt())
+		{
+			if (uiQueued && uiQueued.GetInt() != -1)
+				uiQueued.SetInt(-1);
+			if (uiRetry && uiRetry.GetInt() != 0)
+				uiRetry.SetInt(0);
+			return;
+		}
+		if (preset <= 0)
+			return;
+
+		// Non-sticky: if a prior send never landed, retry every 8 UiTicks.
+		if (uiQueued && preset == uiQueued.GetInt())
+		{
+			int n = uiRetry ? uiRetry.GetInt() + 1 : 8;
+			if (uiRetry)
+				uiRetry.SetInt(n);
+			if (n < 8)
+				return;
+			if (uiRetry)
+				uiRetry.SetInt(0);
+		}
+		else if (uiRetry)
+			uiRetry.SetInt(0);
+
+		if (uiQueued)
+			uiQueued.SetInt(preset);
+		// ZScript API is void — engine may drop when not in a level; retry handles that.
+		EventHandler.SendNetworkEvent("sss_apply_visual_preset", preset);
 	}
 
 	void MaybeClearPresetFastApply()
@@ -2544,24 +2733,27 @@ class SSSVisualPresetHandler : EventHandler
 
 		MaybeClearPresetFastApply();
 
-		if (!CVar.GetCVar("sss_visual_preset_auto", p).GetBool())
+		if (!CVar.FindCVar("sss_visual_preset_auto").GetBool())
 			return;
 
-		let pending = CVar.GetCVar("sss_preset_apply_pending", p);
-		if (pending && pending.GetInt() > 0)
+		// Same UI context the menu writes — avoids play/UI marker desync false skips.
+		int preset = CVar.FindCVar("sss_visual_preset").GetInt();
+		let applied = CVar.FindCVar("sss_preset_applied");
+		if (applied && preset == applied.GetInt())
 		{
-			int pendingPreset = pending.GetInt();
-			pending.SetInt(0);
-			TryApplyPreset(pendingPreset, true, false);
+			WorldApplyCooldown = 0;
 			return;
 		}
 
-		int preset = CVar.FindCVar("sss_visual_preset").GetInt();
-		let applied = CVar.GetCVar("sss_preset_applied", p);
-		if (applied && preset == applied.GetInt())
+		// Throttle full dual-write applies — every-tic retries flood the CVar stream.
+		if (WorldApplyCooldown > 0)
+		{
+			WorldApplyCooldown--;
 			return;
+		}
 
 		TryApplyPreset(preset, true, false);
+		WorldApplyCooldown = 8;
 	}
 
 	clearscope static void SanitizeUnsafeStackCvars()
@@ -2574,35 +2766,16 @@ class SSSVisualPresetHandler : EventHandler
 		if (shift && shift.GetBool())
 			shift.SetBool(false);
 
-		let fluids = SSSVisualPresets.GetCVarForApply("sss_fluid_materials");
-		if (fluids && fluids.GetBool())
-			fluids.SetBool(false);
-
-		PlayerInfo p = players[consoleplayer];
-		if (p && CVar.GetCVar("gl_ssao", p).GetInt() > 0)
-		{
-			let contact = CVar.GetCVar("sss_contactao", p);
-			if (contact && contact.GetBool())
-				contact.SetBool(false);
-		}
-
-		// Ultra/Photoreal arm GLDEF + wall shadows; skip on heavy/medium maps when safe mode is on.
-		let mapSafe = SSSVisualPresets.GetCVarForApply("sss_large_map_safe");
-		if (mapSafe && mapSafe.GetBool()
-			&& (SSSReflectionHelper.SSS_IsHeavyMap() || SSSReflectionHelper.SSS_IsMediumMap()))
-		{
-			let gldef = SSSVisualPresets.GetCVarForApply("sss_relight_gldef");
-			if (gldef && gldef.GetBool())
-				gldef.SetBool(false);
-			let wallShadows = SSSVisualPresets.GetCVarForApply("sss_wall_shadows");
-			if (wallShadows && wallShadows.GetBool())
-				wallShadows.SetBool(false);
-		}
+		// Engine SSAO and map-size safety are runtime concerns. Never overwrite the
+		// user's Contact AO, GLDEF, or wall-shadow preferences here.
 	}
 
 	void SyncPresetAppliedMarker()
 	{
 		int preset = CVar.FindCVar("sss_visual_preset").GetInt();
+		if (preset >= 30 && preset <= 32
+			&& !SSSCustomPresetUtility.SlotHasData(preset - 29))
+			return;
 		SyncPresetMarkers(preset);
 	}
 
@@ -2616,8 +2789,6 @@ class SSSVisualPresetHandler : EventHandler
 
 	override void NetworkProcess(ConsoleEvent e)
 	{
-		PlayerInfo p = players[consoleplayer];
-
 		if (e.Name == "sss_cycle_preset")
 		{
 			CyclePreset(1);
@@ -2649,11 +2820,7 @@ class SSSVisualPresetHandler : EventHandler
 		{
 			int preset = e.Args[0];
 			if (preset <= 0)
-			{
 				preset = CVar.FindCVar("sss_visual_preset").GetInt();
-				if (preset <= 0 && p)
-					preset = CVar.GetCVar("sss_preset_menu_sel", p).GetInt();
-			}
 			if (preset <= 0)
 				return;
 
@@ -2676,12 +2843,28 @@ class SSSVisualPresetHandler : EventHandler
 			ddz.ChangeLighting(true);
 	}
 
-	void TryApplyPreset(int preset, bool force, bool skipSideEffects = false)
+	void ClearUiPresetApplyQueue()
 	{
-		if (preset <= 0)
-			return;
+		let uiQueued = CVar.FindCVar("sss_preset_ui_apply_queued");
+		if (uiQueued)
+			uiQueued.SetInt(-1);
+		let uiRetry = CVar.FindCVar("sss_preset_ui_retry");
+		if (uiRetry)
+			uiRetry.SetInt(0);
+	}
+
+	bool TryApplyPreset(int preset, bool force, bool skipSideEffects = false)
+	{
+		if (preset == 0)
+		{
+			SyncPresetMarkers(0);
+			ClearUiPresetApplyQueue();
+			return true;
+		}
+		if (preset < 0)
+			return false;
 		if (PresetApplyBusy)
-			return;
+			return false;
 
 		if (preset == 21)
 			preset = 20;
@@ -2691,19 +2874,18 @@ class SSSVisualPresetHandler : EventHandler
 		CVar applied = null;
 		if (p)
 			applied = CVar.GetCVar("sss_preset_applied", p);
+		int previousPreset = applied ? applied.GetInt() : CVar.FindCVar("sss_preset_applied").GetInt();
 
 		if (!force && !autoApply)
-			return;
+			return false;
 
 		if (!force && applied && preset == applied.GetInt())
-			return;
+			return true;
 
 		PresetApplyBusy = true;
 
 		if (!skipSideEffects)
 			SSSReflectionHelper.SetPresetFastApply(true);
-
-		SyncPresetToPlayContexts(preset);
 
 		if (p)
 			SSSPostProcessSuppressor.FlushPresetTransition(p);
@@ -2711,21 +2893,35 @@ class SSSVisualPresetHandler : EventHandler
 		let applyPlay = CVar.FindCVar("sss_preset_apply_play");
 		if (applyPlay)
 			applyPlay.SetInt(consoleplayer);
-		SSSVisualPresets.Apply(preset);
+		bool applySucceeded = SSSVisualPresets.Apply(preset);
 		if (applyPlay)
 			applyPlay.SetInt(-1);
+		if (!applySucceeded)
+		{
+			// Keep UiTick 8-tick backoff — clearing the queue caused retry storms.
+			SyncPresetMarkers(previousPreset);
+			PresetApplyBusy = false;
+			return false;
+		}
+
+		// Markers before side effects so auto-apply stops even if DDZ burns stream budget.
 		SanitizeUnsafeStackCvars();
+		SyncPresetMarkers(preset);
+		ClearUiPresetApplyQueue();
+
 		if (!skipSideEffects)
 			ApplyPresetSideEffects();
 
-		SyncPresetMarkers(preset);
-
 		SSSBodyCamHandler bc = SSSBodyCamHandler.Get();
 		if (bc && p)
+		{
+			bc.EnsureBodyCamRuntime(p);
 			bc.SyncPresetBodyCam(p);
+		}
 		EventHandler.SendNetworkEvent("sss_sync_bodycam");
 
 		PresetApplyBusy = false;
+		return true;
 	}
 
 	override void RenderOverlay(RenderEvent e)
@@ -2757,30 +2953,18 @@ class SSSMapScaleGuard : EventHandler
 	override void WorldLoaded(WorldEvent e)
 	{
 		bool heavy = SSSReflectionHelper.SSS_IsHeavyMap();
+		bool medium = SSSReflectionHelper.SSS_IsMediumMap();
 		bool safe = CVar.FindCVar("sss_large_map_safe").GetBool();
 		bool processSafe = CVar.FindCVar("sss_process_safe").GetBool();
 
-		if (!heavy && !(processSafe && Level.Sectors.Size() >= 768))
-			return;
-		if (!safe && !processSafe)
-			return;
+		int tier = 0;
+		if (heavy && (safe || processSafe))
+			tier = 2;
+		else if (medium && safe)
+			tier = 1;
 
-		CVar.FindCVar("sss_bias").SetBool(false);
-		CVar.FindCVar("sss_smooth_walls").SetBool(false);
-		CVar.FindCVar("sss_relight_recursive").SetBool(false);
-		CVar.FindCVar("sss_relight_flats").SetBool(false);
-		CVar.FindCVar("sss_colorbleed").SetBool(false);
-		CVar.FindCVar("sss_bleed_rg").SetBool(false);
-		CVar.FindCVar("sss_shadows").SetBool(false);
-		CVar.FindCVar("sss_performance").SetBool(true);
-		CVar.FindCVar("sss_contactao").SetBool(false);
-		CVar.FindCVar("sss_fluidssr").SetBool(false);
-		let procMax = CVar.FindCVar("sss_relight_proc_max");
-		if (procMax)
-			procMax.SetInt(4);
-
-		let post = CVar.FindCVar("sss_post_stack");
-		if (post)
-			post.SetBool(false);
+		let mapTier = CVar.FindCVar("sss_map_scale_tier");
+		if (mapTier)
+			mapTier.SetInt(tier);
 	}
 }

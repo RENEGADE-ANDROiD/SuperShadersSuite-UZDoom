@@ -15,21 +15,32 @@ class SSSRelightEnhance
 
 	play void RunApplyAll()
 	{
+		RunApplySectorPasses();
+		RunApplyProcLights();
+	}
+
+	// Flats / recursive / dim / smart — no procedural light spawns.
+	play void RunApplySectorPasses()
+	{
 		if (!CVar.FindCVar("sss_lighting").GetBool())
 			return;
 
 		bool perf = CVar.FindCVar("sss_performance").GetBool();
+		int mapTier = SSSReflectionHelper.MapTier();
+		if (mapTier >= 2)
+			return;
+
 		bool flats = CVar.FindCVar("sss_relight_flats").GetBool();
-		bool recursive = CVar.FindCVar("sss_relight_recursive").GetBool();
+		bool recursive = CVar.FindCVar("sss_relight_recursive").GetBool() && mapTier == 0;
 		bool dimBleed = CVar.FindCVar("sss_relight_dimbleed").GetBool() && !perf;
 		bool smart = CVar.FindCVar("sss_relight_smart").GetBool();
 		bool window = CVar.FindCVar("sss_relight_window").GetBool() && !perf;
 		bool texture = CVar.FindCVar("sss_relight_texture").GetBool() && !perf;
-		bool gldef = CVar.FindCVar("sss_relight_gldef").GetBool() && !perf;
+		bool gldef = CVar.FindCVar("sss_relight_gldef").GetBool() && !perf && mapTier == 0;
 		if (gldef && ShouldSkipGldefLights())
 			gldef = false;
 
-		if (!flats && !recursive && !dimBleed && !window && !texture && !gldef)
+		if (!flats && !recursive && !dimBleed && !smart && !window && !texture && !gldef)
 			return;
 
 		FlatNames.Clear();
@@ -61,9 +72,35 @@ class SSSRelightEnhance
 
 		if (smart)
 			ApplySmartVolumeAdjust();
+	}
+
+	// Window / texture / GLDEF procedural lights (same instance keeps sector-pass caches).
+	play void RunApplyProcLights()
+	{
+		if (!CVar.FindCVar("sss_lighting").GetBool())
+			return;
+
+		bool perf = CVar.FindCVar("sss_performance").GetBool();
+		int mapTier = SSSReflectionHelper.MapTier();
+		if (mapTier >= 2)
+			return;
+
+		bool window = CVar.FindCVar("sss_relight_window").GetBool() && !perf;
+		bool texture = CVar.FindCVar("sss_relight_texture").GetBool() && !perf;
+		bool gldef = CVar.FindCVar("sss_relight_gldef").GetBool() && !perf && mapTier == 0;
+		if (gldef && ShouldSkipGldefLights())
+			gldef = false;
+
+		if (!window && !texture && !gldef)
+			return;
+
+		if ((window || texture) && IndoorLightAvg == 0.0 && SkyLightAvg == 0.0)
+			ComputeLightAverages();
+		if (gldef && GldefClasses.Size() == 0)
+			BuildGldefLightCache();
 
 		int procMax = CVar.FindCVar("sss_relight_proc_max").GetInt();
-		if (perf)
+		if (perf || mapTier >= 1)
 			procMax = min(procMax, 6);
 
 		int spawned = 0;
@@ -612,8 +649,7 @@ class SSSRelightEnhance
 		if (CVar.FindCVar("sss_performance").GetBool())
 			return true;
 
-		bool mapSafe = CVar.FindCVar("sss_large_map_safe").GetBool();
-		if (mapSafe && (SSSReflectionHelper.SSS_IsHeavyMap() || SSSReflectionHelper.SSS_IsMediumMap()))
+		if (SSSReflectionHelper.MapTier() > 0)
 			return true;
 
 		// Many GLDEFS lumps (PBR / mega-packs) make full ingest freeze UZDoom.

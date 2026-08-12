@@ -6,6 +6,12 @@ class ColorBleedHandler : StaticEventHandler
 		if (!p)
 			return;
 
+		if (!CVar.GetCVar("sss_post_stack", p).GetBool())
+		{
+			Shader.SetEnabled(p, "sss_colorbleed", false);
+			return;
+		}
+
 		if (!SSSPostProcessSuppressor.PostWarmupReady())
 		{
 			Shader.SetEnabled(p, "sss_colorbleed", false);

@@ -3,7 +3,7 @@
 
 class SSSReflectionHelper
 {
-	// Heavy: skip or minimal map-load lighting when sss_large_map_safe is on.
+	// Heavy: never run the full lighting stack in one tick; chunk even when safety is off.
 	clearscope static bool SSS_IsHeavyMap()
 	{
 		return Level.Sectors.Size() >= 768 || Level.Lines.Size() >= 3000;
@@ -13,6 +13,12 @@ class SSSReflectionHelper
 	clearscope static bool SSS_IsMediumMap()
 	{
 		return Level.Sectors.Size() >= 384 || Level.Lines.Size() >= 1500;
+	}
+
+	clearscope static int MapTier()
+	{
+		let c = CVar.FindCVar("sss_map_scale_tier");
+		return c ? c.GetInt() : 0;
 	}
 
 	clearscope static bool IsPresetFastApply()
@@ -179,27 +185,22 @@ class SSSReflectionHelper
 
 	static void ApplyPlaneReflections()
 	{
-		if (CVar.FindCVar("sss_performance").GetBool())
-			return;
+		bool suppressed = CVar.FindCVar("sss_performance").GetBool() || MapTier() >= 2;
 
-		if (CVar.FindCVar("sss_floorreflections").GetBool())
+		int floorTag = CVar.FindCVar("sss_floor_tag").GetInt();
+		if (SectorHasAnyTag(floorTag))
 		{
-			int tag = CVar.FindCVar("sss_floor_tag").GetInt();
-			if (SectorHasAnyTag(tag))
-			{
-				Sector_SetPlaneReflection(tag,
-					CVar.FindCVar("sss_floorstrength").GetInt(), 0);
-			}
+			int floorStrength = !suppressed && CVar.FindCVar("sss_floorreflections").GetBool()
+				? CVar.FindCVar("sss_floorstrength").GetInt() : 0;
+			Sector_SetPlaneReflection(floorTag, floorStrength, 0);
 		}
 
-		if (CVar.FindCVar("sss_ceilreflections").GetBool())
+		int ceilTag = CVar.FindCVar("sss_ceil_tag").GetInt();
+		if (SectorHasAnyTag(ceilTag))
 		{
-			int tag = CVar.FindCVar("sss_ceil_tag").GetInt();
-			if (SectorHasAnyTag(tag))
-			{
-				Sector_SetPlaneReflection(tag, 0,
-					CVar.FindCVar("sss_ceilstrength").GetInt());
-			}
+			int ceilStrength = !suppressed && CVar.FindCVar("sss_ceilreflections").GetBool()
+				? CVar.FindCVar("sss_ceilstrength").GetInt() : 0;
+			Sector_SetPlaneReflection(ceilTag, 0, ceilStrength);
 		}
 	}
 

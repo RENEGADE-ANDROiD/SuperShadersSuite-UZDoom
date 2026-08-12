@@ -6,6 +6,7 @@ class SSSCustomPresetUtility
 	clearscope static void CollectSlotCVars(Array<String> names)
 	{
 		names.Clear();
+		names.Push("sss_post_stack");
 		names.Push("sss_lighting");
 		names.Push("sss_bias");
 		names.Push("sss_darken");
@@ -20,11 +21,11 @@ class SSSCustomPresetUtility
 		names.Push("sss_wall_glow");
 		names.Push("sss_flat_lights");
 		names.Push("sss_flat_light_max");
+		names.Push("sss_flat_light_minsize");
 		names.Push("sss_floorreflections");
 		names.Push("sss_floorstrength");
 		names.Push("sss_ceilreflections");
 		names.Push("sss_ceilstrength");
-		names.Push("sss_material_reflect");
 		names.Push("sss_colorbleed");
 		names.Push("sss_bleeding");
 		names.Push("sss_bleed_gamma");
@@ -42,6 +43,9 @@ class SSSCustomPresetUtility
 		names.Push("sss_relight_polylabel");
 		names.Push("sss_wall_shadows");
 		names.Push("sss_relight_doors");
+		names.Push("sss_relight_door_strength");
+		names.Push("sss_relight_door_max");
+		names.Push("sss_relight_door_interval");
 		names.Push("sss_relight_proc_max");
 		names.Push("sss_contactao");
 		names.Push("sss_contactao_strength");
@@ -53,6 +57,7 @@ class SSSCustomPresetUtility
 		names.Push("sss_fluidssr_ripple");
 		names.Push("sss_wall_bake");
 		names.Push("sss_ao_mode");
+		names.Push("sss_ao_hybrid_scale");
 		names.Push("sss_ao_engine_want");
 		names.Push("sss_ao_engine_str_want");
 		names.Push("sss_depth_proxy");
@@ -70,10 +75,16 @@ class SSSCustomPresetUtility
 		names.Push("sss_shadow_monsters");
 		names.Push("sss_shadow_interval");
 		names.Push("sss_darkdoom_relite_sync");
+		names.Push("sss_darkdoom_flashlight");
 		names.Push("ddz_mode");
 		names.Push("ddz_preset");
 		names.Push("ddz_postgain");
 		names.Push("ddz_minlight");
+		names.Push("gl_worldgamma_enabled");
+		names.Push("gl_worldgamma");
+		names.Push("gl_worldgamma_contrast");
+		names.Push("gl_worldgamma_brightness");
+		names.Push("gl_worldgamma_boostbloom");
 		names.Push("sss_natural_vig_strength");
 		names.Push("sss_natural_vig_falloff");
 		names.Push("at_enabled");
@@ -93,11 +104,15 @@ class SSSCustomPresetUtility
 		names.Push("gl_bloomboost_contrast");
 		names.Push("gl_bloomboost_brightness");
 		names.Push("tc_pp_lensflares");
+		names.Push("tc_pp_lensflares_threshold");
 		names.Push("tc_pp_lensflares_amount");
 		names.Push("tc_pp_lensflares_samples");
+		names.Push("tc_pp_lensflares_distance");
 		names.Push("tc_pp_vignette");
 		names.Push("tc_pp_vignette_intensity");
+		names.Push("tc_pp_vignette_falloff");
 		names.Push("tc_pp_noise");
+		names.Push("tc_pp_noise_amount");
 		names.Push("db_softshade_enabled");
 		names.Push("db_softshade_dither");
 		names.Push("db_softshade_doscale");
@@ -157,12 +172,15 @@ class SSSCustomPresetUtility
 		names.Push("fisheye_strength");
 		names.Push("SH_ShaderEnable");
 		names.Push("SH_VHSEnable");
+		names.Push("SH_CRTEnable");
 		names.Push("SH_VHSLineCount");
 		names.Push("SH_VHSNoiseIntensity");
 		names.Push("SH_VHSNoiseQuality");
 		names.Push("SH_VHSOffsetIntensity");
+		names.Push("SH_VHSColorOffsetIntensity");
 		names.Push("SH_VHSRange");
-		names.Push("sss_bodycam_active");
+		names.Push("SH_VHSLineSpeed");
+		names.Push("SH_VHSLineEnable");
 		names.Push("sss_bodycam_mode");
 		names.Push("sss_bodycam_chroma");
 		names.Push("sss_bodycam_noise");
@@ -175,6 +193,61 @@ class SSSCustomPresetUtility
 		names.Push("sss_psxlight");
 		names.Push("sss_psxlight_mode");
 		names.Push("sss_psx_banding");
+
+		names.Push("sss_floor_match_heuristic");
+		for (int i = 1; i <= 10; i++)
+		{
+			names.Push(String.Format("sss_floor%d", i));
+			names.Push(String.Format("sss_ceil%d", i));
+		}
+
+		CollectMariFXCVars(names);
+	}
+
+	clearscope static void PushUnique(Array<String> names, String name)
+	{
+		if (names.Find(name) == names.Size())
+			names.Push(name);
+	}
+
+	clearscope static void CollectMariFXCVars(Array<String> names)
+	{
+		int lump = Wads.CheckNumForFullName("CVARINFO.txt");
+		if (lump < 0)
+			return;
+
+		String data = Wads.ReadLump(lump);
+		data.Substitute("\r", "");
+		Array<String> lines;
+		data.Split(lines, "\n");
+		bool inPresetVars = false;
+		for (int i = 0; i < lines.Size(); i++)
+		{
+			if (lines[i].IndexOf("BEGIN PRESET VARS") >= 0)
+			{
+				inPresetVars = true;
+				continue;
+			}
+			if (lines[i].IndexOf("END PRESET VARS") >= 0)
+				break;
+			if (!inPresetVars)
+				continue;
+
+			Array<String> tokens;
+			lines[i].Split(tokens, " ", 0);
+			for (int j = 0; j < tokens.Size(); j++)
+			{
+				String token = tokens[j];
+				if (token.Left(4) != "mfx_")
+					continue;
+				int eq = token.IndexOf("=");
+				if (eq >= 0)
+					token = token.Left(eq);
+				if (token.Left(10) != "mfx_preset")
+					PushUnique(names, token);
+				break;
+			}
+		}
 	}
 
 	// Delimited blob codec (avoids deprecated Dictionary on BiasedDoom 4.15+).
@@ -243,12 +316,24 @@ class SSSCustomPresetUtility
 		return next == 10 || next == 13;
 	}
 
+	clearscope static bool BlobHasKnownSetting(String blob)
+	{
+		Array<String> names;
+		CollectSlotCVars(names);
+		for (int i = 0; i < names.Size(); i++)
+		{
+			if (blob.IndexOf("\n" .. names[i] .. "=") >= 0)
+				return true;
+		}
+		return false;
+	}
+
 	clearscope static String BuildBlob(Array<String> names)
 	{
 		String blob = "SSSCP1\n";
 		for (int i = 0; i < names.Size(); i++)
 		{
-			CVar v = CVar.FindCVar(names[i]);
+			CVar v = SSSVisualPresets.GetCVarForApply(names[i]);
 			if (!v)
 				continue;
 			blob = blob .. names[i] .. "=" .. EscapeValue(v.GetString()) .. "\n";
@@ -301,10 +386,11 @@ class SSSCustomPresetUtility
 
 			String key = line.Left(eq);
 			String val = UnescapeValue(line.Mid(eq + 1));
-			CVar v = CVar.FindCVar(key);
-			if (!v)
+			CVar playCvar = SSSVisualPresets.GetCVarForApply(key);
+			CVar uiCvar = CVar.FindCVar(key);
+			if (!playCvar && !uiCvar)
 				continue;
-			v.SetString(val);
+			SSSVisualPresets.ApplyCVarString(key, val);
 			applied++;
 		}
 		return applied > 0;
@@ -332,7 +418,7 @@ class SSSCustomPresetUtility
 		Console.Printf(StringTable.Localize("$SSS_CUSTOM_SAVED"), slot);
 	}
 
-	clearscope static bool LoadSlot(int slot)
+	clearscope static bool LoadSlot(int slot, bool cleanBaseline = false)
 	{
 		if (slot < 1 || slot > 3)
 			return false;
@@ -348,11 +434,14 @@ class SSSCustomPresetUtility
 			return false;
 		}
 
-		if (blob.Length() > 12000 || !LooksLikeBlob(blob))
+		if (blob.Length() > 12000 || !LooksLikeBlob(blob) || !BlobHasKnownSetting(blob))
 		{
 			Console.Printf(StringTable.Localize("$SSS_CUSTOM_CORRUPT"), slot);
 			return false;
 		}
+
+		if (cleanBaseline)
+			SSSVisualPresets.SetSpecialtyOff();
 
 		if (!ApplyBlob(blob))
 		{

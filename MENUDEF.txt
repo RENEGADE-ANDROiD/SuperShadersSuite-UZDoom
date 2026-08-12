@@ -250,10 +250,12 @@ OptionMenu "ShaderOptions"
 	Option "Auto-Apply Preset", "sss_visual_preset_auto", OnOff
 	StaticText "$SSS_PRESET_AUTO_HINT", "Gray"
 	StaticText "$SSS_PRESET_CYCLE_HINT", "Gray"
+	Submenu "$SSS_MENU_VISUAL_PRESETS", "SSSVisualPresetOptions"
 	SafeCommand "Apply Preset Now", "netevent sss_apply_preset_return"
 	StaticText ""
 	Option "$SSS_ALL_SHADER_FX", "sss_post_stack", OnOff
 	StaticText "$SSS_ALL_SHADER_FX_HINT", "Gray"
+	Submenu "$SSS_MENU_PERF", "SSSPerformanceOptions"
 	StaticText ""
 	StaticText "$SSS_CUSTOM_SEC", "Gold"
 	StaticText "$SSS_CUSTOM_HINT", "Gray"
@@ -396,6 +398,20 @@ OptionValue "SSSVisualPresetsIWAD"
 	32, "Custom 3"
 	18, "Heretic Haven"
 	19, "Hexen Crypt"
+}
+
+OptionMenu "SSSPerformanceOptions"
+{
+	Position -15
+	Title "$SSS_PERF_TITLE"
+	StaticText "$SSS_PERF_HINT1", "Gray"
+	StaticText "$SSS_PERF_HINT2", "Gray"
+	StaticText "$SSS_PERF_HINT3", "Cyan"
+	StaticText ""
+	Option "$SSS_PERF_LARGE_MAP", "sss_large_map_safe", OnOff
+	StaticText "$SSS_PERF_LARGE_MAP_HINT", "DarkGray"
+	Option "$SSS_PERF_PROCESS", "sss_process_safe", OnOff
+	StaticText "$SSS_PERF_PROCESS_HINT", "DarkGray"
 }
 
 OptionMenu "SSSVisualPresetOptions"
@@ -682,12 +698,6 @@ OptionMenu "SSSAtmosphereOptions"
 	Option "RG Bleed Mode", "sss_bleed_rg", OnOff
 	StaticText "Shader haze between bright and dark areas.", "Gray"
 	StaticText "Distinct from sector color bleed below.", "Gray"
-	StaticText ""
-	StaticText "$SSS_ATMO_SEC_MAT", "Teal"
-	Option "Environment Reflections", "sss_material_reflect", OnOff
-	StaticText "Generic env shine on stock Doom wall names.", "Gray"
-	StaticText "No patterned masks; works with texture replacers.", "Gray"
-	StaticText "Reload map after toggling.", "Gray"
 }
 
 OptionMenu "SSSMariFXOptions"
@@ -947,7 +957,7 @@ OptionMenu "VHSCRTOptions"
 	
 	StaticText ""
 	
-	Command "$AL_RESETSHADERSETTINGS", "SHA_ResetToDefault"
+	Command "$AL_RESETSHADERSETTINGS", "event sha_reset_to_default"
 }
 
 OptionValue "ACESMode"
@@ -1204,7 +1214,6 @@ OptionMenu "OldVideoShaderOptions"
 {
 	Title "Old Video Shader Options"
 	Position -15
-	Title "Old Video Shader Options"
 	Option "Enabled", "cl_oldvideoshader", "YesNo"
 }
 
