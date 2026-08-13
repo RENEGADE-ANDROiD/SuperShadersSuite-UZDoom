@@ -25,7 +25,7 @@ Legal terms and license texts: see LICENSE in this PK3.
     • Enhanced lighting pipeline (sector bias, smooth walls, fluid glow)
     • Door / lift light spill (runtime, lite)
     • Sprite floor / wall shadows (lite)
-    • Planar fluid reflections and generic wall env shine (materials_vanilla.gl)
+    • Planar fluid reflections
     • BodyCam Visual (digital bodycam shader + evidence overlay)
     • Menu integration, CVAR wiring, and preset orchestration (SSS* handlers)
 
@@ -193,23 +193,12 @@ Legal terms and license texts: see LICENSE in this PK3.
   Materials & environment
 --------------------------------------------------------------------------------
 
-  Generic environment shine
-    SHADERS/envgeneric.fp — Fresnel gloss without per-texture envmasks;
-    GLDEFS/materials_vanilla.gl (stock Doom / Heretic / Hexen wall names).
-
   Environment / water / bubble shaders
     SHADERS/env.fp, envBubble.fp, water.fp, invglow.fp, windblast.fp,
     displacement.fp and related GLDEFS material entries.
 
-  Optional industrial envmasks
-    GLDEFS/materials_industrial.gl — Project Brutality-style masks (disabled by
-    default; breaks on HD texture replacements).
-
   Wall colorizations
     GLDEFS/sss_colorizations.gl — hue-step wall tints (ReLite-style pipeline).
-
-  Cubemap & mask assets
-    MATERIALS/ENV/, MATERIALS/ENVMASK/
 
 
 --------------------------------------------------------------------------------

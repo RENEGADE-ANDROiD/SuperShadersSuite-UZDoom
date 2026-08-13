@@ -541,12 +541,6 @@ HardwareShader Postprocess Scene
 	Uniform float sss_atmo_deband_strength
 }
 
-// Industrial env reflections need matching wall textures in the IWAD chain.
-// PB3-Universals loads before most TC texture packs, so keep disabled for universal use.
-//#include "GLDEFS/materials_industrial.gl"
-#include "GLDEFS/materials_vanilla.gl"
-//#include "GLDEFS/materials_doom1.gl"
-//#include "GLDEFS/materials_fluids.gl"
 #include "GLDEFS/sss_colorizations.gl"
 
 

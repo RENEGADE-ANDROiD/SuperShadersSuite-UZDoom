@@ -1,6 +1,3 @@
-// Environment wall reflections use generic shine (GLDEFS/materials_vanilla.gl).
-// Stock lists cover Doom, Heretic, and Hexen IWAD wall names; regenerate via tools/generate-materials.ps1
-//
 // Living enemies and corpses are hidden from planar / mirror reflections (+INVISIBLEINMIRRORS)
 // for performance. Fluid flats (blood pools, water, nukage) still reflect the world.
 

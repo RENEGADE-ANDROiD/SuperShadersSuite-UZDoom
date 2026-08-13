@@ -88,9 +88,11 @@ user int sss_visual_preset = 14;
 user bool sss_visual_preset_auto = true;
 user int sss_preset_applied = 14;
 user int sss_preset_state_version = 0;
-user string sss_custom_preset1 = "";
-user string sss_custom_preset2 = "";
-user string sss_custom_preset3 = "";
+// Blob CVARs must be nosave, not user: userinfo name+value is capped at ~256 bytes
+// and SetString on a full stack aborts with "User info descriptor too big".
+nosave string sss_custom_preset1 = "";
+nosave string sss_custom_preset2 = "";
+nosave string sss_custom_preset3 = "";
 nosave bool sss_menu_open = false;
 nosave bool sss_preset_preview = false;
 nosave bool sss_close_menu_after_apply = false;
@@ -400,11 +402,12 @@ nosave string mfx_presetname = "Unnamed";
 // END PRESET VARS
 
 nosave int mfx_presetslot = 0;
-user string mfx_preset0 = "";
-user string mfx_preset1 = "";
-user string mfx_preset2 = "";
-user string mfx_preset3 = "";
-user string mfx_preset4 = "";
-user string mfx_preset5 = "";
-user string mfx_preset6 = "";
-user string mfx_preset7 = "";
+// Same userinfo 256-byte abort as sss_custom_preset*: Dictionary.ToString() blobs.
+nosave string mfx_preset0 = "";
+nosave string mfx_preset1 = "";
+nosave string mfx_preset2 = "";
+nosave string mfx_preset3 = "";
+nosave string mfx_preset4 = "";
+nosave string mfx_preset5 = "";
+nosave string mfx_preset6 = "";
+nosave string mfx_preset7 = "";

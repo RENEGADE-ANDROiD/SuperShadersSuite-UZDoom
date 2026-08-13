@@ -1,6 +1,6 @@
 # SuperShadersSuiteRT
 
-A universal post-processing and material enhancement addon for Doom/Doom 2/Heretic/Hexen on **GZDoom / UZDoom**. It bundles ray-trace-*lite* screen effects, ReLite-inspired world lighting, integrated **Dark Doom**, MariFX grading, ACES tonemap, atmospheric haze, **BodyCam Visual**, and **28 one-click Visual Presets** (plus **3 Custom save slots**) that configure the whole stack at once.
+A universal post-processing addon for Doom/Doom 2/Heretic/Hexen on **GZDoom / UZDoom**. It bundles ray-trace-*lite* screen effects, ReLite-inspired world lighting, integrated **Dark Doom**, MariFX grading, ACES tonemap, atmospheric haze, **BodyCam Visual**, and **28 one-click Visual Presets** (plus **3 Custom save slots**) that configure the whole stack at once.
 
 https://www.moddb.com/mods/dds-texturespbr-plus
 
@@ -116,7 +116,6 @@ Screen-space and map-load approximations — not true path tracing, but they sta
 | **Wall Bake Lite** | Softer wall shadow crush + ambient fill |
 | **RT-Relight Enhance** | Sector flat tint, recursive bleed, procedural window/texture lights, door spill, lite wall shadows |
 | **Planar reflections** | Engine mirrors on tagged fluid sectors |
-| **Wall env shine** | Generic Fresnel on stock IWAD wall names |
 
 **AO Strategy** (RT-Lite menu): Off / Engine only / Contact only / Hybrid (recommended on Balanced+) / Contact primary.
 
@@ -264,4 +263,4 @@ Writes `000_SuperShadersSuiteRT.wad` next to the repo root. Steam/bundle zip upd
 .\build-addon.ps1 -UpdateBundles
 ```
 
-See `tools/build-addon.ps1` for `$BundleRoot` if your install path differs. Material regeneration (`tools/generate-materials.ps1`) keeps the tracked `GLDEFS/materials_*.gl` files when Doom IWADs are not available.
+See `tools/build-addon.ps1` for `$BundleRoot` if your install path differs.
