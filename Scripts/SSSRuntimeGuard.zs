@@ -5,13 +5,15 @@ class SSSPostProcessSuppressor : StaticEventHandler
 {
 	override void UiTick()
 	{
+		bool nowOpen = Menu.GetCurrentMenu() != null;
 		let menuOpen = CVar.FindCVar("sss_menu_open");
-		if (menuOpen)
-			menuOpen.SetBool(Menu.GetCurrentMenu() != null);
+		if (menuOpen && menuOpen.GetBool() != nowOpen)
+			menuOpen.SetBool(nowOpen);
 
+		bool nowPreview = nowOpen && gamestate == GS_LEVEL;
 		let preview = CVar.FindCVar("sss_preset_preview");
-		if (preview)
-			preview.SetBool(Menu.GetCurrentMenu() != null && gamestate == GS_LEVEL);
+		if (preview && preview.GetBool() != nowPreview)
+			preview.SetBool(nowPreview);
 	}
 
 	override void RenderOverlay(RenderEvent e)

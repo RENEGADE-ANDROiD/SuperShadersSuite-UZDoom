@@ -3,11 +3,6 @@ AddOptionMenu "OptionsMenu"
     Submenu "$SSS_MENU_MAIN",			"ShaderOptions"
 }
 
-AddListMenu "MainMenu" before "OptionsMenu"
-{
-	TextItem "$SSS_MENU_MAIN", "t", "ShaderOptions"
-}
-
 //-------------------------------------------------------------------------------------------
 //
 // The option menu

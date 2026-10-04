@@ -2648,8 +2648,9 @@ class SSSVisualPresetHandler : EventHandler
 		if (closeMenu && closeMenu.GetBool())
 		{
 			closeMenu.SetBool(false);
+			// Never Close() the title/main ListMenu — that fights New Game and can stick keys.
 			let menu = Menu.GetCurrentMenu();
-			while (menu)
+			while (menu is "OptionMenu")
 			{
 				menu.Close();
 				menu = Menu.GetCurrentMenu();
@@ -2662,6 +2663,11 @@ class SSSVisualPresetHandler : EventHandler
 
 	ui void MaybeRequestUiPresetApply()
 	{
+		if (gamestate != GS_LEVEL)
+			return;
+		if (Level.MapName ~== "TITLEMAP")
+			return;
+
 		let autoApply = CVar.FindCVar("sss_visual_preset_auto");
 		if (!autoApply || !autoApply.GetBool())
 			return;
@@ -2686,6 +2692,15 @@ class SSSVisualPresetHandler : EventHandler
 		}
 		if (preset <= 0)
 			return;
+		if (preset >= 30 && preset <= 32
+			&& !SSSCustomPresetUtility.SlotHasData(preset - 29))
+		{
+			if (uiQueued && uiQueued.GetInt() != -1)
+				uiQueued.SetInt(-1);
+			if (uiRetry && uiRetry.GetInt() != 0)
+				uiRetry.SetInt(0);
+			return;
+		}
 
 		// Non-sticky: if a prior send never landed, retry every 8 UiTicks.
 		if (uiQueued && preset == uiQueued.GetInt())
@@ -2703,7 +2718,6 @@ class SSSVisualPresetHandler : EventHandler
 
 		if (uiQueued)
 			uiQueued.SetInt(preset);
-		// ZScript API is void — engine may drop when not in a level; retry handles that.
 		EventHandler.SendNetworkEvent("sss_apply_visual_preset", preset);
 	}
 
